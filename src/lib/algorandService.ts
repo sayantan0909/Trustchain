@@ -233,7 +233,9 @@ export const approveEscrow = async (
 
         const completed = Number(state['milestones_completed'] ?? 0);
         const total = Number(state['milestones_total'] ?? 0);
-        if (completed >= total) {
+        // Only block if the contract has initialized milestone tracking (total > 0).
+        // If total === 0 the app state may not yet reflect milestones — let TEAL enforce.
+        if (total > 0 && completed >= total) {
             throw new Error(`All milestones already approved (${completed}/${total})`);
         }
         console.log(`[TrustChain] Preconditions OK: ${completed}/${total} milestones approved. Approving next.`);
@@ -250,7 +252,9 @@ export const approveEscrow = async (
         from: sender,
         appIndex,
         appArgs: [arg],
-        accounts: [freelancerAddress],
+        // TEAL asserts txn NumAccounts > 1, so we must include BOTH the client
+        // (sender) and the freelancer as foreign accounts (NumAccounts = 2).
+        accounts: [sender, freelancerAddress],
         suggestedParams: params,
     });
 
@@ -260,15 +264,8 @@ export const approveEscrow = async (
         await simulateTransaction(txn, sender);
         console.log('[TrustChain] Simulation successful');
     } catch (e: any) {
-        const msg = e.message || '';
-        if (msg.includes('pc=165') || msg.includes('assert failed')) {
-            if (msg.includes('pc=165')) {
-                throw new Error(
-                    "Smart Contract Assertion Failed: 'NumAccounts > 1'. Ensure freelancer wallet is correctly linked."
-                );
-            }
-        }
-        throw new Error(`Transaction simulation failed: ${msg}`);
+        // Surface the real simulation error — don't mask it with special-casing.
+        throw new Error(`Transaction simulation failed: ${e.message || e}`);
     }
 
     const txId = await signAndSendTransactions(signTransactions, [txn], sender);

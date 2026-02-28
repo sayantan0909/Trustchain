@@ -5,6 +5,7 @@ import { useWallet } from "@/components/providers/WalletProvider";
 import { Plus, LayoutGrid, ListChecks, ArrowUpRight, ShieldCheck, Shield, AlertTriangle, ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, or, addDoc, writeBatch, doc, serverTimestamp } from "firebase/firestore";
 
@@ -123,88 +124,93 @@ function SectionHeader({ icon, title, count, accent }: { icon: React.ReactNode; 
     );
 }
 
-/* ─── project card ───────────────────────────────────────────────── */
+/* ─── project card ────────────────────────────────────────────────── */
 function ProjectCard({ project }: { project: any }) {
     const [hov, setHov] = useState(false);
+    const router = useRouter();
     const isActive = project.status === 'active' || project.status === 'funded';
     return (
-        <Link href={`/escrow/${project.id}`}>
-            <div
-                onMouseEnter={() => setHov(true)}
-                onMouseLeave={() => setHov(false)}
-                style={{
-                    position: 'relative', borderRadius: 20, overflow: 'hidden',
-                    background: '#0f1729',
-                    border: `1px solid ${hov ? 'rgba(99,102,241,.4)' : 'rgba(255,255,255,.06)'}`,
-                    boxShadow: hov ? '0 8px 40px rgba(99,102,241,.15), 0 0 0 1px rgba(99,102,241,.1)' : '0 4px 20px rgba(0,0,0,.4)',
-                    transform: hov ? 'translateY(-3px)' : 'translateY(0)',
-                    transition: 'all .3s cubic-bezier(.16,1,.3,1)',
-                    backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                    cursor: 'pointer',
-                }}
-            >
-                {/* hover gradient border */}
-                <div style={{ position: 'absolute', inset: 0, borderRadius: 20, background: `radial-gradient(ellipse at top left,rgba(99,102,241,.08) 0%,transparent 60%)`, opacity: hov ? 1 : 0, transition: 'opacity .3s', pointerEvents: 'none' }} />
+        // Use div+onClick instead of <Link> so the inner AlgoExplorer <a> doesn't
+        // become a descendant of another <a> (invalid HTML / hydration error).
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={() => router.push(`/escrow/${project.id}`)}
+            onKeyDown={e => e.key === 'Enter' && router.push(`/escrow/${project.id}`)}
+            onMouseEnter={() => setHov(true)}
+            onMouseLeave={() => setHov(false)}
+            style={{
+                position: 'relative', borderRadius: 20, overflow: 'hidden',
+                background: '#0f1729',
+                border: `1px solid ${hov ? 'rgba(99,102,241,.4)' : 'rgba(255,255,255,.06)'}`,
+                boxShadow: hov ? '0 8px 40px rgba(99,102,241,.15), 0 0 0 1px rgba(99,102,241,.1)' : '0 4px 20px rgba(0,0,0,.4)',
+                transform: hov ? 'translateY(-3px)' : 'translateY(0)',
+                transition: 'all .3s cubic-bezier(.16,1,.3,1)',
+                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                cursor: 'pointer',
+            }}
+        >
+            {/* hover gradient border */}
+            <div style={{ position: 'absolute', inset: 0, borderRadius: 20, background: `radial-gradient(ellipse at top left,rgba(99,102,241,.08) 0%,transparent 60%)`, opacity: hov ? 1 : 0, transition: 'opacity .3s', pointerEvents: 'none' }} />
 
-                <div style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-                        <div>
-                            <p style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.14em', marginBottom: 4 }}>Contract ID</p>
-                            <h3 style={{ fontFamily: 'monospace', fontWeight: 700, color: '#fff', fontSize: '1rem', letterSpacing: '-.02em' }}>#{project.id.slice(0, 12)}</h3>
-                        </div>
-                        <span style={{
-                            padding: '3px 10px', borderRadius: 8, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em',
-                            background: isActive ? 'rgba(34,197,94,.1)' : 'rgba(71,85,105,.2)',
-                            color: isActive ? '#22c55e' : '#64748b',
-                            border: `1px solid ${isActive ? 'rgba(34,197,94,.2)' : 'rgba(255,255,255,.05)'}`,
-                        }}>{project.status}</span>
+            <div style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                    <div>
+                        <p style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.14em', marginBottom: 4 }}>Contract ID</p>
+                        <h3 style={{ fontFamily: 'monospace', fontWeight: 700, color: '#fff', fontSize: '1rem', letterSpacing: '-.02em' }}>#{project.id.slice(0, 12)}</h3>
                     </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '.8rem', color: '#64748b' }}>Locked Liquidity</span>
-                            <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#60a5fa', fontSize: '.9rem' }}>{project.total_amount} ALGO</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '.8rem', color: '#64748b' }}>Milestones</span>
-                            <span style={{ fontWeight: 700, color: '#fff', fontSize: '.9rem' }}>{project.milestones?.length || 0}</span>
-                        </div>
-                        {/* milestone progress bar */}
-                        {(project.milestones?.length || 0) > 0 && (() => {
-                            const paid = project.milestones?.filter((m: any) => m.status === 'paid').length || 0;
-                            const pct = Math.round((paid / project.milestones.length) * 100);
-                            return (
-                                <div style={{ marginTop: 4 }}>
-                                    <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,.06)', overflow: 'hidden' }}>
-                                        <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)', borderRadius: 2, transition: 'width .5s ease' }} />
-                                    </div>
-                                    <p style={{ fontSize: 9, color: '#475569', marginTop: 4, textAlign: 'right' }}>{paid}/{project.milestones.length} paid</p>
-                                </div>
-                            );
-                        })()}
-                    </div>
+                    <span style={{
+                        padding: '3px 10px', borderRadius: 8, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em',
+                        background: isActive ? 'rgba(34,197,94,.1)' : 'rgba(71,85,105,.2)',
+                        color: isActive ? '#22c55e' : '#64748b',
+                        border: `1px solid ${isActive ? 'rgba(34,197,94,.2)' : 'rgba(255,255,255,.05)'}`,
+                    }}>{project.status}</span>
                 </div>
 
-                <div style={{ padding: '12px 1.5rem', background: hov ? 'rgba(99,102,241,.05)' : 'rgba(255,255,255,.02)', borderTop: '1px solid rgba(255,255,255,.05)', transition: 'background .3s' }}>
-                    {/* AlgoExplorer verified badge — shown when contract is deployed */}
-                    {project.app_id && (
-                        <a
-                            href={`https://testnet.algoexplorer.io/application/${project.app_id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 8, background: 'rgba(34,197,94,.07)', border: '1px solid rgba(34,197,94,.18)', color: '#4ade80', fontSize: 9, fontWeight: 700, textDecoration: 'none', marginBottom: 8, letterSpacing: '.04em' }}
-                        >
-                            <span style={{ fontSize: 9 }}>✅</span> Verified on TestNet <ExternalLink size={9} />
-                        </a>
-                    )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <p style={{ fontSize: 9, fontWeight: 700, color: hov ? '#818cf8' : '#475569', textTransform: 'uppercase', letterSpacing: '.1em', transition: 'color .3s' }}>Manage Escrow</p>
-                        <ArrowUpRight size={15} style={{ color: hov ? '#818cf8' : '#475569', transition: 'color .3s' }} />
+                        <span style={{ fontSize: '.8rem', color: '#64748b' }}>Locked Liquidity</span>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#60a5fa', fontSize: '.9rem' }}>{project.total_amount} ALGO</span>
                     </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '.8rem', color: '#64748b' }}>Milestones</span>
+                        <span style={{ fontWeight: 700, color: '#fff', fontSize: '.9rem' }}>{project.milestones?.length || 0}</span>
+                    </div>
+                    {/* milestone progress bar */}
+                    {(project.milestones?.length || 0) > 0 && (() => {
+                        const paid = project.milestones?.filter((m: any) => m.status === 'paid').length || 0;
+                        const pct = Math.round((paid / project.milestones.length) * 100);
+                        return (
+                            <div style={{ marginTop: 4 }}>
+                                <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,.06)', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)', borderRadius: 2, transition: 'width .5s ease' }} />
+                                </div>
+                                <p style={{ fontSize: 9, color: '#475569', marginTop: 4, textAlign: 'right' }}>{paid}/{project.milestones.length} paid</p>
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
-        </Link>
+
+            <div style={{ padding: '12px 1.5rem', background: hov ? 'rgba(99,102,241,.05)' : 'rgba(255,255,255,.02)', borderTop: '1px solid rgba(255,255,255,.05)', transition: 'background .3s' }}>
+                {/* AlgoExplorer verified badge — shown when contract is deployed */}
+                {project.app_id && (
+                    <a
+                        href={`https://testnet.algoexplorer.io/application/${project.app_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 8, background: 'rgba(34,197,94,.07)', border: '1px solid rgba(34,197,94,.18)', color: '#4ade80', fontSize: 9, fontWeight: 700, textDecoration: 'none', marginBottom: 8, letterSpacing: '.04em' }}
+                    >
+                        <span style={{ fontSize: 9 }}>✅</span> Verified on TestNet <ExternalLink size={9} />
+                    </a>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: hov ? '#818cf8' : '#475569', textTransform: 'uppercase', letterSpacing: '.1em', transition: 'color .3s' }}>Manage Escrow</p>
+                    <ArrowUpRight size={15} style={{ color: hov ? '#818cf8' : '#475569', transition: 'color .3s' }} />
+                </div>
+            </div>
+        </div>
     );
 }
 
