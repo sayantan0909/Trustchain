@@ -23,9 +23,9 @@ export default function Dashboard() {
     const fetchProjects = async () => {
         setLoading(true);
         const { data, error } = await supabase
-            .from('projects')
+            .from('escrows')
             .select('*, milestones(*)')
-            .or(`client_address.eq.${address},freelancer_address.eq.${address}`);
+            .or(`client_wallet.eq.${address},freelancer_wallet.eq.${address}`);
 
         if (data) setProjects(data);
         setLoading(false);
@@ -97,13 +97,14 @@ export default function Dashboard() {
                             <Link key={project.id} href={`/projects/${project.id}`}>
                                 <div className="glass-card group hover:translate-y-[-4px] transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <h3 className="text-xl font-bold group-hover:text-blue-400 transition-colors">{project.title}</h3>
+                                        <h3 className="text-xl font-bold group-hover:text-blue-400 transition-colors">
+                                            Escrow {project.id.slice(0, 8)}
+                                        </h3>
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${project.status === 'active' ? 'bg-blue-500/10 text-blue-400' : 'bg-slate-500/10 text-slate-400'
                                             }`}>
                                             {project.status}
                                         </span>
                                     </div>
-                                    <p className="text-slate-400 text-sm mb-6 line-clamp-2">{project.description}</p>
 
                                     <div className="flex justify-between items-center pt-4 border-t border-white/5">
                                         <div className="flex flex-col">

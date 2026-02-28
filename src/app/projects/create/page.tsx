@@ -22,11 +22,11 @@ export default function CreateProject() {
     });
 
     const [milestones, setMilestones] = useState([
-        { title: 'Initial Milestone', amount: 0 }
+        { title: 'Initial Milestone', description: '', amount: 0 }
     ]);
 
     const addMilestone = () => {
-        setMilestones([...milestones, { title: '', amount: 0 }]);
+        setMilestones([...milestones, { title: '', description: '', amount: 0 }]);
     };
 
     const removeMilestone = (index: number) => {
@@ -57,15 +57,12 @@ export default function CreateProject() {
             // I'll simulate the Supabase entry first.
 
             const { data: project, error: pError } = await supabase
-                .from('projects')
+                .from('escrows')
                 .insert({
-                    title: formData.title,
-                    description: formData.description,
-                    client_address: address,
-                    freelancer_address: formData.freelancer_address,
+                    client_wallet: address,
+                    freelancer_wallet: formData.freelancer_address,
                     total_amount: totalAmount,
-                    status: 'draft',
-                    creator_id: (await supabase.auth.getUser()).data.user?.id
+                    status: 'funded',
                 })
                 .select()
                 .single();
@@ -73,9 +70,10 @@ export default function CreateProject() {
             if (pError) throw pError;
 
             const milestonesToInsert = milestones.map((m, i) => ({
-                project_id: project.id,
-                index: i,
+                escrow_id: project.id,
+                milestone_index: i,
                 title: m.title,
+                description: m.description || '',
                 amount: m.amount,
                 status: 'pending'
             }));
@@ -107,28 +105,6 @@ export default function CreateProject() {
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="glass-card space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-400">Project Title</label>
-                            <input
-                                required
-                                value={formData.title}
-                                onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="e.g. Website Redesign"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition-colors"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-400">Description</label>
-                            <textarea
-                                required
-                                value={formData.description}
-                                onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="Describe the project scope..."
-                                rows={4}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition-colors"
-                            />
-                        </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-slate-400">Freelancer Wallet Address (Algorand)</label>

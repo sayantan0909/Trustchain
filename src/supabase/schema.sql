@@ -1,45 +1,57 @@
--- TrustChain Supabase Schema
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Projects table
-CREATE TABLE projects (
+-- Table: users
+CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  creator_id UUID REFERENCES auth.users(id),
+  wallet_address TEXT UNIQUE NOT NULL,
+  role TEXT CHECK (role IN ('client', 'freelancer', 'admin')),
+  banned BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Table: escrows
+CREATE TABLE IF NOT EXISTS escrows (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  client_wallet TEXT NOT NULL,
+  freelancer_wallet TEXT NOT NULL,
+  contract_address TEXT,
+  total_amount BIGINT NOT NULL,
+  status TEXT CHECK (status IN ('funded', 'released', 'refunded')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Table: milestones
+CREATE TABLE IF NOT EXISTS milestones (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  escrow_id UUID REFERENCES escrows(id) ON DELETE CASCADE,
+  milestone_index INTEGER NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
-  client_address TEXT NOT NULL,
-  freelancer_address TEXT NOT NULL,
-  total_amount BIGINT NOT NULL,
-  app_id BIGINT, -- Algorand App ID
-  status TEXT CHECK (status IN ('draft', 'funding', 'active', 'completed', 'disputed')) DEFAULT 'draft',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Milestones table
-CREATE TABLE milestones (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-  index INT NOT NULL,
-  title TEXT NOT NULL,
   amount BIGINT NOT NULL,
-  status TEXT CHECK (status IN ('pending', 'approved', 'paid')) DEFAULT 'pending',
+  status TEXT CHECK (status IN ('pending', 'approved', 'refunded')) DEFAULT 'pending',
+  submitted_at TIMESTAMP WITH TIME ZONE,
+  approved_at TIMESTAMP WITH TIME ZONE,
+  txn_id TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS
-ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+-- Table: reports
+CREATE TABLE IF NOT EXISTS reports (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  escrow_id UUID REFERENCES escrows(id),
+  reporter_wallet TEXT NOT NULL,
+  reason TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE escrows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 
--- Policies
-CREATE POLICY "Users can view their own projects" ON projects
-  FOR SELECT USING (auth.uid() = creator_id OR client_address = auth.uid()::text OR freelancer_address = auth.uid()::text);
-
-CREATE POLICY "Users can create projects" ON projects
-  FOR INSERT WITH CHECK (auth.uid() = creator_id);
-
-CREATE POLICY "Users can update their own projects" ON projects
-  FOR UPDATE USING (auth.uid() = creator_id);
-
-CREATE POLICY "Anyone can view milestones for a project they have access to" ON milestones
-  FOR SELECT USING (EXISTS (
-    SELECT 1 FROM projects WHERE projects.id = milestones.project_id
-  ));
+-- Note: RLS Policies should be defined based on the authentication strategy.
+-- Example: Policy to allow users to view their own escrow records
+-- CREATE POLICY "Users can view their own escrows" ON escrows
+-- FOR SELECT USING (auth.uid()::text = client_wallet OR auth.uid()::text = freelancer_wallet);

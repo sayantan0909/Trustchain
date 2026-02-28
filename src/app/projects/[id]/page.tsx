@@ -22,8 +22,8 @@ export default function ProjectDetail() {
 
     const fetchProject = async () => {
         setLoading(true);
-        const { data: p } = await supabase.from('projects').select('*').eq('id', id).single();
-        const { data: m } = await supabase.from('milestones').select('*').eq('project_id', id).order('index', { ascending: true });
+        const { data: p } = await supabase.from('escrows').select('*').eq('id', id).single();
+        const { data: m } = await supabase.from('milestones').select('*').eq('escrow_id', id).order('milestone_index', { ascending: true });
 
         setProject(p);
         setMilestones(m || []);
@@ -33,8 +33,8 @@ export default function ProjectDetail() {
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading project...</div>;
     if (!project) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Project not found</div>;
 
-    const isClient = address === project.client_address;
-    const isFreelancer = address === project.freelancer_address;
+    const isClient = address === project.client_wallet;
+    const isFreelancer = address === project.freelancer_wallet;
 
     return (
         <div className="min-h-screen pb-20">
@@ -50,10 +50,9 @@ export default function ProjectDetail() {
                             </span>
                             <span className="text-slate-500 text-sm font-mono">ID: {project.id.slice(0, 8)}</span>
                         </div>
-                        <h1 className="text-5xl font-bold mb-6">{project.title}</h1>
-                        <p className="text-slate-400 text-lg leading-relaxed mb-8">
-                            {project.description}
-                        </p>
+                        <h1 className="text-5xl font-bold mb-6 text-white uppercase tracking-tighter">
+                            Escrow <span className="text-blue-500 font-mono">#{project.id.slice(0, 8)}</span>
+                        </h1>
 
                         <div className="flex flex-wrap gap-4">
                             <div className="px-6 py-4 glass rounded-2xl flex-1 min-w-[200px]">
@@ -77,7 +76,7 @@ export default function ProjectDetail() {
                                     </div>
                                     <div className="overflow-hidden">
                                         <p className="text-xs font-bold text-slate-500">Client</p>
-                                        <p className="text-sm font-mono truncate">{project.client_address}</p>
+                                        <p className="text-sm font-mono truncate">{project.client_wallet}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
@@ -86,7 +85,7 @@ export default function ProjectDetail() {
                                     </div>
                                     <div className="overflow-hidden">
                                         <p className="text-xs font-bold text-slate-500">Freelancer</p>
-                                        <p className="text-sm font-mono truncate">{project.freelancer_address}</p>
+                                        <p className="text-sm font-mono truncate">{project.freelancer_wallet}</p>
                                     </div>
                                 </div>
                             </div>
