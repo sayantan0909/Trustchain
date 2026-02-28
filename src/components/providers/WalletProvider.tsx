@@ -4,9 +4,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { PeraWalletConnect } from '@perawallet/connect';
 import { supabase } from '@/lib/supabase';
 import { LoginModal } from '../LoginModal';
+import { algodClient } from '@/lib/algorand';
 
 interface WalletContextType {
     address: string | null;
+    balance: number;
     isConnected: boolean;
     isAuthenticated: boolean;
     connect: () => Promise<void>;
@@ -18,6 +20,7 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     const [address, setAddress] = useState<string | null>(null);
+    const [balance, setBalance] = useState<number>(0);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [peraWallet, setPeraWallet] = useState<PeraWalletConnect | null>(null);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -40,28 +43,45 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         wallet.reconnectSession().then((accounts) => {
             if (accounts.length > 0) {
                 setAddress(accounts[0]);
-                // We keep them connected in wallet, but isAuthenticated reflects Supabase
+                fetchBalance(accounts[0]);
             }
 
             wallet.connector?.on('disconnect', () => {
                 setAddress(null);
+                setBalance(0);
                 supabase.auth.signOut();
             });
         });
     }, []);
 
+    const fetchBalance = async (addr: string) => {
+        try {
+            const accountInfo = await algodClient.accountInformation(addr).do();
+            setBalance(Number(accountInfo.amount) / 1_000_000); // Convert microAlgos to ALGO
+        } catch (error) {
+            console.error('Failed to fetch balance:', error);
+        }
+    };
+
     const verifyRoleAndLogin = async (role: string) => {
         if (!address || !peraWallet) return;
 
         try {
-            // 1. "Sign message" by signing a dummy zero-ALGO transaction to self
-            // Generating dummy txn to prove they own the key
+            // 1. "Sign message" by signing arbitrary data via Pera Wallet
             const encoder = new TextEncoder();
-            const note = encoder.encode(`TrustChain Login: ${Date.now()}`);
+            const messageObj = {
+                message: `TrustChain Login: ${Date.now()}`,
+                address: address
+            };
+            const dataToSign = encoder.encode(JSON.stringify(messageObj));
 
-            // To properly mock this without calling algodClient for params, we just ask for a generic signing payload
-            // Actually, we can skip the strict sign failure for UX in this example, but let's implement the prompt:
-            const accounts = await peraWallet.connect(); // ensure connected
+            try {
+                // Request Pera wallet signature directly without needing a dummy transaction
+                await peraWallet.signData([{ data: dataToSign, message: 'Authenticate TrustChain Login' }], address);
+            } catch (signError) {
+                console.error("User rejected signature or signing failed", signError);
+                throw new Error("Wallet signature is required to login.");
+            }
 
             // 2. Auth with Supabase using dummy email bridging
             const dummyEmail = `${address}@trustchain.local`;
@@ -112,6 +132,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const newAccounts = await peraWallet.connect();
             setAddress(newAccounts[0]);
+            fetchBalance(newAccounts[0]);
 
             // Trigger login modal if not authenticated
             const { data } = await supabase.auth.getSession();
@@ -126,6 +147,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     const disconnect = async () => {
         peraWallet?.disconnect();
         setAddress(null);
+        setBalance(0);
         await supabase.auth.signOut();
         setIsAuthenticated(false);
     };
@@ -134,6 +156,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         <WalletContext.Provider
             value={{
                 address,
+                balance,
                 isConnected: !!address,
                 isAuthenticated,
                 connect,
