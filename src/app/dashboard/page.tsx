@@ -5,30 +5,55 @@ import { useWallet } from "@/components/providers/WalletProvider";
 import { Plus, LayoutGrid, ListChecks, ArrowUpRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, or } from "firebase/firestore";
 
 export const dynamic = 'force-dynamic';
 
 export default function Dashboard() {
-    const { address, isConnected, isAuthenticated, isBanned } = useWallet();
+    const { address, isConnected, isBanned } = useWallet();
     const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (address && isAuthenticated) {
+        if (address) {
             fetchProjects();
         }
-    }, [address, isAuthenticated]);
+    }, [address]);
 
     const fetchProjects = async () => {
+        if (!address) return;
         setLoading(true);
-        const { data, error } = await supabase
-            .from('escrows')
-            .select('*, milestones(*)')
-            .or(`client_wallet.eq.${address},freelancer_wallet.eq.${address}`);
+        try {
+            const q = query(
+                collection(db, "escrows"),
+                or(
+                    where("client_wallet", "==", address),
+                    where("freelancer_wallet", "==", address)
+                )
+            );
 
-        if (data) setProjects(data);
-        setLoading(false);
+            const querySnapshot = await getDocs(q);
+            const projectsData = await Promise.all(
+                querySnapshot.docs.map(async (docSnap) => {
+                    const data = { id: docSnap.id, ...docSnap.data() };
+                    // Fetch milestones for this escrow
+                    const mq = query(
+                        collection(db, "milestones"),
+                        where("escrow_id", "==", docSnap.id)
+                    );
+                    const mSnap = await getDocs(mq);
+                    const milestones = mSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    return { ...data, milestones };
+                })
+            );
+
+            setProjects(projectsData);
+        } catch (error) {
+            console.error("Error fetching projects from Firestore:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (isBanned) {

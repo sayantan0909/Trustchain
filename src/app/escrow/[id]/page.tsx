@@ -4,21 +4,23 @@ import { Navbar } from "@/components/Navbar";
 import { useWallet } from "@/components/providers/WalletProvider";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { Shield, CheckCircle, Clock, ArrowRight, ShieldAlert } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, serverTimestamp, orderBy } from "firebase/firestore";
+import { uploadToCloudinary } from "@/lib/cloudinary";
+import { Shield, CheckCircle, Clock, ArrowRight, ShieldAlert, Upload, Loader2 } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
 export default function EscrowDetail() {
     const { id } = useParams();
-    const { address, isAuthenticated, isBanned, isAdminSession, walletFlags } = useWallet();
+    const { address, isBanned, isAdminSession, walletFlags } = useWallet();
     const [project, setProject] = useState<any>(null);
     const [milestones, setMilestones] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [showReport, setShowReport] = useState(false);
     const [reportReason, setReportReason] = useState("");
-    const [reportEvidence, setReportEvidence] = useState("");
+    const [reportFile, setReportFile] = useState<File | null>(null);
     const [reportSubmitting, setReportSubmitting] = useState(false);
 
     useEffect(() => {
@@ -26,35 +28,55 @@ export default function EscrowDetail() {
     }, [id]);
 
     const fetchProject = async () => {
+        if (!id) return;
         setLoading(true);
-        const { data: p } = await supabase.from('escrows').select('*').eq('id', id).single();
-        const { data: m } = await supabase.from('milestones').select('*').eq('escrow_id', id).order('milestone_index', { ascending: true });
+        try {
+            const pSnap = await getDoc(doc(db, "escrows", id as string));
+            if (pSnap.exists()) {
+                setProject({ id: pSnap.id, ...pSnap.data() });
 
-        setProject(p);
-        setMilestones(m || []);
-        setLoading(false);
+                const mq = query(
+                    collection(db, "milestones"),
+                    where("escrow_id", "==", id),
+                    orderBy("milestone_index")
+                );
+                const mSnap = await getDocs(mq);
+                setMilestones(mSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+            }
+        } catch (error) {
+            console.error("Error fetching project from Firestore:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleReport = async () => {
-        if (!reportReason || !address || isBanned) return;
+        if (!reportReason || !address || isBanned || !id) return;
         setReportSubmitting(true);
-        const { error } = await supabase.from('complaints').insert({
-            escrow_id: id,
-            raised_by_wallet: address,
-            against_wallet: project.client_wallet,
-            description: reportReason,
-            evidence_url: reportEvidence,
-            status: 'open'
-        });
+        try {
+            let evidenceUrl = "";
+            if (reportFile) {
+                evidenceUrl = await uploadToCloudinary(reportFile);
+            }
 
-        setReportSubmitting(false);
-        if (error) {
-            alert("Failed to submit complaint: " + error.message);
-        } else {
+            await addDoc(collection(db, "complaints"), {
+                escrow_id: id,
+                raised_by_wallet: address,
+                against_wallet: project.client_wallet,
+                description: reportReason,
+                evidence_url: evidenceUrl,
+                status: 'open',
+                created_at: serverTimestamp()
+            });
+
             alert("Complaint raised successfully! Administrators will review it.");
             setShowReport(false);
             setReportReason("");
-            setReportEvidence("");
+            setReportFile(null);
+        } catch (error: any) {
+            alert("Failed to submit complaint: " + error.message);
+        } finally {
+            setReportSubmitting(false);
         }
     };
 
@@ -63,15 +85,12 @@ export default function EscrowDetail() {
             alert("Action failed: Your wallet has been suspended.");
             return;
         }
-        const { error } = await supabase
-            .from('milestones')
-            .update({ submitted_at: new Date().toISOString() })
-            .eq('id', milestoneId);
-
-        if (!error) {
-            // Refresh
+        try {
+            await updateDoc(doc(db, "milestones", milestoneId), {
+                submitted_at: serverTimestamp()
+            });
             fetchProject();
-        } else {
+        } catch (error: any) {
             alert("Failed to submit work: " + error.message);
         }
     };
@@ -85,7 +104,7 @@ export default function EscrowDetail() {
     // Prerequisite Checklist for Complaints
     const hasUnpaidWork = milestones.some((m: any) => m.submitted_at !== null && m.status === 'pending');
     const hasUnfairRefund = project.status === 'refunded';
-    const canReport = isAuthenticated && isFreelancer && (hasUnpaidWork || hasUnfairRefund);
+    const canReport = isFreelancer && (hasUnpaidWork || hasUnfairRefund);
 
     return (
         <div className="min-h-screen pb-20">
@@ -231,21 +250,33 @@ export default function EscrowDetail() {
                             <ShieldAlert /> File a Report
                         </h2>
                         <p className="text-slate-400 text-sm mb-6">
-                            If you encountered an issue with this escrow, please detail it below. An administrator will review your case.
+                            If you encountered an issue with this escrow, please detail it below. Evidence is required for admin review.
                         </p>
                         <textarea
                             value={reportReason}
                             onChange={(e) => setReportReason(e.target.value)}
                             placeholder="Describe how the client has acted unfairly..."
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 mb-4 min-h-[100px] focus:outline-none focus:border-blue-500 text-sm"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 mb-4 min-h-[100px] focus:outline-none focus:border-blue-500 text-sm"
                         ></textarea>
-                        <input
-                            type="text"
-                            value={reportEvidence}
-                            onChange={(e) => setReportEvidence(e.target.value)}
-                            placeholder="Links to evidence (screenshots, chat logs)"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6 focus:outline-none focus:border-blue-500 text-sm"
-                        />
+
+                        <div className="mb-6">
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Evidence Screenshot</label>
+                            <div className="relative border-2 border-dashed border-slate-800 rounded-xl p-4 hover:border-blue-500/50 transition-colors group cursor-pointer">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setReportFile(e.target.files?.[0] || null)}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                <div className="flex items-center gap-3 text-slate-400 group-hover:text-blue-400 transition-colors">
+                                    <Upload size={20} />
+                                    <span className="text-sm truncate">
+                                        {reportFile ? reportFile.name : 'Click to upload proof'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setShowReport(false)}
@@ -255,10 +286,15 @@ export default function EscrowDetail() {
                             </button>
                             <button
                                 onClick={handleReport}
-                                disabled={reportSubmitting || !reportReason.trim()}
-                                className="flex-1 py-3 px-4 rounded-xl text-white font-bold bg-orange-600 hover:bg-orange-500 disabled:opacity-50 transition-colors"
+                                disabled={reportSubmitting || !reportReason.trim() || !reportFile}
+                                className="flex-1 py-3 px-4 rounded-xl text-white font-bold bg-orange-600 hover:bg-orange-500 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                             >
-                                {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                                {reportSubmitting ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={18} />
+                                        Submitting...
+                                    </>
+                                ) : 'Submit Report'}
                             </button>
                         </div>
                     </div>

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { auth, db } from '@/lib/firebase';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, LogIn, Chrome } from 'lucide-react';
+import { ShieldCheck, LogIn, Chrome, Loader2 } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 
 export const dynamic = 'force-dynamic';
@@ -16,22 +18,26 @@ export default function AdminLogin() {
     const router = useRouter();
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                verifyAdminRedirect(session.user.id);
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                await verifyAdminRedirect(user.uid);
             }
-        };
-        checkSession();
+        });
+        return () => unsubscribe();
     }, []);
 
-    const verifyAdminRedirect = async (userId: string) => {
-        const { data: adminData } = await supabase.from('admins').select('role').eq('id', userId).single();
-        if (adminData) {
-            router.push('/admin/dashboard');
-        } else {
-            await supabase.auth.signOut();
-            setError("Access Denied: You are not recognized as an administrator.");
+    const verifyAdminRedirect = async (uid: string) => {
+        try {
+            const adminDoc = await getDoc(doc(db, 'admins', uid));
+            if (adminDoc.exists()) {
+                router.push('/admin/dashboard');
+            } else {
+                await auth.signOut();
+                setError("Access Denied: You are not recognized as an administrator.");
+            }
+        } catch (err: any) {
+            console.error("Error verifying admin status:", err);
+            setError("Authentication error. Please try again.");
         }
     };
 
@@ -40,36 +46,27 @@ export default function AdminLogin() {
         setError('');
         setLoading(true);
 
-        const { data, error: authError } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-
-        if (authError) {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            await verifyAdminRedirect(userCredential.user.uid);
+        } catch (authError: any) {
             setError(authError.message);
+        } finally {
             setLoading(false);
-            return;
         }
-
-        if (data?.user) {
-            await verifyAdminRedirect(data.user.id);
-        }
-        setLoading(false);
     };
 
     const handleGoogleLogin = async () => {
         setError('');
         setLoading(true);
 
-        const { error: authError } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/admin/dashboard`
-            }
-        });
-
-        if (authError) {
+        const provider = new GoogleAuthProvider();
+        try {
+            const userCredential = await signInWithPopup(auth, provider);
+            await verifyAdminRedirect(userCredential.user.uid);
+        } catch (authError: any) {
             setError(authError.message);
+        } finally {
             setLoading(false);
         }
     };
@@ -120,7 +117,7 @@ export default function AdminLogin() {
                             disabled={loading || !email || !password}
                             className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50"
                         >
-                            {loading ? 'Authenticating...' : <><LogIn size={20} /> Login as Admin</>}
+                            {loading ? <Loader2 className="animate-spin" size={20} /> : <><LogIn size={20} /> Login as Admin</>}
                         </button>
                     </form>
 

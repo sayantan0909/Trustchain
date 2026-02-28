@@ -1,15 +1,14 @@
 import algosdk from 'algosdk';
 import { PeraWalletConnect } from '@perawallet/connect';
 import { algodClient } from './algorand';
-import { supabase } from '@/lib/supabase';
+import { db } from "@/lib/firebase";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 
 export const signAndSendTransactions = async (
     peraWallet: PeraWalletConnect,
     txns: algosdk.Transaction[],
     address: string
 ) => {
-    const suggestedParams = await algodClient.getTransactionParams().do();
-
     if (txns.length > 1) {
         algosdk.assignGroupID(txns);
     }
@@ -97,7 +96,7 @@ export const approveEscrow = async (
     peraWallet: PeraWalletConnect,
     sender: string,
     appId: number,
-    milestoneId: string, // Supabase milestone UUID
+    milestoneId: string, // Firestore milestone ID
 ) => {
     const params = await algodClient.getTransactionParams().do();
 
@@ -114,18 +113,15 @@ export const approveEscrow = async (
 
     const txId = await signAndSendTransactions(peraWallet, [txn], sender);
 
-    // Store txn_id in Supabase milestones table
-    const { error } = await supabase
-        .from('milestones')
-        .update({
+    // Store txn_id in Firestore milestones collection
+    try {
+        await updateDoc(doc(db, "milestones", milestoneId), {
             status: 'approved',
             txn_id: txId,
-            approved_at: new Date().toISOString()
-        })
-        .eq('id', milestoneId);
-
-    if (error) {
-        console.error('Failed to update milestone in Supabase:', error);
+            approved_at: serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Failed to update milestone in Firestore:', error);
     }
 
     return txId;

@@ -2,15 +2,14 @@
 
 import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX, Flag, Trash2, Clock, Activity, Fingerprint } from "lucide-react";
+import { auth, db } from "@/lib/firebase";
+import { collection, query, where, getDocs, doc, deleteDoc, addDoc, serverTimestamp, orderBy, limit, getDoc } from "firebase/firestore";
+import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX, Flag, Trash2, Clock, Activity, Fingerprint, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<any[]>([]);
     const [complaints, setComplaints] = useState<any[]>([]);
@@ -33,70 +32,96 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         setLoading(true);
-        const [usersRes, complaintsRes, escrowsRes, flagsRes, logsRes] = await Promise.all([
-            supabase.from('users').select('*').order('created_at', { ascending: false }),
-            supabase.from('complaints').select('*').order('created_at', { ascending: false }),
-            supabase.from('escrows').select('*').order('created_at', { ascending: false }),
-            supabase.from('wallet_flags').select('*').order('created_at', { ascending: false }),
-            supabase.from('admin_logs').select('*').order('created_at', { ascending: false }).limit(20)
-        ]);
+        try {
+            const [usersRes, complaintsRes, escrowsRes, flagsRes, logsRes] = await Promise.all([
+                getDocs(query(collection(db, 'users'), orderBy('created_at', 'desc'))),
+                getDocs(query(collection(db, 'complaints'), orderBy('created_at', 'desc'))),
+                getDocs(query(collection(db, 'escrows'), orderBy('created_at', 'desc'))),
+                getDocs(query(collection(db, 'wallet_flags'), orderBy('created_at', 'desc'))),
+                getDocs(query(collection(db, 'admin_logs'), orderBy('timestamp', 'desc'), limit(20)))
+            ]);
 
-        if (usersRes.data) setUsers(usersRes.data);
-        if (complaintsRes.data) setComplaints(complaintsRes.data);
-        if (escrowsRes.data) setEscrows(escrowsRes.data);
-        if (flagsRes.data) setFlags(flagsRes.data);
-        if (logsRes.data) setLogs(logsRes.data);
-        setLoading(false);
+            setUsers(usersRes.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setComplaints(complaintsRes.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setEscrows(escrowsRes.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setFlags(flagsRes.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setLogs(logsRes.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        } catch (error) {
+            console.error("Error fetching data from Firestore:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleAddFlag = async () => {
         if (!newFlag.wallet_address || !newFlag.reason) return;
         setFlagging(true);
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = auth.currentUser;
+        if (!user) {
+            alert("No authenticated admin session found.");
+            setFlagging(false);
+            return;
+        }
 
-        const { error } = await supabase.from('wallet_flags').insert({
-            ...newFlag,
-            expires_at: newFlag.expires_at ? new Date(newFlag.expires_at).toISOString() : null,
-            created_by_admin: user?.id
-        });
+        try {
+            const expiresAtDate = newFlag.expires_at ? new Date(newFlag.expires_at) : null;
 
-        if (!error) {
+            // Add flag
+            await addDoc(collection(db, 'wallet_flags'), {
+                ...newFlag,
+                expires_at: expiresAtDate,
+                created_by_admin: user.uid,
+                created_at: serverTimestamp()
+            });
+
             // Log the action
-            await supabase.from('admin_logs').insert({
-                admin_id: user?.id,
+            await addDoc(collection(db, 'admin_logs'), {
+                admin_id: user.uid,
                 action: `FLAG_${newFlag.flag_type.toUpperCase()}`,
                 target_wallet: newFlag.wallet_address,
-                metadata: { reason: newFlag.reason, expires_at: newFlag.expires_at }
+                metadata: { reason: newFlag.reason, expires_at: newFlag.expires_at },
+                timestamp: serverTimestamp()
             });
 
             setNewFlag({ wallet_address: '', flag_type: 'warning', reason: '', expires_at: '' });
             fetchData();
-        } else {
+        } catch (error: any) {
+            console.error("Error adding flag:", error);
             alert("Error flagging wallet: " + error.message);
+        } finally {
+            setFlagging(false);
         }
-        setFlagging(false);
     };
 
     const removeFlag = async (id: string, wallet: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        const { error } = await supabase.from('wallet_flags').delete().eq('id', id);
-        if (!error) {
-            await supabase.from('admin_logs').insert({
-                admin_id: user?.id,
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            await deleteDoc(doc(db, 'wallet_flags', id));
+
+            await addDoc(collection(db, 'admin_logs'), {
+                admin_id: user.uid,
                 action: 'REMOVE_FLAG',
                 target_wallet: wallet,
-                metadata: { flag_id: id }
+                metadata: { flag_id: id },
+                timestamp: serverTimestamp()
             });
             fetchData();
+        } catch (error: any) {
+            console.error("Error removing flag:", error);
+            alert("Error removing flag: " + error.message);
         }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen">
-                <Navbar />
-                <div className="pt-32 px-6 max-w-7xl mx-auto text-center text-slate-400">Loading admin data...</div>
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading admin data...</p>
+                </div>
             </div>
         );
     }
@@ -227,7 +252,7 @@ export default function AdminDashboard() {
                                             <p className="text-[10px] text-slate-500 italic mt-1">{f.reason}</p>
                                             {f.expires_at && (
                                                 <p className="text-[9px] text-slate-600 mt-1 flex items-center gap-1 uppercase font-bold">
-                                                    <Clock size={10} /> Expires: {new Date(f.expires_at).toLocaleDateString()}
+                                                    <Clock size={10} /> Expires: {new Date(f.expires_at.seconds * 1000).toLocaleDateString()}
                                                 </p>
                                             )}
                                         </div>
@@ -266,13 +291,13 @@ export default function AdminDashboard() {
                                             <div key={log.id} className="p-4 hover:bg-white/5 transition-colors">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${log.action.includes('FLAG') ? 'border-red-500/30 text-red-500 bg-red-500/5' :
-                                                            log.action.includes('RESOLVE') ? 'border-green-500/30 text-green-500 bg-green-500/5' :
-                                                                'border-blue-500/30 text-blue-500 bg-blue-500/5'
+                                                        log.action.includes('RESOLVE') ? 'border-green-500/30 text-green-500 bg-green-500/5' :
+                                                            'border-blue-500/30 text-blue-500 bg-blue-500/5'
                                                         }`}>
                                                         {log.action.replace('_', ' ')}
                                                     </span>
                                                     <span className="text-[10px] text-slate-500 font-mono">
-                                                        {new Date(log.created_at).toLocaleTimeString()}
+                                                        {log.timestamp && new Date(log.timestamp.seconds * 1000).toLocaleTimeString()}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-2 mb-1">
@@ -352,7 +377,7 @@ export default function AdminDashboard() {
                                     </div>
                                     <p className="text-sm text-slate-300 line-clamp-2">{c.description}</p>
                                     <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
-                                        <span className="text-[10px] text-slate-500">{new Date(c.created_at).toLocaleString()}</span>
+                                        <span className="text-[10px] text-slate-500">{c.created_at && new Date(c.created_at.seconds * 1000).toLocaleString()}</span>
                                         {c.escrow_id && (
                                             <Link href={`/escrow/${c.escrow_id}`} className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-mono">
                                                 Escrow #{c.escrow_id.slice(0, 8)}

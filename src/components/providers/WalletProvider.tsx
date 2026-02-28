@@ -2,15 +2,15 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { PeraWalletConnect } from '@perawallet/connect';
-import { supabase } from '@/lib/supabase';
-import { LoginModal } from '../LoginModal';
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { algodClient } from '@/lib/algorand';
 
 interface WalletContextType {
     address: string | null;
     balance: number | null;
     isConnected: boolean;
-    isAuthenticated: boolean;
     isBanned: boolean;
     isAdminSession: boolean;
     walletFlags: any[];
@@ -24,12 +24,10 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     const [address, setAddress] = useState<string | null>(null);
     const [balance, setBalance] = useState<number | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isBanned, setIsBanned] = useState(false);
     const [isAdminSession, setIsAdminSession] = useState(false);
     const [walletFlags, setWalletFlags] = useState<any[]>([]);
     const [peraWallet, setPeraWallet] = useState<PeraWalletConnect | null>(null);
-    const [showLoginModal, setShowLoginModal] = useState(false);
     const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
 
 
@@ -37,18 +35,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         const wallet = new PeraWalletConnect();
         setPeraWallet(wallet);
 
-        // Check active Supabase session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                setIsAuthenticated(true);
-                checkAdminSession(session.user.id);
-            }
-        });
-
-        supabase.auth.onAuthStateChange((_event, session) => {
-            setIsAuthenticated(!!session);
-            if (session) {
-                checkAdminSession(session.user.id);
+        // Firebase Auth listener for admins
+        const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                checkAdminSession(user.uid);
             } else {
                 setIsAdminSession(false);
             }
@@ -68,9 +58,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
                 setConnectedAccounts([]);
                 setIsBanned(false);
                 setWalletFlags([]);
-                supabase.auth.signOut();
             });
         });
+
+        return () => {
+            unsubscribeAuth();
+        };
     }, []);
 
     useEffect(() => {
@@ -98,99 +91,40 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const checkAdminSession = async (uid: string) => {
-        const { data } = await supabase.from('admins').select('id').eq('id', uid).single();
-        if (data) {
-            setIsAdminSession(true);
-            // Strictly disconnect wallet if an admin session is detected
-            if (connectedAccounts.length > 0) {
-                disconnect();
+        try {
+            const adminDoc = await getDoc(doc(db, 'admins', uid));
+            if (adminDoc.exists()) {
+                setIsAdminSession(true);
+                // Strictly disconnect wallet if an admin session is detected
+                if (connectedAccounts.length > 0) {
+                    disconnect();
+                }
+            } else {
+                setIsAdminSession(false);
             }
-        } else {
+        } catch (error) {
+            console.error("Error checking admin session:", error);
             setIsAdminSession(false);
         }
     };
 
     const checkWalletSecurity = async (addr: string) => {
-        const { data } = await supabase
-            .from('wallet_flags')
-            .select('*')
-            .eq('wallet_address', addr);
+        try {
+            const q = query(collection(db, 'wallet_flags'), where('wallet_address', '==', addr));
+            const querySnapshot = await getDocs(q);
+            const flags = querySnapshot.docs.map(doc => doc.data());
 
-        if (data) {
-            setWalletFlags(data);
+            setWalletFlags(flags);
             const now = new Date();
-            const banned = data.some(f =>
+            const banned = flags.some(f =>
                 (f.flag_type === 'permanent_ban') ||
-                (f.flag_type === 'temporary_ban' && (!f.expires_at || new Date(f.expires_at) > now))
+                (f.flag_type === 'temporary_ban' && (!f.expires_at || (f.expires_at && typeof f.expires_at.toDate === 'function' && f.expires_at.toDate() > now)))
             );
             setIsBanned(banned);
-        } else {
+        } catch (error) {
+            console.error("Error checking wallet security:", error);
             setWalletFlags([]);
             setIsBanned(false);
-        }
-    };
-
-    const verifyRoleAndLogin = async () => {
-        if (!address || !peraWallet) return;
-
-        try {
-            // 1. "Sign message" by signing arbitrary data via Pera Wallet
-            const encoder = new TextEncoder();
-            const messageObj = {
-                message: `TrustChain Login: ${Date.now()}`,
-                address: address
-            };
-            const dataToSign = encoder.encode(JSON.stringify(messageObj));
-
-            try {
-                // Request Pera wallet signature directly without needing a dummy transaction
-                await peraWallet.signData([{ data: dataToSign, message: 'Authenticate TrustChain Login' }], address);
-            } catch (signError) {
-                console.error("User rejected signature or signing failed", signError);
-                throw new Error("Wallet signature is required to login.");
-            }
-
-            // 2. Auth with Supabase using dummy email bridging
-            const dummyEmail = `${address}@trustchain.local`;
-            const dummyPassword = `${address}-SecureWalletLogin!123`; // deterministic secure password proxy
-
-            let user = null;
-
-            const { data: signInData, error: authError } = await supabase.auth.signInWithPassword({
-                email: dummyEmail,
-                password: dummyPassword,
-            });
-
-            if (authError && authError.message.includes('Invalid login')) {
-                // User does not exist, sign them up
-                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                    email: dummyEmail,
-                    password: dummyPassword,
-                });
-                if (signUpError) throw signUpError;
-                user = signUpData.user;
-            } else if (authError) {
-                throw authError;
-            } else {
-                user = signInData.user;
-            }
-
-            // 3. Upsert into users table (RLS allows users to insert their own row)
-            if (user) {
-                const { error: dbError } = await supabase.from('users').upsert({
-                    id: user.id,
-                    wallet_address: address,
-                    // Role is implicit, no longer stored in users table
-                }, { onConflict: 'id' });
-
-                if (dbError) throw dbError;
-            }
-
-            setShowLoginModal(false);
-            setIsAuthenticated(true);
-        } catch (error) {
-            console.error('Wallet ownership verification / login failed', error);
-            throw error;
         }
     };
 
@@ -206,12 +140,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
             setAddress(newAccounts[0]);
             fetchBalance(newAccounts[0]);
             checkWalletSecurity(newAccounts[0]);
-
-            // Trigger login modal if not authenticated
-            const { data } = await supabase.auth.getSession();
-            if (!data.session) {
-                setShowLoginModal(true);
-            }
         } catch (error) {
             console.error('Failed to connect to Pera Wallet:', error);
         }
@@ -224,8 +152,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         setConnectedAccounts([]);
         setIsBanned(false);
         setWalletFlags([]);
-        await supabase.auth.signOut();
-        setIsAuthenticated(false);
+        if (isAdminSession) {
+            await signOut(auth);
+            setIsAdminSession(false);
+        }
     };
 
     return (
@@ -233,7 +163,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
             value={{
                 address: connectedAccounts.length > 0 ? connectedAccounts[0] : null,
                 isConnected: !!connectedAccounts.length,
-                isAuthenticated,
                 balance,
                 isBanned,
                 isAdminSession,
@@ -269,16 +198,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
                         <span>TrustChain Warning: Your wallet has active flags.</span>
                     </div>
                 </div>
-            )}
-            {showLoginModal && address && (
-                <LoginModal
-                    address={address}
-                    onVerify={verifyRoleAndLogin}
-                    onCancel={() => {
-                        setShowLoginModal(false);
-                        disconnect();
-                    }}
-                />
             )}
         </WalletContext.Provider>
     );

@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { auth, db } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import { ShieldAlert, Loader2 } from 'lucide-react';
 
@@ -12,34 +14,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         // Skip guard for the login page itself to avoid infinite redirects
-        if (pathname === '/admin' || pathname === '/admin/access-denied') {
+        if (pathname === '/admin' || pathname === '/admin/login' || pathname === '/admin/access-denied') {
             setStatus('authorized');
             return;
         }
 
-        const verifyAccess = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 router.push('/admin');
                 return;
             }
 
-            const { data: admin, error } = await supabase
-                .from('admins')
-                .select('role')
-                .eq('id', user.id)
-                .single();
-
-            if (error || !admin) {
+            try {
+                const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+                if (adminDoc.exists()) {
+                    setStatus('authorized');
+                } else {
+                    router.push('/admin/access-denied');
+                }
+            } catch (error) {
+                console.error("Error verifying admin status:", error);
                 router.push('/admin/access-denied');
-                return;
             }
+        });
 
-            setStatus('authorized');
-        };
-
-        verifyAccess();
+        return () => unsubscribe();
     }, [pathname, router]);
 
     if (status === 'loading') {

@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Check if the user is an authenticated admin
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Helper: Check if the request is from a wallet owner
+    function isWalletOwner(walletAddress) {
+      // Wallet users are not authenticated via Firebase Auth, 
+      // but their requests come from the frontend which connects to the wallet.
+      // Since they are not Firebase Auth users, we rely on the application logic 
+      // for most write operations, but we can secure READs if we had their UID.
+      // However, the rule here is typically: any public user can read/write escrows 
+      // as long as the wallet address matches. Without Firebase Auth for wallets, 
+      // Firestore rules alone cannot verify the wallet ownership cryptographically (that's what the smart contract does).
+      // For now, we allow the platform to function without strict wallet ownership in Firestore rules, 
+      // or we can restrict everything to Admin only.
+      return true; 
+    }
+
+    // Admin Collection: Only admins can read, nobody can write (except manually in console or specialized script)
+    match /admins/{adminId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Escrow Collection
+    match /escrows/{escrowId} {
+      allow read: if true;
+      allow create: if true; // Any authenticated user (or unauthenticated wallet user) can create
+      allow update: if true; // Updates are handled by wallet logic/smart contracts mostly
+      allow delete: if false;
+    }
+
+    // Milestones Collection
+    match /milestones/{milestoneId} {
+      allow read: if true;
+      allow write: if true;
+      allow delete: if false;
+    }
+
+    // Complaints Collection
+    match /complaints/{complaintId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isAdmin(); // Only admins can moderate
+      allow delete: if false;
+    }
+
+    // Wallet Flags Collection
+    match /wallet_flags/{flagId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if false; // Flags are immutable or deleted
+      allow delete: if isAdmin();
+    }
+
+    // Admin Logs Collection (Audit Trail)
+    match /admin_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin(); // Log created by admin action
+      allow update: if false;   // IMMUTABLE
+      allow delete: if false;   // READ-ONLY
+    }
+    
+    // Users Collection (Wallet addresses)
+    match /users/{walletAddress} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

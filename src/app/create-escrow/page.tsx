@@ -5,7 +5,8 @@ import { useWallet } from "@/components/providers/WalletProvider";
 import { useState } from "react";
 import { Plus, Trash2, ShieldCheck, Loader2, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, writeBatch, doc, serverTimestamp } from "firebase/firestore";
 import { deployContract } from "@/lib/algorandService";
 
 export const dynamic = 'force-dynamic';
@@ -46,48 +47,38 @@ export default function CreateProject() {
         setLoading(true);
         try {
             const totalAmount = milestones.reduce((sum, m) => sum + Number(m.amount), 0);
-            const amountPerMilestone = milestones[0].amount; // Simple implementation: uniform milestones or handled by UI
 
-            // Fetch compiled TEAL (In a real app, you'd fetch this from a server or pre-compile)
-            // For now, we'll assume the TEAL is available or we provide a placeholder deployment
-            console.log("Deploying contract...");
+            // 1. Create the Escrow Document
+            const escrowRef = await addDoc(collection(db, "escrows"), {
+                client_wallet: address,
+                freelancer_wallet: formData.freelancer_address,
+                total_amount: totalAmount,
+                status: 'funded',
+                created_at: serverTimestamp()
+            });
 
-            // Placeholder: In a real scenario, you'd use the compiled bytes from Step 2
-            // Since I cannot easily read the generated TEAL files into Uint8Array here without a server action,
-            // I'll simulate the Supabase entry first.
+            // 2. Create Milestones with Batch Write
+            const batch = writeBatch(db);
+            milestones.forEach((m, i) => {
+                const mRef = doc(collection(db, "milestones"));
+                batch.set(mRef, {
+                    escrow_id: escrowRef.id,
+                    milestone_index: i,
+                    title: m.title,
+                    description: m.description || '',
+                    amount: m.amount,
+                    status: 'pending',
+                    created_at: serverTimestamp()
+                });
+            });
 
-            const { data: project, error: pError } = await supabase
-                .from('escrows')
-                .insert({
-                    client_wallet: address,
-                    freelancer_wallet: formData.freelancer_address,
-                    total_amount: totalAmount,
-                    status: 'funded',
-                })
-                .select()
-                .single();
+            await batch.commit();
 
-            if (pError) throw pError;
-
-            const milestonesToInsert = milestones.map((m, i) => ({
-                escrow_id: project.id,
-                milestone_index: i,
-                title: m.title,
-                description: m.description || '',
-                amount: m.amount,
-                status: 'pending'
-            }));
-
-            const { error: mError } = await supabase
-                .from('milestones')
-                .insert(milestonesToInsert);
-
-            if (mError) throw mError;
-
-            router.push(`/escrow/${project.id}`);
-        } catch (error) {
-            console.error('Error creating project:', error);
-            alert('Failed to create project. Check console for details.');
+            router.push(`/escrow/${escrowRef.id}`);
+        } catch (error: any) {
+            console.error('Error creating project in Firestore:', error);
+            const message = error.message || error.details || JSON.stringify(error);
+            alert(`Failed to create project: ${message}`);
         } finally {
             setLoading(false);
         }

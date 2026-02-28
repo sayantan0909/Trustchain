@@ -3,8 +3,9 @@
 import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { ShieldCheck, Clock, ExternalLink, MessageSquare, Save, CheckCircle2, Search } from "lucide-react";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, serverTimestamp, orderBy } from "firebase/firestore";
+import { ShieldCheck, Clock, ExternalLink, MessageSquare, Save, CheckCircle2, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -27,58 +28,82 @@ export default function ComplaintDetail() {
     }, [id]);
 
     const fetchDetail = async () => {
+        if (!id) return;
         setLoading(true);
-        const { data: c, error: cErr } = await supabase.from('complaints').select('*').eq('id', id).single();
-        if (cErr || !c) {
-            router.push('/admin/dashboard');
-            return;
-        }
+        try {
+            const complaintDoc = await getDoc(doc(db, 'complaints', id as string));
+            if (!complaintDoc.exists()) {
+                router.push('/admin/dashboard');
+                return;
+            }
 
-        setComplaint(c);
-        setStatus(c.status);
-        setAdminNotes(c.admin_notes || "");
+            const c = { id: complaintDoc.id, ...complaintDoc.data() };
+            setComplaint(c);
+            setStatus(c.status);
+            setAdminNotes(c.admin_notes || "");
 
-        if (c.escrow_id) {
-            const { data: e } = await supabase.from('escrows').select('*').eq('id', c.escrow_id).single();
-            const { data: m } = await supabase.from('milestones').select('*').eq('escrow_id', c.escrow_id).order('milestone_index', { ascending: true });
-            setEscrow(e);
-            setMilestones(m || []);
+            if (c.escrow_id) {
+                const escrowDoc = await getDoc(doc(db, 'escrows', c.escrow_id));
+                if (escrowDoc.exists()) {
+                    setEscrow({ id: escrowDoc.id, ...escrowDoc.data() });
+                }
+
+                const mq = query(
+                    collection(db, "milestones"),
+                    where("escrow_id", "==", c.escrow_id),
+                    orderBy("milestone_index")
+                );
+                const mSnap = await getDocs(mq);
+                setMilestones(mSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+            }
+        } catch (error) {
+            console.error("Error fetching complaint detail:", error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleSave = async () => {
         setSaving(true);
-        const { error } = await supabase
-            .from('complaints')
-            .update({
-                status,
-                admin_notes: adminNotes
-            })
-            .eq('id', id);
+        const user = auth.currentUser;
+        if (!user) {
+            alert("No authenticated admin session found.");
+            setSaving(false);
+            return;
+        }
 
-        if (!error) {
+        try {
+            await updateDoc(doc(db, 'complaints', id as string), {
+                status,
+                admin_notes: adminNotes,
+                updated_at: serverTimestamp()
+            });
+
             // Log resolution
-            const { data: { user } } = await supabase.auth.getUser();
-            await supabase.from('admin_logs').insert({
-                admin_id: user?.id,
+            await addDoc(collection(db, 'admin_logs'), {
+                admin_id: user.uid,
                 action: 'COMPLAINT_RESOLVE',
                 target_wallet: complaint.against_wallet,
-                metadata: { complaint_id: id, status: status, notes: adminNotes }
+                metadata: { complaint_id: id, status: status, notes: adminNotes },
+                timestamp: serverTimestamp()
             });
 
             alert("Complaint updated successfully.");
             fetchDetail();
-        } else {
+        } catch (error: any) {
             alert("Failed to update: " + error.message);
+        } finally {
+            setSaving(false);
         }
-        setSaving(false);
     };
 
     if (loading) return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
             <Navbar />
-            <p className="text-slate-500 animate-pulse font-bold tracking-widest">LOADING CASE FILES...</p>
+            <div className="flex flex-col items-center gap-4">
+                <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                <p className="text-slate-500 font-bold tracking-widest uppercase text-xs">Loading Case Files...</p>
+            </div>
         </div>
     );
 
@@ -162,24 +187,46 @@ export default function ComplaintDetail() {
                                 "{complaint.description}"
                             </p>
 
-                            <h2 className="text-xl font-bold mb-4">Evidence Links</h2>
+                            <h2 className="text-xl font-bold mb-4">Evidence & Proof</h2>
                             <div className="space-y-3">
                                 {complaint.evidence_url ? (
-                                    <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl border border-slate-800 group hover:border-blue-500/50 transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">
-                                                <ExternalLink size={20} />
+                                    <div className="flex flex-col gap-4">
+                                        {complaint.evidence_url.match(/\.(jpeg|jpg|gif|png)$/) ? (
+                                            <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 aspect-video relative group">
+                                                <img
+                                                    src={complaint.evidence_url}
+                                                    alt="Evidence Screenshot"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                                <a
+                                                    href={complaint.evidence_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="absolute inset-0 bg-slate-950/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <div className="p-3 bg-blue-600 rounded-full text-white shadow-xl">
+                                                        <ExternalLink size={24} />
+                                                    </div>
+                                                </a>
                                             </div>
-                                            <span className="text-sm font-mono text-slate-400 max-w-[200px] truncate">{complaint.evidence_url}</span>
-                                        </div>
-                                        <a
-                                            href={complaint.evidence_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs font-bold text-blue-400 hover:underline"
-                                        >
-                                            View Source
-                                        </a>
+                                        ) : (
+                                            <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl border border-slate-800 group hover:border-blue-500/50 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">
+                                                        <ExternalLink size={20} />
+                                                    </div>
+                                                    <span className="text-sm font-mono text-slate-400 max-w-[200px] truncate">{complaint.evidence_url}</span>
+                                                </div>
+                                                <a
+                                                    href={complaint.evidence_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs font-bold text-blue-400 hover:underline"
+                                                >
+                                                    View Source
+                                                </a>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <p className="text-slate-500 italic text-sm">No evidence URLs provided by reporter.</p>
