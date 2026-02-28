@@ -13,7 +13,7 @@ export default function AdminDashboard() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<any[]>([]);
-    const [reports, setReports] = useState<any[]>([]);
+    const [complaints, setComplaints] = useState<any[]>([]);
     const [escrows, setEscrows] = useState<any[]>([]);
 
     useEffect(() => {
@@ -22,14 +22,14 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         setLoading(true);
-        const [usersRes, reportsRes, escrowsRes] = await Promise.all([
+        const [usersRes, complaintsRes, escrowsRes] = await Promise.all([
             supabase.from('users').select('*').order('created_at', { ascending: false }),
-            supabase.from('reports').select('*').order('created_at', { ascending: false }),
+            supabase.from('complaints').select('*').order('created_at', { ascending: false }),
             supabase.from('escrows').select('*').order('created_at', { ascending: false })
         ]);
 
         if (usersRes.data) setUsers(usersRes.data);
-        if (reportsRes.data) setReports(reportsRes.data);
+        if (complaintsRes.data) setComplaints(complaintsRes.data);
         if (escrowsRes.data) setEscrows(escrowsRes.data);
         setLoading(false);
     };
@@ -67,19 +67,19 @@ export default function AdminDashboard() {
                     {[
                         {
                             label: "Total Complaints",
-                            value: reports.length,
+                            value: complaints.length,
                             icon: <FileText className="text-blue-400" />,
                             color: "blue"
                         },
                         {
                             label: "Open Cases",
-                            value: reports.filter(r => r.status === 'open').length,
+                            value: complaints.filter(r => r.status === 'open' || r.status === 'under_review').length,
                             icon: <AlertCircle className="text-orange-400" />,
                             color: "orange"
                         },
                         {
                             label: "Resolved",
-                            value: reports.filter(r => r.status !== 'open').length,
+                            value: complaints.filter(r => r.status === 'resolved').length,
                             icon: <BookmarkCheck className="text-green-400" />,
                             color: "green"
                         },
@@ -196,34 +196,40 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    {/* Reports List */}
+                    {/* Complaints List */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
                             <ShieldAlert className="text-orange-400" />
-                            <h2 className="text-2xl font-bold">Platform Reports</h2>
+                            <h2 className="text-2xl font-bold">Moderation Queue</h2>
                         </div>
 
                         <div className="space-y-4">
-                            {reports.length === 0 ? (
+                            {complaints.length === 0 ? (
                                 <div className="glass-card text-center py-12 text-slate-500">
-                                    No reports filed yet.
+                                    No complaints recorded.
                                 </div>
-                            ) : reports.map(r => (
-                                <div key={r.id} className="glass-card border-l-2 border-orange-500">
+                            ) : complaints.map(c => (
+                                <div key={c.id} className={`glass-card border-l-2 ${c.status === 'resolved' ? 'border-green-500' : 'border-orange-500'}`}>
                                     <div className="flex justify-between items-start mb-3">
-                                        <span className="text-xs font-mono bg-white/5 px-2 py-1 rounded text-slate-400">
-                                            Reporter: {r.reporter_wallet.slice(0, 8)}...
-                                        </span>
-                                        {r.escrow_id && (
-                                            <Link href={`/escrow/${r.escrow_id}`} className="text-xs text-blue-400 hover:underline flex items-center gap-1">
-                                                Escrow <span className="font-mono">#{r.escrow_id.slice(0, 8)}</span>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status: {c.status.replace('_', ' ')}</span>
+                                            <span className="text-xs font-mono bg-white/5 px-2 py-1 rounded text-slate-400">
+                                                Reporter: {c.raised_by_wallet.slice(0, 8)}...
+                                            </span>
+                                        </div>
+                                        <Link href={`/admin/complaints/${c.id}`} className="text-xs text-blue-400 hover:underline flex items-center gap-1 bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20">
+                                            Manage Case
+                                        </Link>
+                                    </div>
+                                    <p className="text-sm text-slate-300 line-clamp-2">{c.description}</p>
+                                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
+                                        <span className="text-[10px] text-slate-500">{new Date(c.created_at).toLocaleString()}</span>
+                                        {c.escrow_id && (
+                                            <Link href={`/escrow/${c.escrow_id}`} className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-mono">
+                                                Escrow #{c.escrow_id.slice(0, 8)}
                                             </Link>
                                         )}
                                     </div>
-                                    <p className="text-sm text-slate-300">{r.reason}</p>
-                                    <p className="text-[10px] text-slate-500 mt-4 text-right">
-                                        {new Date(r.created_at).toLocaleString()}
-                                    </p>
                                 </div>
                             ))}
                         </div>

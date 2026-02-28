@@ -44,15 +44,16 @@ CREATE TABLE IF NOT EXISTS milestones (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Table: reports
-CREATE TABLE IF NOT EXISTS reports (
+-- Table: complaints
+CREATE TABLE IF NOT EXISTS complaints (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   escrow_id UUID REFERENCES escrows(id),
-  reporter_wallet TEXT NOT NULL,
-  client_wallet TEXT NOT NULL,
-  reason TEXT,
-  evidence TEXT,
-  status TEXT CHECK (status IN ('open', 'resolved', 'dismissed')) DEFAULT 'open',
+  raised_by_wallet TEXT NOT NULL,
+  against_wallet TEXT NOT NULL,
+  description TEXT,
+  evidence_url TEXT,
+  status TEXT CHECK (status IN ('open', 'under_review', 'resolved')) DEFAULT 'open',
+  admin_notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -61,7 +62,7 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE escrows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
 
 -- Note: RLS Policies should be defined based on the authentication strategy.
 -- We assume auth.uid() corresponds to users.id
@@ -183,18 +184,22 @@ USING (
 
 
 -- ==========================
--- Policy definitions: reports
+-- Policy definitions: complaints
 -- ==========================
--- Only freelancer can file report
-CREATE POLICY "Freelancer can insert report" ON reports FOR INSERT
+-- Only freelancer can file complaint
+CREATE POLICY "Freelancer can insert complaint" ON complaints FOR INSERT
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM escrows 
-    WHERE escrows.id = reports.escrow_id 
+    WHERE escrows.id = complaints.escrow_id 
     AND escrows.freelancer_wallet = get_user_wallet()
   )
 );
 
--- Admin can view all reports
-CREATE POLICY "Admin can view all reports" ON reports FOR SELECT
+-- Admin can view all complaints
+CREATE POLICY "Admin can view all complaints" ON complaints FOR SELECT
+USING (is_admin());
+
+-- Admin can update complaints (resolution)
+CREATE POLICY "Admin can update complaints" ON complaints FOR UPDATE
 USING (is_admin());

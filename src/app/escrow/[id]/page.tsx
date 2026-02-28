@@ -38,20 +38,20 @@ export default function EscrowDetail() {
     const handleReport = async () => {
         if (!reportReason || !address) return;
         setReportSubmitting(true);
-        const { error } = await supabase.from('reports').insert({
+        const { error } = await supabase.from('complaints').insert({
             escrow_id: id,
-            reporter_wallet: address,
-            client_wallet: project.client_wallet,
-            reason: reportReason,
-            evidence: reportEvidence,
+            raised_by_wallet: address,
+            against_wallet: project.client_wallet,
+            description: reportReason,
+            evidence_url: reportEvidence,
             status: 'open'
         });
 
         setReportSubmitting(false);
         if (error) {
-            alert("Failed to submit report: " + error.message);
+            alert("Failed to submit complaint: " + error.message);
         } else {
-            alert("Report filed successfully! Administrators will review it.");
+            alert("Complaint raised successfully! Administrators will review it.");
             setShowReport(false);
             setReportReason("");
             setReportEvidence("");
