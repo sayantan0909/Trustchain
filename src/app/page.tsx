@@ -1,3 +1,4 @@
+import { Button } from "../components/ui/moving-border";
 import { Navbar } from "@/components/Navbar";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { FAQSection } from "@/components/FAQSection";
@@ -33,12 +34,24 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Link href="/dashboard" className="btn-primary px-8">
-              Launch App <ArrowRight size={20} />
-            </Link>
-            <Link href="https://github.com" className="btn-secondary px-8">
-              <Github size={20} /> View Github
-            </Link>
+           <Link href="/dashboard" className="btn-primary px-8">
+  Launch App <ArrowRight size={20} />
+</Link>
+<Link 
+  href="https://github.com" 
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <Button
+    duration={1800}
+    containerClassName="w-40 h-14"
+    className="font-semibold text-base flex items-center gap-2"
+    borderClassName="bg-[radial-gradient(#a78bfa_40%,transparent_60%)]"
+  >
+    <Github size={20} />
+    View Github
+  </Button>
+</Link>
           </div>
 
           {/* Features Grid */}
@@ -86,7 +99,7 @@ export default function Home() {
             <span className="font-bold">TrustChain</span>
           </div>
           <p className="text-slate-500 text-sm">
-            © 2024 TrustChain Protocol. Built on Algorand TestNet.
+            © 2026 TrustChain Protocol. Built on Algorand TestNet.
           </p>
         </div>
       </footer>
