@@ -21,8 +21,11 @@ export const Navbar = () => {
                     <Link href="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                         Dashboard
                     </Link>
-                    <Link href="/projects/create" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
-                        Create Project
+                    <Link href="/create-escrow" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                        Create Escrow
+                    </Link>
+                    <Link href="/admin" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                        Admin
                     </Link>
                 </div>
 

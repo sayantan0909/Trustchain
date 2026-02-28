@@ -5,16 +5,20 @@ import { useWallet } from "@/components/providers/WalletProvider";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Shield, CheckCircle, Clock, ExternalLink, ArrowRight } from "lucide-react";
+import { Shield, CheckCircle, Clock, ArrowRight, ShieldAlert } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
-export default function ProjectDetail() {
+export default function EscrowDetail() {
     const { id } = useParams();
-    const { address, isConnected } = useWallet();
+    const { address, isAuthenticated } = useWallet();
     const [project, setProject] = useState<any>(null);
     const [milestones, setMilestones] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const [showReport, setShowReport] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportSubmitting, setReportSubmitting] = useState(false);
 
     useEffect(() => {
         if (id) fetchProject();
@@ -30,8 +34,27 @@ export default function ProjectDetail() {
         setLoading(false);
     };
 
-    if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading project...</div>;
-    if (!project) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Project not found</div>;
+    const handleReport = async () => {
+        if (!reportReason || !address) return;
+        setReportSubmitting(true);
+        const { error } = await supabase.from('reports').insert({
+            escrow_id: id,
+            reporter_wallet: address,
+            reason: reportReason
+        });
+
+        setReportSubmitting(false);
+        if (error) {
+            alert("Failed to submit report: " + error.message);
+        } else {
+            alert("Report filed successfully! Administrators will review it.");
+            setShowReport(false);
+            setReportReason("");
+        }
+    };
+
+    if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading escrow...</div>;
+    if (!project) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Escrow not found</div>;
 
     const isClient = address === project.client_wallet;
     const isFreelancer = address === project.freelancer_wallet;
@@ -44,11 +67,22 @@ export default function ProjectDetail() {
                 {/* Project Header */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     <div className="lg:col-span-2">
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-wider">
-                                {project.status}
-                            </span>
-                            <span className="text-slate-500 text-sm font-mono">ID: {project.id.slice(0, 8)}</span>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-wider">
+                                    {project.status}
+                                </span>
+                                <span className="text-slate-500 text-sm font-mono">ID: {project.id.slice(0, 8)}</span>
+                            </div>
+
+                            {isAuthenticated && (
+                                <button
+                                    onClick={() => setShowReport(true)}
+                                    className="text-xs font-bold text-orange-400 bg-orange-500/10 hover:bg-orange-500/20 transition-colors px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                                >
+                                    <ShieldAlert size={14} /> Report Issue
+                                </button>
+                            )}
                         </div>
                         <h1 className="text-5xl font-bold mb-6 text-white uppercase tracking-tighter">
                             Escrow <span className="text-blue-500 font-mono">#{project.id.slice(0, 8)}</span>
@@ -60,8 +94,8 @@ export default function ProjectDetail() {
                                 <span className="text-2xl font-bold font-mono text-blue-100">{project.total_amount} ALGO</span>
                             </div>
                             <div className="px-6 py-4 glass rounded-2xl flex-1 min-w-[200px]">
-                                <span className="text-xs font-bold text-slate-500 uppercase block mb-1">App ID</span>
-                                <span className="text-2xl font-bold font-mono text-purple-100">{project.app_id || 'Not Deployed'}</span>
+                                <span className="text-xs font-bold text-slate-500 uppercase block mb-1">Contract Address</span>
+                                <span className="text-2xl font-bold font-mono text-purple-100">{project.contract_address || 'Not Deployed'}</span>
                             </div>
                         </div>
                     </div>
@@ -143,6 +177,41 @@ export default function ProjectDetail() {
                     ))}
                 </div>
             </div>
+
+            {/* Report Modal */}
+            {showReport && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                    <div className="glass-card w-full max-w-md relative">
+                        <h2 className="text-2xl font-bold mb-4 text-orange-400 flex items-center gap-2">
+                            <ShieldAlert /> File a Report
+                        </h2>
+                        <p className="text-slate-400 text-sm mb-6">
+                            If you encountered an issue with this escrow, please detail it below. An administrator will review your case.
+                        </p>
+                        <textarea
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            placeholder="Describe the issue..."
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6 min-h-[120px] focus:outline-none focus:border-blue-500 text-sm"
+                        ></textarea>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowReport(false)}
+                                className="flex-1 py-3 px-4 rounded-xl text-slate-400 font-bold hover:bg-slate-800 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleReport}
+                                disabled={reportSubmitting || !reportReason.trim()}
+                                className="flex-1 py-3 px-4 rounded-xl text-white font-bold bg-orange-600 hover:bg-orange-500 disabled:opacity-50 transition-colors"
+                            >
+                                {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

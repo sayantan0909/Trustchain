@@ -1,0 +1,22 @@
+
+> trustchain@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.6s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+Error: supabaseUrl is required.
+    at instantiateModule (C:\trustchain\.next\server\chunks\[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (C:\trustchain\.next\server\chunks\[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (C:\trustchain\.next\server\chunks\[turbopack]_runtime.js:781:12)
+    at Object.m (C:\trustchain\.next\server\chunks\[turbopack]_runtime.js:790:18)
+    at Object.<anonymous> (C:\trustchain\.next\server\app\api\auth\verify\route.js:6:3)
+
+> Build error occurred
+Error: Failed to collect page data for /api/auth/verify
+    at ignore-listed frames {
+  type: 'Error'
+}

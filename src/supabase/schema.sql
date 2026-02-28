@@ -80,6 +80,10 @@ USING (is_admin());
 CREATE POLICY "Users can update their own row" ON users FOR UPDATE
 USING (id = auth.uid());
 
+-- Users can insert their own row
+CREATE POLICY "Users can insert their own row" ON users FOR INSERT
+WITH CHECK (id = auth.uid());
+
 -- Admin can update users
 CREATE POLICY "Admin can update users" ON users FOR UPDATE
 USING (is_admin());

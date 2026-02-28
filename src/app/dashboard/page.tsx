@@ -54,8 +54,8 @@ export default function Dashboard() {
                         <p className="text-slate-400 font-mono text-sm">{address}</p>
                     </div>
 
-                    <Link href="/projects/create" className="btn-primary">
-                        <Plus size={20} /> Create New Project
+                    <Link href="/create-escrow" className="btn-primary">
+                        <Plus size={20} /> Create New Escrow
                     </Link>
                 </div>
 
@@ -87,14 +87,14 @@ export default function Dashboard() {
                 ) : projects.length === 0 ? (
                     <div className="glass-card text-center py-20 border-dashed border-2">
                         <p className="text-slate-400 mb-6">No projects found. Start by creating your first escrow!</p>
-                        <Link href="/projects/create" className="text-blue-400 hover:text-blue-300 font-semibold underline">
+                        <Link href="/create-escrow" className="text-blue-400 hover:text-blue-300 font-semibold underline">
                             Create a project →
                         </Link>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {projects.map((project) => (
-                            <Link key={project.id} href={`/projects/${project.id}`}>
+                            <Link key={project.id} href={`/escrow/${project.id}`}>
                                 <div className="glass-card group hover:translate-y-[-4px] transition-transform">
                                     <div className="flex justify-between items-start mb-4">
                                         <h3 className="text-xl font-bold group-hover:text-blue-400 transition-colors">

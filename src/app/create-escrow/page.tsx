@@ -84,7 +84,7 @@ export default function CreateProject() {
 
             if (mError) throw mError;
 
-            router.push(`/projects/${project.id}`);
+            router.push(`/escrow/${project.id}`);
         } catch (error) {
             console.error('Error creating project:', error);
             alert('Failed to create project. Check console for details.');
