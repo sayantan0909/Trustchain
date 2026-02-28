@@ -12,6 +12,7 @@ interface WalletContextType {
     isConnected: boolean;
     isAuthenticated: boolean;
     isBanned: boolean;
+    isAdminSession: boolean;
     walletFlags: any[];
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
@@ -25,6 +26,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     const [balance, setBalance] = useState<number | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isBanned, setIsBanned] = useState(false);
+    const [isAdminSession, setIsAdminSession] = useState(false);
     const [walletFlags, setWalletFlags] = useState<any[]>([]);
     const [peraWallet, setPeraWallet] = useState<PeraWalletConnect | null>(null);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -39,11 +41,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 setIsAuthenticated(true);
+                checkAdminSession(session.user.id);
             }
         });
 
         supabase.auth.onAuthStateChange((_event, session) => {
             setIsAuthenticated(!!session);
+            if (session) {
+                checkAdminSession(session.user.id);
+            } else {
+                setIsAdminSession(false);
+            }
         });
 
         wallet.reconnectSession().then((accounts) => {
@@ -86,6 +94,19 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (error) {
             console.error('Failed to fetch balance:', error);
             setBalance(null);
+        }
+    };
+
+    const checkAdminSession = async (uid: string) => {
+        const { data } = await supabase.from('admins').select('id').eq('id', uid).single();
+        if (data) {
+            setIsAdminSession(true);
+            // Strictly disconnect wallet if an admin session is detected
+            if (connectedAccounts.length > 0) {
+                disconnect();
+            }
+        } else {
+            setIsAdminSession(false);
         }
     };
 
@@ -175,6 +196,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
 
     const connect = async () => {
         if (!peraWallet) return;
+        if (isAdminSession) {
+            alert("Security Violation: Administrators cannot connect wallets or interact on-chain.");
+            return;
+        }
         try {
             const newAccounts = await peraWallet.connect();
             setConnectedAccounts(newAccounts);
@@ -211,6 +236,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
                 isAuthenticated,
                 balance,
                 isBanned,
+                isAdminSession,
                 walletFlags,
                 connect,
                 disconnect,

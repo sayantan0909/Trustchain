@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default function EscrowDetail() {
     const { id } = useParams();
-    const { address, isAuthenticated, isBanned, walletFlags } = useWallet();
+    const { address, isAuthenticated, isBanned, isAdminSession, walletFlags } = useWallet();
     const [project, setProject] = useState<any>(null);
     const [milestones, setMilestones] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -153,7 +153,7 @@ export default function EscrowDetail() {
                             </div>
                         </div>
 
-                        {project.status === 'draft' && isClient && (
+                        {project.status === 'draft' && isClient && !isAdminSession && (
                             <button className="btn-primary w-full py-4 justify-center">
                                 Fund & Deploy Escrow <ArrowRight size={20} />
                             </button>
@@ -185,7 +185,7 @@ export default function EscrowDetail() {
                             </div>
 
                             <div className="flex items-center gap-3 w-full md:w-auto">
-                                {m.status === 'pending' && isClient && m.submitted_at && (
+                                {m.status === 'pending' && isClient && m.submitted_at && !isAdminSession && (
                                     <button
                                         disabled={isBanned}
                                         className={`btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center border-orange-500/50 hover:bg-orange-500/10 hover:text-orange-400 bg-transparent text-orange-500 ${isBanned ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
@@ -203,7 +203,7 @@ export default function EscrowDetail() {
                                         <CheckCircle size={18} /> Paid
                                     </div>
                                 )}
-                                {m.status === 'pending' && isFreelancer && !m.submitted_at && (
+                                {m.status === 'pending' && isFreelancer && !m.submitted_at && !isAdminSession && (
                                     <button
                                         disabled={isBanned}
                                         onClick={() => submitWork(m.id)}

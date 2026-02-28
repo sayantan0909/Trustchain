@@ -3,7 +3,7 @@
 import { Navbar } from "@/components/Navbar";
 import { useWallet } from "@/components/providers/WalletProvider";
 import { useState } from "react";
-import { Plus, Trash2, ShieldCheck, Loader2 } from "lucide-react";
+import { Plus, Trash2, ShieldCheck, Loader2, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { deployContract } from "@/lib/algorandService";
@@ -11,7 +11,7 @@ import { deployContract } from "@/lib/algorandService";
 export const dynamic = 'force-dynamic';
 
 export default function CreateProject() {
-    const { address, isConnected, isBanned } = useWallet();
+    const { address, isConnected, isBanned, isAdminSession } = useWallet();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -41,7 +41,7 @@ export default function CreateProject() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!address || !isConnected || isBanned) return;
+        if (!address || !isConnected || isBanned || isAdminSession) return;
 
         setLoading(true);
         try {
@@ -101,6 +101,12 @@ export default function CreateProject() {
                 <div className="mb-12">
                     <h1 className="text-4xl font-bold mb-4">Create New Project</h1>
                     <p className="text-slate-400">Define your milestones and secure funds in escrow.</p>
+                    {isAdminSession && (
+                        <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400 text-sm font-bold flex items-center gap-3">
+                            <Shield size={20} />
+                            ADMINISTRATOR ACCESS: On-chain project creation is restricted.
+                        </div>
+                    )}
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
@@ -170,9 +176,9 @@ export default function CreateProject() {
 
                     <div className="pt-6">
                         <button
-                            disabled={loading || !isConnected || isBanned}
+                            disabled={loading || !isConnected || isBanned || isAdminSession}
                             type="submit"
-                            className={`btn-primary w-full py-4 text-lg ${isBanned ? 'opacity-50 cursor-not-allowed bg-red-900/50 grayscale' : ''}`}
+                            className={`btn-primary w-full py-4 text-lg ${(isBanned || isAdminSession) ? 'opacity-50 cursor-not-allowed bg-slate-900/50 grayscale' : ''}`}
                         >
                             {loading ? (
                                 <>

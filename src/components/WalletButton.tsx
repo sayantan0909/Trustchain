@@ -1,10 +1,28 @@
 'use client';
 
 import { useWallet } from '@/components/providers/WalletProvider';
-import { Wallet, LogOut } from 'lucide-react';
+import { Wallet, LogOut, Shield } from 'lucide-react';
 
 export const WalletButton = () => {
-    const { address, balance, isConnected, connect, disconnect } = useWallet();
+    const { address, balance, isConnected, isAdminSession, connect, disconnect } = useWallet();
+
+    if (isAdminSession) {
+        return (
+            <div className="flex items-center gap-3">
+                <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center gap-2">
+                    <Shield size={16} className="text-blue-400" />
+                    <span className="text-sm font-bold text-blue-400 uppercase tracking-widest">Management Mode</span>
+                </div>
+                <button
+                    onClick={disconnect}
+                    className="p-2 glass rounded-xl hover:bg-slate-800 text-slate-400 transition-colors"
+                    title="Sign Out Admin"
+                >
+                    <LogOut size={20} />
+                </button>
+            </div>
+        );
+    }
 
     if (isConnected) {
         return (
