@@ -41,7 +41,10 @@ CREATE TABLE IF NOT EXISTS reports (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   escrow_id UUID REFERENCES escrows(id),
   reporter_wallet TEXT NOT NULL,
+  client_wallet TEXT NOT NULL,
   reason TEXT,
+  evidence TEXT,
+  status TEXT CHECK (status IN ('open', 'resolved', 'dismissed')) DEFAULT 'open',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -150,13 +153,29 @@ USING (
   )
 );
 
+-- Freelancer can update milestone (to submit)
+CREATE POLICY "Freelancer can update milestone" ON milestones FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM escrows 
+    WHERE escrows.id = milestones.escrow_id 
+    AND escrows.freelancer_wallet = get_user_wallet()
+  )
+);
+
 
 -- ==========================
 -- Policy definitions: reports
 -- ==========================
--- Any logged user can insert report
-CREATE POLICY "Any logged user can insert report" ON reports FOR INSERT
-WITH CHECK (auth.uid() IS NOT NULL);
+-- Only freelancer can file report
+CREATE POLICY "Freelancer can insert report" ON reports FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM escrows 
+    WHERE escrows.id = reports.escrow_id 
+    AND escrows.freelancer_wallet = get_user_wallet()
+  )
+);
 
 -- Admin can view all reports
 CREATE POLICY "Admin can view all reports" ON reports FOR SELECT

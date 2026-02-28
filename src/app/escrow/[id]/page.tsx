@@ -18,6 +18,7 @@ export default function EscrowDetail() {
 
     const [showReport, setShowReport] = useState(false);
     const [reportReason, setReportReason] = useState("");
+    const [reportEvidence, setReportEvidence] = useState("");
     const [reportSubmitting, setReportSubmitting] = useState(false);
 
     useEffect(() => {
@@ -40,7 +41,10 @@ export default function EscrowDetail() {
         const { error } = await supabase.from('reports').insert({
             escrow_id: id,
             reporter_wallet: address,
-            reason: reportReason
+            client_wallet: project.client_wallet,
+            reason: reportReason,
+            evidence: reportEvidence,
+            status: 'open'
         });
 
         setReportSubmitting(false);
@@ -50,6 +54,21 @@ export default function EscrowDetail() {
             alert("Report filed successfully! Administrators will review it.");
             setShowReport(false);
             setReportReason("");
+            setReportEvidence("");
+        }
+    };
+
+    const submitWork = async (milestoneId: string) => {
+        const { error } = await supabase
+            .from('milestones')
+            .update({ submitted_at: new Date().toISOString() })
+            .eq('id', milestoneId);
+
+        if (!error) {
+            // Refresh
+            fetchProject();
+        } else {
+            alert("Failed to submit work: " + error.message);
         }
     };
 
@@ -58,6 +77,11 @@ export default function EscrowDetail() {
 
     const isClient = address === project.client_wallet;
     const isFreelancer = address === project.freelancer_wallet;
+
+    // Prerequisite Checklist for Complaints
+    const hasUnpaidWork = milestones.some((m: any) => m.submitted_at !== null && m.status === 'pending');
+    const hasUnfairRefund = project.status === 'refunded';
+    const canReport = isAuthenticated && isFreelancer && (hasUnpaidWork || hasUnfairRefund);
 
     return (
         <div className="min-h-screen pb-20">
@@ -75,12 +99,12 @@ export default function EscrowDetail() {
                                 <span className="text-slate-500 text-sm font-mono">ID: {project.id.slice(0, 8)}</span>
                             </div>
 
-                            {isAuthenticated && (
+                            {canReport && (
                                 <button
                                     onClick={() => setShowReport(true)}
                                     className="text-xs font-bold text-orange-400 bg-orange-500/10 hover:bg-orange-500/20 transition-colors px-3 py-1.5 rounded-lg flex items-center gap-1.5"
                                 >
-                                    <ShieldAlert size={14} /> Report Issue
+                                    <ShieldAlert size={14} /> Raise Complaint
                                 </button>
                             )}
                         </div>
@@ -157,19 +181,29 @@ export default function EscrowDetail() {
                             </div>
 
                             <div className="flex items-center gap-3 w-full md:w-auto">
-                                {m.status === 'pending' && isClient && (
-                                    <button className="btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center">
-                                        Approve Payout
+                                {m.status === 'pending' && isClient && m.submitted_at && (
+                                    <button className="btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center border-orange-500/50 hover:bg-orange-500/10 hover:text-orange-400 bg-transparent text-orange-500">
+                                        Review & Approve Payout
                                     </button>
+                                )}
+                                {m.status === 'pending' && isClient && !m.submitted_at && (
+                                    <div className="flex items-center gap-2 text-slate-500 font-bold text-sm px-4 italic border border-slate-800 rounded-xl py-2">
+                                        <Clock size={18} /> Awaiting Freelancer Work
+                                    </div>
                                 )}
                                 {m.status === 'paid' && (
                                     <div className="flex items-center gap-2 text-green-400 font-bold text-sm px-4">
                                         <CheckCircle size={18} /> Paid
                                     </div>
                                 )}
-                                {m.status === 'pending' && !isClient && (
-                                    <div className="flex items-center gap-2 text-slate-500 font-bold text-sm px-4 italic border border-slate-800 rounded-xl py-2">
-                                        <Clock size={18} /> Awaiting Client
+                                {m.status === 'pending' && isFreelancer && !m.submitted_at && (
+                                    <button onClick={() => submitWork(m.id)} className="btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center">
+                                        Mark as Completed
+                                    </button>
+                                )}
+                                {m.status === 'pending' && isFreelancer && m.submitted_at && (
+                                    <div className="flex items-center gap-2 text-orange-400 font-bold text-sm px-4 italic border border-orange-500/30 rounded-xl py-2 bg-orange-500/5">
+                                        <Clock size={18} /> Awaiting Client Approval
                                     </div>
                                 )}
                             </div>
@@ -191,9 +225,16 @@ export default function EscrowDetail() {
                         <textarea
                             value={reportReason}
                             onChange={(e) => setReportReason(e.target.value)}
-                            placeholder="Describe the issue..."
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6 min-h-[120px] focus:outline-none focus:border-blue-500 text-sm"
+                            placeholder="Describe how the client has acted unfairly..."
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 mb-4 min-h-[100px] focus:outline-none focus:border-blue-500 text-sm"
                         ></textarea>
+                        <input
+                            type="text"
+                            value={reportEvidence}
+                            onChange={(e) => setReportEvidence(e.target.value)}
+                            placeholder="Links to evidence (screenshots, chat logs)"
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6 focus:outline-none focus:border-blue-500 text-sm"
+                        />
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setShowReport(false)}
