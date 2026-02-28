@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@perawallet/connect": "^1.5.1",
@@ -19,11 +20,13 @@
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.575.0",
     "lute-connect": "^1.7.0",
+    "motion": "^12.34.3",
     "next": "16.1.6",
     "npm": "^11.11.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.5.0",
+    "three": "^0.183.2",
     "tweetnacl": "^1.0.3",
     "uuid": "^13.0.0"
   },
@@ -34,10 +37,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.183.1",
     "@types/uuid": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "jest": "^30.2.0",
+    "patch-package": "^8.0.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
     "typescript": "^5"
