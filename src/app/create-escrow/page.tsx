@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Plus, Trash2, ShieldCheck, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { deployEscrowContract } from "@/lib/transactions";
+import { deployContract } from "@/lib/algorandService";
 
 export const dynamic = 'force-dynamic';
 
