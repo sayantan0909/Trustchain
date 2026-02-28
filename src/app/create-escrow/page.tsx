@@ -7,7 +7,6 @@ import { Plus, Trash2, ShieldCheck, Loader2, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, writeBatch, doc, serverTimestamp } from "firebase/firestore";
-import { deployContract } from "@/lib/algorandService";
 
 export const dynamic = 'force-dynamic';
 

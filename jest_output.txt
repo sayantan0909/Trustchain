@@ -1,0 +1,54 @@
+﻿  console.log
+    [TrustChain] Preconditions OK: 0/3 milestones approved. Approving next.
+
+      at approveEscrow (src/lib/algorandService.ts:234:17)
+
+  console.log
+    [TrustChain] Simulating approve transaction...
+
+      at approveEscrow (src/lib/algorandService.ts:253:13)
+
+  console.log
+    [TrustChain] Simulation successful
+
+      at approveEscrow (src/lib/algorandService.ts:256:17)
+
+  console.log
+    [TrustChain] Preconditions OK: 0/3 milestones approved. Approving next.
+
+      at approveEscrow (src/lib/algorandService.ts:234:17)
+
+  console.log
+    [TrustChain] Simulating approve transaction...
+
+      at approveEscrow (src/lib/algorandService.ts:253:13)
+
+  console.error
+    [TrustChain] Simulation error: {
+      message: 'logic eval error: assert failed pc=165',
+      response: { body: { message: 'logic eval error: assert failed pc=165' } }
+    }
+
+    [0m [90m  99 |[39m         [36mreturn[39m txnResult[33m;[39m
+     [90m 100 |[39m     } [36mcatch[39m (e[33m:[39m any) {
+    [31m[1m>[22m[39m[90m 101 |[39m         console[33m.[39merror([32m'[TrustChain] Simulation error:'[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 102 |[39m         [36mif[39m (e[33m.[39mresponse[33m?[39m[33m.[39mbody[33m?[39m[33m.[39mmessage) {
+     [90m 103 |[39m             [36mthrow[39m [36mnew[39m [33mError[39m([32m`Simulation failed: ${e.response.body.message}`[39m)[33m;[39m
+     [90m 104 |[39m         }[0m
+
+      at simulateTransaction (src/lib/algorandService.ts:101:17)
+      at approveEscrow (src/lib/algorandService.ts:255:9)
+      at Object.<anonymous> (__tests__/algorandService.test.ts:134:9)
+
+PASS __tests__/algorandService.test.ts
+  approveEscrow
+    ΓêÜ should successfully approve escrow when inputs are valid (35 ms)
+    ΓêÜ should fail if freelancer address is invalid (12 ms)
+    ΓêÜ should fail simulation if assertion fails (pc=165) (9 ms)
+System.Management.Automation.RemoteException
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.681 s, estimated 1 s
+Ran all test suites.

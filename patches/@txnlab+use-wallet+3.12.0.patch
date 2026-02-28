@@ -1,0 +1,2796 @@
+diff --git a/node_modules/@txnlab/use-wallet/dist/index.js b/node_modules/@txnlab/use-wallet/dist/index.js
+index 2519a8c..f84af9d 100644
+--- a/node_modules/@txnlab/use-wallet/dist/index.js
++++ b/node_modules/@txnlab/use-wallet/dist/index.js
+@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
+ var __getOwnPropNames = Object.getOwnPropertyNames;
+ var __require = /* @__PURE__ */ ((x3) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x3, {
+   get: (a2, b3) => (typeof require !== "undefined" ? require : a2)[b3]
+-}) : x3)(function(x3) {
++}) : x3)(function (x3) {
+   if (typeof require !== "undefined") return require.apply(this, arguments);
+   throw Error('Dynamic require of "' + x3 + '" is not supported');
+ });
+@@ -152,7 +152,7 @@ function W2(r) {
+ }
+ function* en() {
+   let r = 0;
+-  for (; ; ) r < Number.MAX_SAFE_INTEGER ? yield ++r : r = 0;
++  for (; ;) r < Number.MAX_SAFE_INTEGER ? yield ++r : r = 0;
+ }
+ function We() {
+   return tn.next().value;
+@@ -322,7 +322,7 @@ function Ye(r, e) {
+ }
+ function Mn(r) {
+   let e = Object.getPrototypeOf(r), t = [e];
+-  for (; e !== R2.prototype; ) e = Object.getPrototypeOf(e), t.push(e);
++  for (; e !== R2.prototype;) e = Object.getPrototypeOf(e), t.push(e);
+   return t;
+ }
+ function zt(r) {
+@@ -454,24 +454,24 @@ var init_es2 = __esm({
+       function T2() {
+         this._events = new de(), this._eventsCount = 0;
+       }
+-      T2.prototype.eventNames = function() {
++      T2.prototype.eventNames = function () {
+         var e = [], t, n;
+         if (this._eventsCount === 0) return e;
+         for (n in t = this._events) nn.call(t, n) && e.push(w2 ? n.slice(1) : n);
+         return Object.getOwnPropertySymbols ? e.concat(Object.getOwnPropertySymbols(t)) : e;
+       };
+-      T2.prototype.listeners = function(e) {
++      T2.prototype.listeners = function (e) {
+         var t = w2 ? w2 + e : e, n = this._events[t];
+         if (!n) return [];
+         if (n.fn) return [n.fn];
+         for (var o = 0, s = n.length, i = new Array(s); o < s; o++) i[o] = n[o].fn;
+         return i;
+       };
+-      T2.prototype.listenerCount = function(e) {
++      T2.prototype.listenerCount = function (e) {
+         var t = w2 ? w2 + e : e, n = this._events[t];
+         return n ? n.fn ? 1 : n.length : 0;
+       };
+-      T2.prototype.emit = function(e, t, n, o, s, i) {
++      T2.prototype.emit = function (e, t, n, o, s, i) {
+         var a2 = w2 ? w2 + e : e;
+         if (!this._events[a2]) return false;
+         var c2 = this._events[a2], l2 = arguments.length, d, p2;
+@@ -514,13 +514,13 @@ var init_es2 = __esm({
+         }
+         return true;
+       };
+-      T2.prototype.on = function(e, t, n) {
++      T2.prototype.on = function (e, t, n) {
+         return Ct(this, e, t, n, false);
+       };
+-      T2.prototype.once = function(e, t, n) {
++      T2.prototype.once = function (e, t, n) {
+         return Ct(this, e, t, n, true);
+       };
+-      T2.prototype.removeListener = function(e, t, n, o) {
++      T2.prototype.removeListener = function (e, t, n, o) {
+         var s = w2 ? w2 + e : e;
+         if (!this._events[s]) return this;
+         if (!t) return Te(this, s), this;
+@@ -532,7 +532,7 @@ var init_es2 = __esm({
+         }
+         return this;
+       };
+-      T2.prototype.removeAllListeners = function(e) {
++      T2.prototype.removeAllListeners = function (e) {
+         var t;
+         return e ? (t = w2 ? w2 + e : e, this._events[t] && Te(this, t)) : (this._events = new de(), this._eventsCount = 0), this;
+       };
+@@ -547,7 +547,7 @@ var init_es2 = __esm({
+     ur = typeof process == "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...r) => console.error("SEMVER", ...r) : () => {
+     };
+     h2 = ur;
+-    ae = lr(function(r, e) {
++    ae = lr(function (r, e) {
+       let { MAX_SAFE_COMPONENT_LENGTH: t } = Fe, n = (e = r.exports = {}).re = [], o = e.src = [], s = e.t = {}, i = 0, a2 = (c2, l2, d) => {
+         let p2 = i++;
+         h2(p2, l2), s[c2] = p2, o[p2] = l2, n[p2] = new RegExp(l2, d ? "g" : void 0);
+@@ -652,7 +652,7 @@ var init_es2 = __esm({
+             if (this.prerelease.length === 0) this.prerelease = [0];
+             else {
+               let n = this.prerelease.length;
+-              for (; --n >= 0; ) typeof this.prerelease[n] == "number" && (this.prerelease[n]++, n = -2);
++              for (; --n >= 0;) typeof this.prerelease[n] == "number" && (this.prerelease[n]++, n = -2);
+               n === -1 && this.prerelease.push(0);
+             }
+             t && (this.prerelease[0] === t ? isNaN(this.prerelease[1]) && (this.prerelease = [t, 0]) : this.prerelease = [t, 0]);
+@@ -779,7 +779,7 @@ var init_es2 = __esm({
+     ({ re: I2, t: y2, comparatorTrimReplace: Sr, tildeTrimReplace: Nr, caretTrimReplace: Ar } = ae);
+     ut = (r, e) => {
+       let t = true, n = r.slice(), o = n.pop();
+-      for (; t && n.length; ) t = n.every((s) => o.intersects(s, e)), o = n.pop();
++      for (; t && n.length;) t = n.every((s) => o.intersects(s, e)), o = n.pop();
+       return t;
+     };
+     Cr = (r, e) => (h2("comp", r, e), r = Or(r, e), h2("caret", r), r = $r(r, e), h2("tildes", r), r = kr(r, e), h2("xrange", r), r = qr(r, e), h2("stars", r), r);
+@@ -852,7 +852,7 @@ var init_es2 = __esm({
+       let t = null;
+       if ((e = e || {}).rtl) {
+         let n;
+-        for (; (n = ge[ye.COERCERTL].exec(r)) && (!t || t.index + t[0].length !== r.length); ) t && n.index + n[0].length === t.index + t[0].length || (t = n), ge[ye.COERCERTL].lastIndex = n.index + n[1].length + n[2].length;
++        for (; (n = ge[ye.COERCERTL].exec(r)) && (!t || t.index + t[0].length !== r.length);) t && n.index + n[0].length === t.index + t[0].length || (t = n), ge[ye.COERCERTL].lastIndex = n.index + n[1].length + n[2].length;
+         ge[ye.COERCERTL].lastIndex = -1;
+       } else t = r.match(ge[ye.COERCE]);
+       return t === null ? null : Kr(`${t[2]}.${t[3] || "0"}.${t[4] || "0"}`, e);
+@@ -1374,9 +1374,11 @@ var init_es2 = __esm({
+         let t = [this, ...Mn(this)];
+         Xt.forEach((n) => {
+           let o = t.map((c2) => Object.getOwnPropertyDescriptor(c2, n)), s = o.findIndex((c2) => !!c2), i = s > 0, a2 = o[s];
+-          a2 && (this.__sdk_access_field_descriptors__.set(n, { descriptor: a2, isPrototypeField: i }), Object.defineProperty(this, n, { configurable: true, get: () => {
+-            throw Pt(n);
+-          } }));
++          a2 && (this.__sdk_access_field_descriptors__.set(n, { descriptor: a2, isPrototypeField: i }), Object.defineProperty(this, n, {
++            configurable: true, get: () => {
++              throw Pt(n);
++            }
++          }));
+         });
+       }
+       init(t) {
+@@ -1594,7 +1596,7 @@ var init_es4 = __esm({
+     tt = Object.getOwnPropertyNames;
+     nt2 = Object.getPrototypeOf;
+     it2 = Object.prototype.hasOwnProperty;
+-    ve2 = ((b3) => typeof __require != "undefined" ? __require : typeof Proxy != "undefined" ? new Proxy(b3, { get: (T2, _3) => (typeof __require != "undefined" ? __require : T2)[_3] }) : b3)(function(b3) {
++    ve2 = ((b3) => typeof __require != "undefined" ? __require : typeof Proxy != "undefined" ? new Proxy(b3, { get: (T2, _3) => (typeof __require != "undefined" ? __require : T2)[_3] }) : b3)(function (b3) {
+       if (typeof __require != "undefined") return __require.apply(this, arguments);
+       throw new Error('Dynamic require of "' + b3 + '" is not supported');
+     });
+@@ -1621,14 +1623,14 @@ var init_es4 = __esm({
+       Y3((_3 = _3.apply(b3, T2)).next());
+     });
+     ke = Je((qe2, De2) => {
+-      (function(b3) {
++      (function (b3) {
+         if (typeof qe2 == "object" && typeof De2 < "u") De2.exports = b3();
+         else if (typeof define == "function" && define.amd) define([], b3);
+         else {
+           var T2;
+           typeof window < "u" ? T2 = window : typeof global < "u" ? T2 = global : typeof self < "u" ? T2 = self : T2 = this, T2.localforage = b3();
+         }
+-      })(function() {
++      })(function () {
+         var b3, T2, _3;
+         return function O3(R3, j2, P3) {
+           function Y3(K2, J3) {
+@@ -1641,7 +1643,7 @@ var init_es4 = __esm({
+                 throw w2.code = "MODULE_NOT_FOUND", w2;
+               }
+               var B3 = j2[K2] = { exports: {} };
+-              R3[K2][0].call(B3.exports, function(W3) {
++              R3[K2][0].call(B3.exports, function (W3) {
+                 var Z = R3[K2][1][W3];
+                 return Y3(Z || W3);
+               }, B3, B3.exports, O3, R3, j2, P3);
+@@ -1650,1273 +1652,1277 @@ var init_es4 = __esm({
+           }
+           for (var S3 = typeof ve2 == "function" && ve2, M = 0; M < P3.length; M++) Y3(P3[M]);
+           return Y3;
+-        }({ 1: [function(O3, R3, j2) {
+-          (function(P3) {
+-            "use strict";
+-            var Y3 = P3.MutationObserver || P3.WebKitMutationObserver, S3;
+-            if (Y3) {
+-              var M = 0, K2 = new Y3(W3), J3 = P3.document.createTextNode("");
+-              K2.observe(J3, { characterData: true }), S3 = function() {
+-                J3.data = M = ++M % 2;
+-              };
+-            } else if (!P3.setImmediate && typeof P3.MessageChannel < "u") {
+-              var m3 = new P3.MessageChannel();
+-              m3.port1.onmessage = W3, S3 = function() {
+-                m3.port2.postMessage(0);
++        }({
++          1: [function (O3, R3, j2) {
++            (function (P3) {
++              "use strict";
++              var Y3 = P3.MutationObserver || P3.WebKitMutationObserver, S3;
++              if (Y3) {
++                var M = 0, K2 = new Y3(W3), J3 = P3.document.createTextNode("");
++                K2.observe(J3, { characterData: true }), S3 = function () {
++                  J3.data = M = ++M % 2;
++                };
++              } else if (!P3.setImmediate && typeof P3.MessageChannel < "u") {
++                var m3 = new P3.MessageChannel();
++                m3.port1.onmessage = W3, S3 = function () {
++                  m3.port2.postMessage(0);
++                };
++              } else "document" in P3 && "onreadystatechange" in P3.document.createElement("script") ? S3 = function () {
++                var F3 = P3.document.createElement("script");
++                F3.onreadystatechange = function () {
++                  W3(), F3.onreadystatechange = null, F3.parentNode.removeChild(F3), F3 = null;
++                }, P3.document.documentElement.appendChild(F3);
++              } : S3 = function () {
++                setTimeout(W3, 0);
+               };
+-            } else "document" in P3 && "onreadystatechange" in P3.document.createElement("script") ? S3 = function() {
+-              var F3 = P3.document.createElement("script");
+-              F3.onreadystatechange = function() {
+-                W3(), F3.onreadystatechange = null, F3.parentNode.removeChild(F3), F3 = null;
+-              }, P3.document.documentElement.appendChild(F3);
+-            } : S3 = function() {
+-              setTimeout(W3, 0);
++              var w2, B3 = [];
++              function W3() {
++                w2 = true;
++                for (var F3, k3, U3 = B3.length; U3;) {
++                  for (k3 = B3, B3 = [], F3 = -1; ++F3 < U3;) k3[F3]();
++                  U3 = B3.length;
++                }
++                w2 = false;
++              }
++              R3.exports = Z;
++              function Z(F3) {
++                B3.push(F3) === 1 && !w2 && S3();
++              }
++            }).call(this, typeof global < "u" ? global : typeof self < "u" ? self : typeof window < "u" ? window : {});
++          }, {}], 2: [function (O3, R3, j2) {
++            "use strict";
++            var P3 = O3(1);
++            function Y3() {
++            }
++            var S3 = {}, M = ["REJECTED"], K2 = ["FULFILLED"], J3 = ["PENDING"];
++            R3.exports = m3;
++            function m3(h3) {
++              if (typeof h3 != "function") throw new TypeError("resolver must be a function");
++              this.state = J3, this.queue = [], this.outcome = void 0, h3 !== Y3 && Z(this, h3);
++            }
++            m3.prototype.catch = function (h3) {
++              return this.then(null, h3);
++            }, m3.prototype.then = function (h3, D3) {
++              if (typeof h3 != "function" && this.state === K2 || typeof D3 != "function" && this.state === M) return this;
++              var E3 = new this.constructor(Y3);
++              if (this.state !== J3) {
++                var C3 = this.state === K2 ? h3 : D3;
++                B3(E3, C3, this.outcome);
++              } else this.queue.push(new w2(E3, h3, D3));
++              return E3;
++            };
++            function w2(h3, D3, E3) {
++              this.promise = h3, typeof D3 == "function" && (this.onFulfilled = D3, this.callFulfilled = this.otherCallFulfilled), typeof E3 == "function" && (this.onRejected = E3, this.callRejected = this.otherCallRejected);
++            }
++            w2.prototype.callFulfilled = function (h3) {
++              S3.resolve(this.promise, h3);
++            }, w2.prototype.otherCallFulfilled = function (h3) {
++              B3(this.promise, this.onFulfilled, h3);
++            }, w2.prototype.callRejected = function (h3) {
++              S3.reject(this.promise, h3);
++            }, w2.prototype.otherCallRejected = function (h3) {
++              B3(this.promise, this.onRejected, h3);
+             };
+-            var w2, B3 = [];
+-            function W3() {
+-              w2 = true;
+-              for (var F3, k3, U3 = B3.length; U3; ) {
+-                for (k3 = B3, B3 = [], F3 = -1; ++F3 < U3; ) k3[F3]();
+-                U3 = B3.length;
++            function B3(h3, D3, E3) {
++              P3(function () {
++                var C3;
++                try {
++                  C3 = D3(E3);
++                } catch (G2) {
++                  return S3.reject(h3, G2);
++                }
++                C3 === h3 ? S3.reject(h3, new TypeError("Cannot resolve promise with itself")) : S3.resolve(h3, C3);
++              });
++            }
++            S3.resolve = function (h3, D3) {
++              var E3 = F3(W3, D3);
++              if (E3.status === "error") return S3.reject(h3, E3.value);
++              var C3 = E3.value;
++              if (C3) Z(h3, C3);
++              else {
++                h3.state = K2, h3.outcome = D3;
++                for (var G2 = -1, X = h3.queue.length; ++G2 < X;) h3.queue[G2].callFulfilled(D3);
+               }
+-              w2 = false;
++              return h3;
++            }, S3.reject = function (h3, D3) {
++              h3.state = M, h3.outcome = D3;
++              for (var E3 = -1, C3 = h3.queue.length; ++E3 < C3;) h3.queue[E3].callRejected(D3);
++              return h3;
++            };
++            function W3(h3) {
++              var D3 = h3 && h3.then;
++              if (h3 && (typeof h3 == "object" || typeof h3 == "function") && typeof D3 == "function") return function () {
++                D3.apply(h3, arguments);
++              };
+             }
+-            R3.exports = Z;
+-            function Z(F3) {
+-              B3.push(F3) === 1 && !w2 && S3();
++            function Z(h3, D3) {
++              var E3 = false;
++              function C3($) {
++                E3 || (E3 = true, S3.reject(h3, $));
++              }
++              function G2($) {
++                E3 || (E3 = true, S3.resolve(h3, $));
++              }
++              function X() {
++                D3(G2, C3);
++              }
++              var Q3 = F3(X);
++              Q3.status === "error" && C3(Q3.value);
+             }
+-          }).call(this, typeof global < "u" ? global : typeof self < "u" ? self : typeof window < "u" ? window : {});
+-        }, {}], 2: [function(O3, R3, j2) {
+-          "use strict";
+-          var P3 = O3(1);
+-          function Y3() {
+-          }
+-          var S3 = {}, M = ["REJECTED"], K2 = ["FULFILLED"], J3 = ["PENDING"];
+-          R3.exports = m3;
+-          function m3(h3) {
+-            if (typeof h3 != "function") throw new TypeError("resolver must be a function");
+-            this.state = J3, this.queue = [], this.outcome = void 0, h3 !== Y3 && Z(this, h3);
+-          }
+-          m3.prototype.catch = function(h3) {
+-            return this.then(null, h3);
+-          }, m3.prototype.then = function(h3, D3) {
+-            if (typeof h3 != "function" && this.state === K2 || typeof D3 != "function" && this.state === M) return this;
+-            var E3 = new this.constructor(Y3);
+-            if (this.state !== J3) {
+-              var C3 = this.state === K2 ? h3 : D3;
+-              B3(E3, C3, this.outcome);
+-            } else this.queue.push(new w2(E3, h3, D3));
+-            return E3;
+-          };
+-          function w2(h3, D3, E3) {
+-            this.promise = h3, typeof D3 == "function" && (this.onFulfilled = D3, this.callFulfilled = this.otherCallFulfilled), typeof E3 == "function" && (this.onRejected = E3, this.callRejected = this.otherCallRejected);
+-          }
+-          w2.prototype.callFulfilled = function(h3) {
+-            S3.resolve(this.promise, h3);
+-          }, w2.prototype.otherCallFulfilled = function(h3) {
+-            B3(this.promise, this.onFulfilled, h3);
+-          }, w2.prototype.callRejected = function(h3) {
+-            S3.reject(this.promise, h3);
+-          }, w2.prototype.otherCallRejected = function(h3) {
+-            B3(this.promise, this.onRejected, h3);
+-          };
+-          function B3(h3, D3, E3) {
+-            P3(function() {
+-              var C3;
++            function F3(h3, D3) {
++              var E3 = {};
+               try {
+-                C3 = D3(E3);
+-              } catch (G2) {
+-                return S3.reject(h3, G2);
++                E3.value = h3(D3), E3.status = "success";
++              } catch (C3) {
++                E3.status = "error", E3.value = C3;
+               }
+-              C3 === h3 ? S3.reject(h3, new TypeError("Cannot resolve promise with itself")) : S3.resolve(h3, C3);
+-            });
+-          }
+-          S3.resolve = function(h3, D3) {
+-            var E3 = F3(W3, D3);
+-            if (E3.status === "error") return S3.reject(h3, E3.value);
+-            var C3 = E3.value;
+-            if (C3) Z(h3, C3);
+-            else {
+-              h3.state = K2, h3.outcome = D3;
+-              for (var G2 = -1, X = h3.queue.length; ++G2 < X; ) h3.queue[G2].callFulfilled(D3);
++              return E3;
+             }
+-            return h3;
+-          }, S3.reject = function(h3, D3) {
+-            h3.state = M, h3.outcome = D3;
+-            for (var E3 = -1, C3 = h3.queue.length; ++E3 < C3; ) h3.queue[E3].callRejected(D3);
+-            return h3;
+-          };
+-          function W3(h3) {
+-            var D3 = h3 && h3.then;
+-            if (h3 && (typeof h3 == "object" || typeof h3 == "function") && typeof D3 == "function") return function() {
+-              D3.apply(h3, arguments);
++            m3.resolve = k3;
++            function k3(h3) {
++              return h3 instanceof this ? h3 : S3.resolve(new this(Y3), h3);
++            }
++            m3.reject = U3;
++            function U3(h3) {
++              var D3 = new this(Y3);
++              return S3.reject(D3, h3);
++            }
++            m3.all = fe2;
++            function fe2(h3) {
++              var D3 = this;
++              if (Object.prototype.toString.call(h3) !== "[object Array]") return this.reject(new TypeError("must be an array"));
++              var E3 = h3.length, C3 = false;
++              if (!E3) return this.resolve([]);
++              for (var G2 = new Array(E3), X = 0, Q3 = -1, $ = new this(Y3); ++Q3 < E3;) ee(h3[Q3], Q3);
++              return $;
++              function ee(oe2, a2) {
++                D3.resolve(oe2).then(u3, function (v2) {
++                  C3 || (C3 = true, S3.reject($, v2));
++                });
++                function u3(v2) {
++                  G2[a2] = v2, ++X === E3 && !C3 && (C3 = true, S3.resolve($, G2));
++                }
++              }
++            }
++            m3.race = te2;
++            function te2(h3) {
++              var D3 = this;
++              if (Object.prototype.toString.call(h3) !== "[object Array]") return this.reject(new TypeError("must be an array"));
++              var E3 = h3.length, C3 = false;
++              if (!E3) return this.resolve([]);
++              for (var G2 = -1, X = new this(Y3); ++G2 < E3;) Q3(h3[G2]);
++              return X;
++              function Q3($) {
++                D3.resolve($).then(function (ee) {
++                  C3 || (C3 = true, S3.resolve(X, ee));
++                }, function (ee) {
++                  C3 || (C3 = true, S3.reject(X, ee));
++                });
++              }
++            }
++          }, { 1: 1 }], 3: [function (O3, R3, j2) {
++            (function (P3) {
++              "use strict";
++              typeof P3.Promise != "function" && (P3.Promise = O3(2));
++            }).call(this, typeof global < "u" ? global : typeof self < "u" ? self : typeof window < "u" ? window : {});
++          }, { 2: 2 }], 4: [function (O3, R3, j2) {
++            "use strict";
++            var P3 = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function (e) {
++              return typeof e;
++            } : function (e) {
++              return e && typeof Symbol == "function" && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
+             };
+-          }
+-          function Z(h3, D3) {
+-            var E3 = false;
+-            function C3($) {
+-              E3 || (E3 = true, S3.reject(h3, $));
++            function Y3(e, t) {
++              if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+             }
+-            function G2($) {
+-              E3 || (E3 = true, S3.resolve(h3, $));
++            function S3() {
++              try {
++                if (typeof indexedDB < "u") return indexedDB;
++                if (typeof webkitIndexedDB < "u") return webkitIndexedDB;
++                if (typeof mozIndexedDB < "u") return mozIndexedDB;
++                if (typeof OIndexedDB < "u") return OIndexedDB;
++                if (typeof msIndexedDB < "u") return msIndexedDB;
++              } catch {
++                return;
++              }
+             }
+-            function X() {
+-              D3(G2, C3);
++            var M = S3();
++            function K2() {
++              try {
++                if (!M || !M.open) return false;
++                var e = typeof openDatabase < "u" && /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) && !/BlackBerry/.test(navigator.platform), t = typeof fetch == "function" && fetch.toString().indexOf("[native code") !== -1;
++                return (!e || t) && typeof indexedDB < "u" && typeof IDBKeyRange < "u";
++              } catch {
++                return false;
++              }
+             }
+-            var Q3 = F3(X);
+-            Q3.status === "error" && C3(Q3.value);
+-          }
+-          function F3(h3, D3) {
+-            var E3 = {};
+-            try {
+-              E3.value = h3(D3), E3.status = "success";
+-            } catch (C3) {
+-              E3.status = "error", E3.value = C3;
++            function J3(e, t) {
++              e = e || [], t = t || {};
++              try {
++                return new Blob(e, t);
++              } catch (n) {
++                if (n.name !== "TypeError") throw n;
++                for (var r = typeof BlobBuilder < "u" ? BlobBuilder : typeof MSBlobBuilder < "u" ? MSBlobBuilder : typeof MozBlobBuilder < "u" ? MozBlobBuilder : WebKitBlobBuilder, i = new r(), o = 0; o < e.length; o += 1) i.append(e[o]);
++                return i.getBlob(t.type);
++              }
+             }
+-            return E3;
+-          }
+-          m3.resolve = k3;
+-          function k3(h3) {
+-            return h3 instanceof this ? h3 : S3.resolve(new this(Y3), h3);
+-          }
+-          m3.reject = U3;
+-          function U3(h3) {
+-            var D3 = new this(Y3);
+-            return S3.reject(D3, h3);
+-          }
+-          m3.all = fe2;
+-          function fe2(h3) {
+-            var D3 = this;
+-            if (Object.prototype.toString.call(h3) !== "[object Array]") return this.reject(new TypeError("must be an array"));
+-            var E3 = h3.length, C3 = false;
+-            if (!E3) return this.resolve([]);
+-            for (var G2 = new Array(E3), X = 0, Q3 = -1, $ = new this(Y3); ++Q3 < E3; ) ee(h3[Q3], Q3);
+-            return $;
+-            function ee(oe2, a2) {
+-              D3.resolve(oe2).then(u3, function(v2) {
+-                C3 || (C3 = true, S3.reject($, v2));
++            typeof Promise > "u" && O3(3);
++            var m3 = Promise;
++            function w2(e, t) {
++              t && e.then(function (r) {
++                t(null, r);
++              }, function (r) {
++                t(r);
+               });
+-              function u3(v2) {
+-                G2[a2] = v2, ++X === E3 && !C3 && (C3 = true, S3.resolve($, G2));
+-              }
+             }
+-          }
+-          m3.race = te2;
+-          function te2(h3) {
+-            var D3 = this;
+-            if (Object.prototype.toString.call(h3) !== "[object Array]") return this.reject(new TypeError("must be an array"));
+-            var E3 = h3.length, C3 = false;
+-            if (!E3) return this.resolve([]);
+-            for (var G2 = -1, X = new this(Y3); ++G2 < E3; ) Q3(h3[G2]);
+-            return X;
+-            function Q3($) {
+-              D3.resolve($).then(function(ee) {
+-                C3 || (C3 = true, S3.resolve(X, ee));
+-              }, function(ee) {
+-                C3 || (C3 = true, S3.reject(X, ee));
++            function B3(e, t, r) {
++              typeof t == "function" && e.then(t), typeof r == "function" && e.catch(r);
++            }
++            function W3(e) {
++              return typeof e != "string" && (console.warn(e + " used as a key, but it is not a string."), e = String(e)), e;
++            }
++            function Z() {
++              if (arguments.length && typeof arguments[arguments.length - 1] == "function") return arguments[arguments.length - 1];
++            }
++            var F3 = "local-forage-detect-blob-support", k3 = void 0, U3 = {}, fe2 = Object.prototype.toString, te2 = "readonly", h3 = "readwrite";
++            function D3(e) {
++              for (var t = e.length, r = new ArrayBuffer(t), i = new Uint8Array(r), o = 0; o < t; o++) i[o] = e.charCodeAt(o);
++              return r;
++            }
++            function E3(e) {
++              return new m3(function (t) {
++                var r = e.transaction(F3, h3), i = J3([""]);
++                r.objectStore(F3).put(i, "key"), r.onabort = function (o) {
++                  o.preventDefault(), o.stopPropagation(), t(false);
++                }, r.oncomplete = function () {
++                  var o = navigator.userAgent.match(/Chrome\/(\d+)/), n = navigator.userAgent.match(/Edge\//);
++                  t(n || !o || parseInt(o[1], 10) >= 43);
++                };
++              }).catch(function () {
++                return false;
+               });
+             }
+-          }
+-        }, { 1: 1 }], 3: [function(O3, R3, j2) {
+-          (function(P3) {
+-            "use strict";
+-            typeof P3.Promise != "function" && (P3.Promise = O3(2));
+-          }).call(this, typeof global < "u" ? global : typeof self < "u" ? self : typeof window < "u" ? window : {});
+-        }, { 2: 2 }], 4: [function(O3, R3, j2) {
+-          "use strict";
+-          var P3 = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
+-            return typeof e;
+-          } : function(e) {
+-            return e && typeof Symbol == "function" && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
+-          };
+-          function Y3(e, t) {
+-            if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+-          }
+-          function S3() {
+-            try {
+-              if (typeof indexedDB < "u") return indexedDB;
+-              if (typeof webkitIndexedDB < "u") return webkitIndexedDB;
+-              if (typeof mozIndexedDB < "u") return mozIndexedDB;
+-              if (typeof OIndexedDB < "u") return OIndexedDB;
+-              if (typeof msIndexedDB < "u") return msIndexedDB;
+-            } catch {
+-              return;
++            function C3(e) {
++              return typeof k3 == "boolean" ? m3.resolve(k3) : E3(e).then(function (t) {
++                return k3 = t, k3;
++              });
+             }
+-          }
+-          var M = S3();
+-          function K2() {
+-            try {
+-              if (!M || !M.open) return false;
+-              var e = typeof openDatabase < "u" && /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) && !/BlackBerry/.test(navigator.platform), t = typeof fetch == "function" && fetch.toString().indexOf("[native code") !== -1;
+-              return (!e || t) && typeof indexedDB < "u" && typeof IDBKeyRange < "u";
+-            } catch {
+-              return false;
++            function G2(e) {
++              var t = U3[e.name], r = {};
++              r.promise = new m3(function (i, o) {
++                r.resolve = i, r.reject = o;
++              }), t.deferredOperations.push(r), t.dbReady ? t.dbReady = t.dbReady.then(function () {
++                return r.promise;
++              }) : t.dbReady = r.promise;
+             }
+-          }
+-          function J3(e, t) {
+-            e = e || [], t = t || {};
+-            try {
+-              return new Blob(e, t);
+-            } catch (n) {
+-              if (n.name !== "TypeError") throw n;
+-              for (var r = typeof BlobBuilder < "u" ? BlobBuilder : typeof MSBlobBuilder < "u" ? MSBlobBuilder : typeof MozBlobBuilder < "u" ? MozBlobBuilder : WebKitBlobBuilder, i = new r(), o = 0; o < e.length; o += 1) i.append(e[o]);
+-              return i.getBlob(t.type);
++            function X(e) {
++              var t = U3[e.name], r = t.deferredOperations.pop();
++              if (r) return r.resolve(), r.promise;
+             }
+-          }
+-          typeof Promise > "u" && O3(3);
+-          var m3 = Promise;
+-          function w2(e, t) {
+-            t && e.then(function(r) {
+-              t(null, r);
+-            }, function(r) {
+-              t(r);
+-            });
+-          }
+-          function B3(e, t, r) {
+-            typeof t == "function" && e.then(t), typeof r == "function" && e.catch(r);
+-          }
+-          function W3(e) {
+-            return typeof e != "string" && (console.warn(e + " used as a key, but it is not a string."), e = String(e)), e;
+-          }
+-          function Z() {
+-            if (arguments.length && typeof arguments[arguments.length - 1] == "function") return arguments[arguments.length - 1];
+-          }
+-          var F3 = "local-forage-detect-blob-support", k3 = void 0, U3 = {}, fe2 = Object.prototype.toString, te2 = "readonly", h3 = "readwrite";
+-          function D3(e) {
+-            for (var t = e.length, r = new ArrayBuffer(t), i = new Uint8Array(r), o = 0; o < t; o++) i[o] = e.charCodeAt(o);
+-            return r;
+-          }
+-          function E3(e) {
+-            return new m3(function(t) {
+-              var r = e.transaction(F3, h3), i = J3([""]);
+-              r.objectStore(F3).put(i, "key"), r.onabort = function(o) {
+-                o.preventDefault(), o.stopPropagation(), t(false);
+-              }, r.oncomplete = function() {
+-                var o = navigator.userAgent.match(/Chrome\/(\d+)/), n = navigator.userAgent.match(/Edge\//);
+-                t(n || !o || parseInt(o[1], 10) >= 43);
+-              };
+-            }).catch(function() {
+-              return false;
+-            });
+-          }
+-          function C3(e) {
+-            return typeof k3 == "boolean" ? m3.resolve(k3) : E3(e).then(function(t) {
+-              return k3 = t, k3;
+-            });
+-          }
+-          function G2(e) {
+-            var t = U3[e.name], r = {};
+-            r.promise = new m3(function(i, o) {
+-              r.resolve = i, r.reject = o;
+-            }), t.deferredOperations.push(r), t.dbReady ? t.dbReady = t.dbReady.then(function() {
+-              return r.promise;
+-            }) : t.dbReady = r.promise;
+-          }
+-          function X(e) {
+-            var t = U3[e.name], r = t.deferredOperations.pop();
+-            if (r) return r.resolve(), r.promise;
+-          }
+-          function Q3(e, t) {
+-            var r = U3[e.name], i = r.deferredOperations.pop();
+-            if (i) return i.reject(t), i.promise;
+-          }
+-          function $(e, t) {
+-            return new m3(function(r, i) {
+-              if (U3[e.name] = U3[e.name] || V2(), e.db) if (t) G2(e), e.db.close();
+-              else return r(e.db);
+-              var o = [e.name];
+-              t && o.push(e.version);
+-              var n = M.open.apply(M, o);
+-              t && (n.onupgradeneeded = function(f3) {
+-                var s = n.result;
+-                try {
+-                  s.createObjectStore(e.storeName), f3.oldVersion <= 1 && s.createObjectStore(F3);
+-                } catch (c2) {
+-                  if (c2.name === "ConstraintError") console.warn('The database "' + e.name + '" has been upgraded from version ' + f3.oldVersion + " to version " + f3.newVersion + ', but the storage "' + e.storeName + '" already exists.');
+-                  else throw c2;
++            function Q3(e, t) {
++              var r = U3[e.name], i = r.deferredOperations.pop();
++              if (i) return i.reject(t), i.promise;
++            }
++            function $(e, t) {
++              return new m3(function (r, i) {
++                if (U3[e.name] = U3[e.name] || V2(), e.db) if (t) G2(e), e.db.close();
++                else return r(e.db);
++                var o = [e.name];
++                t && o.push(e.version);
++                var n = M.open.apply(M, o);
++                t && (n.onupgradeneeded = function (f3) {
++                  var s = n.result;
++                  try {
++                    s.createObjectStore(e.storeName), f3.oldVersion <= 1 && s.createObjectStore(F3);
++                  } catch (c2) {
++                    if (c2.name === "ConstraintError") console.warn('The database "' + e.name + '" has been upgraded from version ' + f3.oldVersion + " to version " + f3.newVersion + ', but the storage "' + e.storeName + '" already exists.');
++                    else throw c2;
++                  }
++                }), n.onerror = function (f3) {
++                  f3.preventDefault(), i(n.error);
++                }, n.onsuccess = function () {
++                  var f3 = n.result;
++                  f3.onversionchange = function (s) {
++                    s.target.close();
++                  }, r(f3), X(e);
++                };
++              });
++            }
++            function ee(e) {
++              return $(e, false);
++            }
++            function oe2(e) {
++              return $(e, true);
++            }
++            function a2(e, t) {
++              if (!e.db) return true;
++              var r = !e.db.objectStoreNames.contains(e.storeName), i = e.version < e.db.version, o = e.version > e.db.version;
++              if (i && (e.version !== t && console.warn('The database "' + e.name + `" can't be downgraded from version ` + e.db.version + " to version " + e.version + "."), e.version = e.db.version), o || r) {
++                if (r) {
++                  var n = e.db.version + 1;
++                  n > e.version && (e.version = n);
+                 }
+-              }), n.onerror = function(f3) {
+-                f3.preventDefault(), i(n.error);
+-              }, n.onsuccess = function() {
+-                var f3 = n.result;
+-                f3.onversionchange = function(s) {
+-                  s.target.close();
+-                }, r(f3), X(e);
+-              };
+-            });
+-          }
+-          function ee(e) {
+-            return $(e, false);
+-          }
+-          function oe2(e) {
+-            return $(e, true);
+-          }
+-          function a2(e, t) {
+-            if (!e.db) return true;
+-            var r = !e.db.objectStoreNames.contains(e.storeName), i = e.version < e.db.version, o = e.version > e.db.version;
+-            if (i && (e.version !== t && console.warn('The database "' + e.name + `" can't be downgraded from version ` + e.db.version + " to version " + e.version + "."), e.version = e.db.version), o || r) {
+-              if (r) {
+-                var n = e.db.version + 1;
+-                n > e.version && (e.version = n);
++                return true;
+               }
+-              return true;
++              return false;
+             }
+-            return false;
+-          }
+-          function u3(e) {
+-            return new m3(function(t, r) {
+-              var i = new FileReader();
+-              i.onerror = r, i.onloadend = function(o) {
+-                var n = btoa(o.target.result || "");
+-                t({ __local_forage_encoded_blob: true, data: n, type: e.type });
+-              }, i.readAsBinaryString(e);
+-            });
+-          }
+-          function v2(e) {
+-            var t = D3(atob(e.data));
+-            return J3([t], { type: e.type });
+-          }
+-          function p2(e) {
+-            return e && e.__local_forage_encoded_blob;
+-          }
+-          function g2(e) {
+-            var t = this, r = t._initReady().then(function() {
+-              var i = U3[t._dbInfo.name];
+-              if (i && i.dbReady) return i.dbReady;
+-            });
+-            return B3(r, e, e), r;
+-          }
+-          function I3(e) {
+-            G2(e);
+-            for (var t = U3[e.name], r = t.forages, i = 0; i < r.length; i++) {
+-              var o = r[i];
+-              o._dbInfo.db && (o._dbInfo.db.close(), o._dbInfo.db = null);
++            function u3(e) {
++              return new m3(function (t, r) {
++                var i = new FileReader();
++                i.onerror = r, i.onloadend = function (o) {
++                  var n = btoa(o.target.result || "");
++                  t({ __local_forage_encoded_blob: true, data: n, type: e.type });
++                }, i.readAsBinaryString(e);
++              });
+             }
+-            return e.db = null, ee(e).then(function(n) {
+-              return e.db = n, a2(e) ? oe2(e) : n;
+-            }).then(function(n) {
+-              e.db = t.db = n;
+-              for (var f3 = 0; f3 < r.length; f3++) r[f3]._dbInfo.db = n;
+-            }).catch(function(n) {
+-              throw Q3(e, n), n;
+-            });
+-          }
+-          function N2(e, t, r, i) {
+-            i === void 0 && (i = 1);
+-            try {
+-              var o = e.db.transaction(e.storeName, t);
+-              r(null, o);
+-            } catch (n) {
+-              if (i > 0 && (!e.db || n.name === "InvalidStateError" || n.name === "NotFoundError")) return m3.resolve().then(function() {
+-                if (!e.db || n.name === "NotFoundError" && !e.db.objectStoreNames.contains(e.storeName) && e.version <= e.db.version) return e.db && (e.version = e.db.version + 1), oe2(e);
+-              }).then(function() {
+-                return I3(e).then(function() {
+-                  N2(e, t, r, i - 1);
+-                });
+-              }).catch(r);
+-              r(n);
++            function v2(e) {
++              var t = D3(atob(e.data));
++              return J3([t], { type: e.type });
+             }
+-          }
+-          function V2() {
+-            return { forages: [], db: null, dbReady: null, deferredOperations: [] };
+-          }
+-          function se2(e) {
+-            var t = this, r = { db: null };
+-            if (e) for (var i in e) r[i] = e[i];
+-            var o = U3[r.name];
+-            o || (o = V2(), U3[r.name] = o), o.forages.push(t), t._initReady || (t._initReady = t.ready, t.ready = g2);
+-            var n = [];
+-            function f3() {
+-              return m3.resolve();
++            function p2(e) {
++              return e && e.__local_forage_encoded_blob;
+             }
+-            for (var s = 0; s < o.forages.length; s++) {
+-              var c2 = o.forages[s];
+-              c2 !== t && n.push(c2._initReady().catch(f3));
++            function g2(e) {
++              var t = this, r = t._initReady().then(function () {
++                var i = U3[t._dbInfo.name];
++                if (i && i.dbReady) return i.dbReady;
++              });
++              return B3(r, e, e), r;
+             }
+-            var l2 = o.forages.slice(0);
+-            return m3.all(n).then(function() {
+-              return r.db = o.db, ee(r);
+-            }).then(function(d) {
+-              return r.db = d, a2(r, t._defaultConfig.version) ? oe2(r) : d;
+-            }).then(function(d) {
+-              r.db = o.db = d, t._dbInfo = r;
+-              for (var y3 = 0; y3 < l2.length; y3++) {
+-                var A2 = l2[y3];
+-                A2 !== t && (A2._dbInfo.db = r.db, A2._dbInfo.version = r.version);
++            function I3(e) {
++              G2(e);
++              for (var t = U3[e.name], r = t.forages, i = 0; i < r.length; i++) {
++                var o = r[i];
++                o._dbInfo.db && (o._dbInfo.db.close(), o._dbInfo.db = null);
+               }
+-            });
+-          }
+-          function ae2(e, t) {
+-            var r = this;
+-            e = W3(e);
+-            var i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                N2(r._dbInfo, te2, function(f3, s) {
+-                  if (f3) return n(f3);
+-                  try {
+-                    var c2 = s.objectStore(r._dbInfo.storeName), l2 = c2.get(e);
+-                    l2.onsuccess = function() {
+-                      var d = l2.result;
+-                      d === void 0 && (d = null), p2(d) && (d = v2(d)), o(d);
+-                    }, l2.onerror = function() {
+-                      n(l2.error);
+-                    };
+-                  } catch (d) {
+-                    n(d);
+-                  }
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function ce2(e, t) {
+-            var r = this, i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                N2(r._dbInfo, te2, function(f3, s) {
+-                  if (f3) return n(f3);
+-                  try {
+-                    var c2 = s.objectStore(r._dbInfo.storeName), l2 = c2.openCursor(), d = 1;
+-                    l2.onsuccess = function() {
+-                      var y3 = l2.result;
+-                      if (y3) {
+-                        var A2 = y3.value;
+-                        p2(A2) && (A2 = v2(A2));
+-                        var x3 = e(A2, y3.key, d++);
+-                        x3 !== void 0 ? o(x3) : y3.continue();
+-                      } else o();
+-                    }, l2.onerror = function() {
+-                      n(l2.error);
+-                    };
+-                  } catch (y3) {
+-                    n(y3);
+-                  }
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function ar2(e, t, r) {
+-            var i = this;
+-            e = W3(e);
+-            var o = new m3(function(n, f3) {
+-              var s;
+-              i.ready().then(function() {
+-                return s = i._dbInfo, fe2.call(t) === "[object Blob]" ? C3(s.db).then(function(c2) {
+-                  return c2 ? t : u3(t);
+-                }) : t;
+-              }).then(function(c2) {
+-                N2(i._dbInfo, h3, function(l2, d) {
+-                  if (l2) return f3(l2);
+-                  try {
+-                    var y3 = d.objectStore(i._dbInfo.storeName);
+-                    c2 === null && (c2 = void 0);
+-                    var A2 = y3.put(c2, e);
+-                    d.oncomplete = function() {
+-                      c2 === void 0 && (c2 = null), n(c2);
+-                    }, d.onabort = d.onerror = function() {
+-                      var x3 = A2.error ? A2.error : A2.transaction.error;
++              return e.db = null, ee(e).then(function (n) {
++                return e.db = n, a2(e) ? oe2(e) : n;
++              }).then(function (n) {
++                e.db = t.db = n;
++                for (var f3 = 0; f3 < r.length; f3++) r[f3]._dbInfo.db = n;
++              }).catch(function (n) {
++                throw Q3(e, n), n;
++              });
++            }
++            function N2(e, t, r, i) {
++              i === void 0 && (i = 1);
++              try {
++                var o = e.db.transaction(e.storeName, t);
++                r(null, o);
++              } catch (n) {
++                if (i > 0 && (!e.db || n.name === "InvalidStateError" || n.name === "NotFoundError")) return m3.resolve().then(function () {
++                  if (!e.db || n.name === "NotFoundError" && !e.db.objectStoreNames.contains(e.storeName) && e.version <= e.db.version) return e.db && (e.version = e.db.version + 1), oe2(e);
++                }).then(function () {
++                  return I3(e).then(function () {
++                    N2(e, t, r, i - 1);
++                  });
++                }).catch(r);
++                r(n);
++              }
++            }
++            function V2() {
++              return { forages: [], db: null, dbReady: null, deferredOperations: [] };
++            }
++            function se2(e) {
++              var t = this, r = { db: null };
++              if (e) for (var i in e) r[i] = e[i];
++              var o = U3[r.name];
++              o || (o = V2(), U3[r.name] = o), o.forages.push(t), t._initReady || (t._initReady = t.ready, t.ready = g2);
++              var n = [];
++              function f3() {
++                return m3.resolve();
++              }
++              for (var s = 0; s < o.forages.length; s++) {
++                var c2 = o.forages[s];
++                c2 !== t && n.push(c2._initReady().catch(f3));
++              }
++              var l2 = o.forages.slice(0);
++              return m3.all(n).then(function () {
++                return r.db = o.db, ee(r);
++              }).then(function (d) {
++                return r.db = d, a2(r, t._defaultConfig.version) ? oe2(r) : d;
++              }).then(function (d) {
++                r.db = o.db = d, t._dbInfo = r;
++                for (var y3 = 0; y3 < l2.length; y3++) {
++                  var A2 = l2[y3];
++                  A2 !== t && (A2._dbInfo.db = r.db, A2._dbInfo.version = r.version);
++                }
++              });
++            }
++            function ae2(e, t) {
++              var r = this;
++              e = W3(e);
++              var i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  N2(r._dbInfo, te2, function (f3, s) {
++                    if (f3) return n(f3);
++                    try {
++                      var c2 = s.objectStore(r._dbInfo.storeName), l2 = c2.get(e);
++                      l2.onsuccess = function () {
++                        var d = l2.result;
++                        d === void 0 && (d = null), p2(d) && (d = v2(d)), o(d);
++                      }, l2.onerror = function () {
++                        n(l2.error);
++                      };
++                    } catch (d) {
++                      n(d);
++                    }
++                  });
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function ce2(e, t) {
++              var r = this, i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  N2(r._dbInfo, te2, function (f3, s) {
++                    if (f3) return n(f3);
++                    try {
++                      var c2 = s.objectStore(r._dbInfo.storeName), l2 = c2.openCursor(), d = 1;
++                      l2.onsuccess = function () {
++                        var y3 = l2.result;
++                        if (y3) {
++                          var A2 = y3.value;
++                          p2(A2) && (A2 = v2(A2));
++                          var x3 = e(A2, y3.key, d++);
++                          x3 !== void 0 ? o(x3) : y3.continue();
++                        } else o();
++                      }, l2.onerror = function () {
++                        n(l2.error);
++                      };
++                    } catch (y3) {
++                      n(y3);
++                    }
++                  });
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function ar2(e, t, r) {
++              var i = this;
++              e = W3(e);
++              var o = new m3(function (n, f3) {
++                var s;
++                i.ready().then(function () {
++                  return s = i._dbInfo, fe2.call(t) === "[object Blob]" ? C3(s.db).then(function (c2) {
++                    return c2 ? t : u3(t);
++                  }) : t;
++                }).then(function (c2) {
++                  N2(i._dbInfo, h3, function (l2, d) {
++                    if (l2) return f3(l2);
++                    try {
++                      var y3 = d.objectStore(i._dbInfo.storeName);
++                      c2 === null && (c2 = void 0);
++                      var A2 = y3.put(c2, e);
++                      d.oncomplete = function () {
++                        c2 === void 0 && (c2 = null), n(c2);
++                      }, d.onabort = d.onerror = function () {
++                        var x3 = A2.error ? A2.error : A2.transaction.error;
++                        f3(x3);
++                      };
++                    } catch (x3) {
+                       f3(x3);
+-                    };
+-                  } catch (x3) {
+-                    f3(x3);
+-                  }
+-                });
+-              }).catch(f3);
+-            });
+-            return w2(o, r), o;
+-          }
+-          function fr2(e, t) {
+-            var r = this;
+-            e = W3(e);
+-            var i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                N2(r._dbInfo, h3, function(f3, s) {
+-                  if (f3) return n(f3);
+-                  try {
+-                    var c2 = s.objectStore(r._dbInfo.storeName), l2 = c2.delete(e);
+-                    s.oncomplete = function() {
+-                      o();
+-                    }, s.onerror = function() {
+-                      n(l2.error);
+-                    }, s.onabort = function() {
+-                      var d = l2.error ? l2.error : l2.transaction.error;
++                    }
++                  });
++                }).catch(f3);
++              });
++              return w2(o, r), o;
++            }
++            function fr2(e, t) {
++              var r = this;
++              e = W3(e);
++              var i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  N2(r._dbInfo, h3, function (f3, s) {
++                    if (f3) return n(f3);
++                    try {
++                      var c2 = s.objectStore(r._dbInfo.storeName), l2 = c2.delete(e);
++                      s.oncomplete = function () {
++                        o();
++                      }, s.onerror = function () {
++                        n(l2.error);
++                      }, s.onabort = function () {
++                        var d = l2.error ? l2.error : l2.transaction.error;
++                        n(d);
++                      };
++                    } catch (d) {
+                       n(d);
+-                    };
+-                  } catch (d) {
+-                    n(d);
+-                  }
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function sr2(e) {
+-            var t = this, r = new m3(function(i, o) {
+-              t.ready().then(function() {
+-                N2(t._dbInfo, h3, function(n, f3) {
+-                  if (n) return o(n);
+-                  try {
+-                    var s = f3.objectStore(t._dbInfo.storeName), c2 = s.clear();
+-                    f3.oncomplete = function() {
+-                      i();
+-                    }, f3.onabort = f3.onerror = function() {
+-                      var l2 = c2.error ? c2.error : c2.transaction.error;
++                    }
++                  });
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function sr2(e) {
++              var t = this, r = new m3(function (i, o) {
++                t.ready().then(function () {
++                  N2(t._dbInfo, h3, function (n, f3) {
++                    if (n) return o(n);
++                    try {
++                      var s = f3.objectStore(t._dbInfo.storeName), c2 = s.clear();
++                      f3.oncomplete = function () {
++                        i();
++                      }, f3.onabort = f3.onerror = function () {
++                        var l2 = c2.error ? c2.error : c2.transaction.error;
++                        o(l2);
++                      };
++                    } catch (l2) {
+                       o(l2);
+-                    };
+-                  } catch (l2) {
+-                    o(l2);
+-                  }
+-                });
+-              }).catch(o);
+-            });
+-            return w2(r, e), r;
+-          }
+-          function ur2(e) {
+-            var t = this, r = new m3(function(i, o) {
+-              t.ready().then(function() {
+-                N2(t._dbInfo, te2, function(n, f3) {
+-                  if (n) return o(n);
+-                  try {
+-                    var s = f3.objectStore(t._dbInfo.storeName), c2 = s.count();
+-                    c2.onsuccess = function() {
+-                      i(c2.result);
+-                    }, c2.onerror = function() {
+-                      o(c2.error);
+-                    };
+-                  } catch (l2) {
+-                    o(l2);
+-                  }
+-                });
+-              }).catch(o);
+-            });
+-            return w2(r, e), r;
+-          }
+-          function cr2(e, t) {
+-            var r = this, i = new m3(function(o, n) {
+-              if (e < 0) {
+-                o(null);
+-                return;
+-              }
+-              r.ready().then(function() {
+-                N2(r._dbInfo, te2, function(f3, s) {
+-                  if (f3) return n(f3);
+-                  try {
+-                    var c2 = s.objectStore(r._dbInfo.storeName), l2 = false, d = c2.openKeyCursor();
+-                    d.onsuccess = function() {
+-                      var y3 = d.result;
+-                      if (!y3) {
+-                        o(null);
+-                        return;
+-                      }
+-                      e === 0 || l2 ? o(y3.key) : (l2 = true, y3.advance(e));
+-                    }, d.onerror = function() {
+-                      n(d.error);
+-                    };
+-                  } catch (y3) {
+-                    n(y3);
+-                  }
++                    }
++                  });
++                }).catch(o);
++              });
++              return w2(r, e), r;
++            }
++            function ur2(e) {
++              var t = this, r = new m3(function (i, o) {
++                t.ready().then(function () {
++                  N2(t._dbInfo, te2, function (n, f3) {
++                    if (n) return o(n);
++                    try {
++                      var s = f3.objectStore(t._dbInfo.storeName), c2 = s.count();
++                      c2.onsuccess = function () {
++                        i(c2.result);
++                      }, c2.onerror = function () {
++                        o(c2.error);
++                      };
++                    } catch (l2) {
++                      o(l2);
++                    }
++                  });
++                }).catch(o);
++              });
++              return w2(r, e), r;
++            }
++            function cr2(e, t) {
++              var r = this, i = new m3(function (o, n) {
++                if (e < 0) {
++                  o(null);
++                  return;
++                }
++                r.ready().then(function () {
++                  N2(r._dbInfo, te2, function (f3, s) {
++                    if (f3) return n(f3);
++                    try {
++                      var c2 = s.objectStore(r._dbInfo.storeName), l2 = false, d = c2.openKeyCursor();
++                      d.onsuccess = function () {
++                        var y3 = d.result;
++                        if (!y3) {
++                          o(null);
++                          return;
++                        }
++                        e === 0 || l2 ? o(y3.key) : (l2 = true, y3.advance(e));
++                      }, d.onerror = function () {
++                        n(d.error);
++                      };
++                    } catch (y3) {
++                      n(y3);
++                    }
++                  });
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function lr2(e) {
++              var t = this, r = new m3(function (i, o) {
++                t.ready().then(function () {
++                  N2(t._dbInfo, te2, function (n, f3) {
++                    if (n) return o(n);
++                    try {
++                      var s = f3.objectStore(t._dbInfo.storeName), c2 = s.openKeyCursor(), l2 = [];
++                      c2.onsuccess = function () {
++                        var d = c2.result;
++                        if (!d) {
++                          i(l2);
++                          return;
++                        }
++                        l2.push(d.key), d.continue();
++                      }, c2.onerror = function () {
++                        o(c2.error);
++                      };
++                    } catch (d) {
++                      o(d);
++                    }
++                  });
++                }).catch(o);
++              });
++              return w2(r, e), r;
++            }
++            function dr2(e, t) {
++              t = Z.apply(this, arguments);
++              var r = this.config();
++              e = typeof e != "function" && e || {}, e.name || (e.name = e.name || r.name, e.storeName = e.storeName || r.storeName);
++              var i = this, o;
++              if (!e.name) o = m3.reject("Invalid arguments");
++              else {
++                var n = e.name === r.name && i._dbInfo.db, f3 = n ? m3.resolve(i._dbInfo.db) : ee(e).then(function (s) {
++                  var c2 = U3[e.name], l2 = c2.forages;
++                  c2.db = s;
++                  for (var d = 0; d < l2.length; d++) l2[d]._dbInfo.db = s;
++                  return s;
+                 });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function lr2(e) {
+-            var t = this, r = new m3(function(i, o) {
+-              t.ready().then(function() {
+-                N2(t._dbInfo, te2, function(n, f3) {
+-                  if (n) return o(n);
+-                  try {
+-                    var s = f3.objectStore(t._dbInfo.storeName), c2 = s.openKeyCursor(), l2 = [];
+-                    c2.onsuccess = function() {
+-                      var d = c2.result;
+-                      if (!d) {
+-                        i(l2);
+-                        return;
++                e.storeName ? o = f3.then(function (s) {
++                  if (!!s.objectStoreNames.contains(e.storeName)) {
++                    var c2 = s.version + 1;
++                    G2(e);
++                    var l2 = U3[e.name], d = l2.forages;
++                    s.close();
++                    for (var y3 = 0; y3 < d.length; y3++) {
++                      var A2 = d[y3];
++                      A2._dbInfo.db = null, A2._dbInfo.version = c2;
++                    }
++                    var x3 = new m3(function (L3, H3) {
++                      var z3 = M.open(e.name, c2);
++                      z3.onerror = function (q3) {
++                        var de = z3.result;
++                        de.close(), H3(q3);
++                      }, z3.onupgradeneeded = function () {
++                        var q3 = z3.result;
++                        q3.deleteObjectStore(e.storeName);
++                      }, z3.onsuccess = function () {
++                        var q3 = z3.result;
++                        q3.close(), L3(q3);
++                      };
++                    });
++                    return x3.then(function (L3) {
++                      l2.db = L3;
++                      for (var H3 = 0; H3 < d.length; H3++) {
++                        var z3 = d[H3];
++                        z3._dbInfo.db = L3, X(z3._dbInfo);
+                       }
+-                      l2.push(d.key), d.continue();
+-                    }, c2.onerror = function() {
+-                      o(c2.error);
+-                    };
+-                  } catch (d) {
+-                    o(d);
++                    }).catch(function (L3) {
++                      throw (Q3(e, L3) || m3.resolve()).catch(function () {
++                      }), L3;
++                    });
+                   }
+-                });
+-              }).catch(o);
+-            });
+-            return w2(r, e), r;
+-          }
+-          function dr2(e, t) {
+-            t = Z.apply(this, arguments);
+-            var r = this.config();
+-            e = typeof e != "function" && e || {}, e.name || (e.name = e.name || r.name, e.storeName = e.storeName || r.storeName);
+-            var i = this, o;
+-            if (!e.name) o = m3.reject("Invalid arguments");
+-            else {
+-              var n = e.name === r.name && i._dbInfo.db, f3 = n ? m3.resolve(i._dbInfo.db) : ee(e).then(function(s) {
+-                var c2 = U3[e.name], l2 = c2.forages;
+-                c2.db = s;
+-                for (var d = 0; d < l2.length; d++) l2[d]._dbInfo.db = s;
+-                return s;
+-              });
+-              e.storeName ? o = f3.then(function(s) {
+-                if (!!s.objectStoreNames.contains(e.storeName)) {
+-                  var c2 = s.version + 1;
++                }) : o = f3.then(function (s) {
+                   G2(e);
+-                  var l2 = U3[e.name], d = l2.forages;
++                  var c2 = U3[e.name], l2 = c2.forages;
+                   s.close();
+-                  for (var y3 = 0; y3 < d.length; y3++) {
+-                    var A2 = d[y3];
+-                    A2._dbInfo.db = null, A2._dbInfo.version = c2;
++                  for (var d = 0; d < l2.length; d++) {
++                    var y3 = l2[d];
++                    y3._dbInfo.db = null;
+                   }
+-                  var x3 = new m3(function(L3, H3) {
+-                    var z3 = M.open(e.name, c2);
+-                    z3.onerror = function(q3) {
+-                      var de = z3.result;
+-                      de.close(), H3(q3);
+-                    }, z3.onupgradeneeded = function() {
+-                      var q3 = z3.result;
+-                      q3.deleteObjectStore(e.storeName);
+-                    }, z3.onsuccess = function() {
+-                      var q3 = z3.result;
+-                      q3.close(), L3(q3);
++                  var A2 = new m3(function (x3, L3) {
++                    var H3 = M.deleteDatabase(e.name);
++                    H3.onerror = function () {
++                      var z3 = H3.result;
++                      z3 && z3.close(), L3(H3.error);
++                    }, H3.onblocked = function () {
++                      console.warn('dropInstance blocked for database "' + e.name + '" until all open connections are closed');
++                    }, H3.onsuccess = function () {
++                      var z3 = H3.result;
++                      z3 && z3.close(), x3(z3);
+                     };
+                   });
+-                  return x3.then(function(L3) {
+-                    l2.db = L3;
+-                    for (var H3 = 0; H3 < d.length; H3++) {
+-                      var z3 = d[H3];
+-                      z3._dbInfo.db = L3, X(z3._dbInfo);
++                  return A2.then(function (x3) {
++                    c2.db = x3;
++                    for (var L3 = 0; L3 < l2.length; L3++) {
++                      var H3 = l2[L3];
++                      X(H3._dbInfo);
+                     }
+-                  }).catch(function(L3) {
+-                    throw (Q3(e, L3) || m3.resolve()).catch(function() {
+-                    }), L3;
++                  }).catch(function (x3) {
++                    throw (Q3(e, x3) || m3.resolve()).catch(function () {
++                    }), x3;
+                   });
+-                }
+-              }) : o = f3.then(function(s) {
+-                G2(e);
+-                var c2 = U3[e.name], l2 = c2.forages;
+-                s.close();
+-                for (var d = 0; d < l2.length; d++) {
+-                  var y3 = l2[d];
+-                  y3._dbInfo.db = null;
+-                }
+-                var A2 = new m3(function(x3, L3) {
+-                  var H3 = M.deleteDatabase(e.name);
+-                  H3.onerror = function() {
+-                    var z3 = H3.result;
+-                    z3 && z3.close(), L3(H3.error);
+-                  }, H3.onblocked = function() {
+-                    console.warn('dropInstance blocked for database "' + e.name + '" until all open connections are closed');
+-                  }, H3.onsuccess = function() {
+-                    var z3 = H3.result;
+-                    z3 && z3.close(), x3(z3);
+-                  };
+                 });
+-                return A2.then(function(x3) {
+-                  c2.db = x3;
+-                  for (var L3 = 0; L3 < l2.length; L3++) {
+-                    var H3 = l2[L3];
+-                    X(H3._dbInfo);
+-                  }
+-                }).catch(function(x3) {
+-                  throw (Q3(e, x3) || m3.resolve()).catch(function() {
+-                  }), x3;
+-                });
+-              });
++              }
++              return w2(o, t), o;
+             }
+-            return w2(o, t), o;
+-          }
+-          var vr2 = { _driver: "asyncStorage", _initStorage: se2, _support: K2(), iterate: ce2, getItem: ae2, setItem: ar2, removeItem: fr2, clear: sr2, length: ur2, key: cr2, keys: lr2, dropInstance: dr2 };
+-          function hr2() {
+-            return typeof openDatabase == "function";
+-          }
+-          var ne = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", mr2 = "~~local_forage_type~", Be2 = /^~~local_forage_type~([^~]+)~/, he = "__lfsc__:", be2 = he.length, _e2 = "arbf", we2 = "blob", xe2 = "si08", Oe2 = "ui08", Ce = "uic8", Le2 = "si16", Pe = "si32", Me2 = "ur16", Fe2 = "ui32", Ue2 = "fl32", Ye2 = "fl64", We2 = be2 + _e2.length, ze2 = Object.prototype.toString;
+-          function He2(e) {
+-            var t = e.length * 0.75, r = e.length, i, o = 0, n, f3, s, c2;
+-            e[e.length - 1] === "=" && (t--, e[e.length - 2] === "=" && t--);
+-            var l2 = new ArrayBuffer(t), d = new Uint8Array(l2);
+-            for (i = 0; i < r; i += 4) n = ne.indexOf(e[i]), f3 = ne.indexOf(e[i + 1]), s = ne.indexOf(e[i + 2]), c2 = ne.indexOf(e[i + 3]), d[o++] = n << 2 | f3 >> 4, d[o++] = (f3 & 15) << 4 | s >> 2, d[o++] = (s & 3) << 6 | c2 & 63;
+-            return l2;
+-          }
+-          function Ie(e) {
+-            var t = new Uint8Array(e), r = "", i;
+-            for (i = 0; i < t.length; i += 3) r += ne[t[i] >> 2], r += ne[(t[i] & 3) << 4 | t[i + 1] >> 4], r += ne[(t[i + 1] & 15) << 2 | t[i + 2] >> 6], r += ne[t[i + 2] & 63];
+-            return t.length % 3 === 2 ? r = r.substring(0, r.length - 1) + "=" : t.length % 3 === 1 && (r = r.substring(0, r.length - 2) + "=="), r;
+-          }
+-          function yr2(e, t) {
+-            var r = "";
+-            if (e && (r = ze2.call(e)), e && (r === "[object ArrayBuffer]" || e.buffer && ze2.call(e.buffer) === "[object ArrayBuffer]")) {
+-              var i, o = he;
+-              e instanceof ArrayBuffer ? (i = e, o += _e2) : (i = e.buffer, r === "[object Int8Array]" ? o += xe2 : r === "[object Uint8Array]" ? o += Oe2 : r === "[object Uint8ClampedArray]" ? o += Ce : r === "[object Int16Array]" ? o += Le2 : r === "[object Uint16Array]" ? o += Me2 : r === "[object Int32Array]" ? o += Pe : r === "[object Uint32Array]" ? o += Fe2 : r === "[object Float32Array]" ? o += Ue2 : r === "[object Float64Array]" ? o += Ye2 : t(new Error("Failed to get type for BinaryArray"))), t(o + Ie(i));
+-            } else if (r === "[object Blob]") {
+-              var n = new FileReader();
+-              n.onload = function() {
+-                var f3 = mr2 + e.type + "~" + Ie(this.result);
+-                t(he + we2 + f3);
+-              }, n.readAsArrayBuffer(e);
+-            } else try {
+-              t(JSON.stringify(e));
+-            } catch (f3) {
+-              console.error("Couldn't convert value into a JSON string: ", e), t(null, f3);
++            var vr2 = { _driver: "asyncStorage", _initStorage: se2, _support: K2(), iterate: ce2, getItem: ae2, setItem: ar2, removeItem: fr2, clear: sr2, length: ur2, key: cr2, keys: lr2, dropInstance: dr2 };
++            function hr2() {
++              return typeof openDatabase == "function";
+             }
+-          }
+-          function pr2(e) {
+-            if (e.substring(0, be2) !== he) return JSON.parse(e);
+-            var t = e.substring(We2), r = e.substring(be2, We2), i;
+-            if (r === we2 && Be2.test(t)) {
+-              var o = t.match(Be2);
+-              i = o[1], t = t.substring(o[0].length);
++            var ne = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", mr2 = "~~local_forage_type~", Be2 = /^~~local_forage_type~([^~]+)~/, he = "__lfsc__:", be2 = he.length, _e2 = "arbf", we2 = "blob", xe2 = "si08", Oe2 = "ui08", Ce = "uic8", Le2 = "si16", Pe = "si32", Me2 = "ur16", Fe2 = "ui32", Ue2 = "fl32", Ye2 = "fl64", We2 = be2 + _e2.length, ze2 = Object.prototype.toString;
++            function He2(e) {
++              var t = e.length * 0.75, r = e.length, i, o = 0, n, f3, s, c2;
++              e[e.length - 1] === "=" && (t--, e[e.length - 2] === "=" && t--);
++              var l2 = new ArrayBuffer(t), d = new Uint8Array(l2);
++              for (i = 0; i < r; i += 4) n = ne.indexOf(e[i]), f3 = ne.indexOf(e[i + 1]), s = ne.indexOf(e[i + 2]), c2 = ne.indexOf(e[i + 3]), d[o++] = n << 2 | f3 >> 4, d[o++] = (f3 & 15) << 4 | s >> 2, d[o++] = (s & 3) << 6 | c2 & 63;
++              return l2;
+             }
+-            var n = He2(t);
+-            switch (r) {
+-              case _e2:
+-                return n;
+-              case we2:
+-                return J3([n], { type: i });
+-              case xe2:
+-                return new Int8Array(n);
+-              case Oe2:
+-                return new Uint8Array(n);
+-              case Ce:
+-                return new Uint8ClampedArray(n);
+-              case Le2:
+-                return new Int16Array(n);
+-              case Me2:
+-                return new Uint16Array(n);
+-              case Pe:
+-                return new Int32Array(n);
+-              case Fe2:
+-                return new Uint32Array(n);
+-              case Ue2:
+-                return new Float32Array(n);
+-              case Ye2:
+-                return new Float64Array(n);
+-              default:
+-                throw new Error("Unkown type: " + r);
++            function Ie(e) {
++              var t = new Uint8Array(e), r = "", i;
++              for (i = 0; i < t.length; i += 3) r += ne[t[i] >> 2], r += ne[(t[i] & 3) << 4 | t[i + 1] >> 4], r += ne[(t[i + 1] & 15) << 2 | t[i + 2] >> 6], r += ne[t[i + 2] & 63];
++              return t.length % 3 === 2 ? r = r.substring(0, r.length - 1) + "=" : t.length % 3 === 1 && (r = r.substring(0, r.length - 2) + "=="), r;
+             }
+-          }
+-          var Ee2 = { serialize: yr2, deserialize: pr2, stringToBuffer: He2, bufferToString: Ie };
+-          function Ke2(e, t, r, i) {
+-            e.executeSql("CREATE TABLE IF NOT EXISTS " + t.storeName + " (id INTEGER PRIMARY KEY, key unique, value)", [], r, i);
+-          }
+-          function gr2(e) {
+-            var t = this, r = { db: null };
+-            if (e) for (var i in e) r[i] = typeof e[i] != "string" ? e[i].toString() : e[i];
+-            var o = new m3(function(n, f3) {
+-              try {
+-                r.db = openDatabase(r.name, String(r.version), r.description, r.size);
+-              } catch (s) {
+-                return f3(s);
++            function yr2(e, t) {
++              var r = "";
++              if (e && (r = ze2.call(e)), e && (r === "[object ArrayBuffer]" || e.buffer && ze2.call(e.buffer) === "[object ArrayBuffer]")) {
++                var i, o = he;
++                e instanceof ArrayBuffer ? (i = e, o += _e2) : (i = e.buffer, r === "[object Int8Array]" ? o += xe2 : r === "[object Uint8Array]" ? o += Oe2 : r === "[object Uint8ClampedArray]" ? o += Ce : r === "[object Int16Array]" ? o += Le2 : r === "[object Uint16Array]" ? o += Me2 : r === "[object Int32Array]" ? o += Pe : r === "[object Uint32Array]" ? o += Fe2 : r === "[object Float32Array]" ? o += Ue2 : r === "[object Float64Array]" ? o += Ye2 : t(new Error("Failed to get type for BinaryArray"))), t(o + Ie(i));
++              } else if (r === "[object Blob]") {
++                var n = new FileReader();
++                n.onload = function () {
++                  var f3 = mr2 + e.type + "~" + Ie(this.result);
++                  t(he + we2 + f3);
++                }, n.readAsArrayBuffer(e);
++              } else try {
++                t(JSON.stringify(e));
++              } catch (f3) {
++                console.error("Couldn't convert value into a JSON string: ", e), t(null, f3);
+               }
+-              r.db.transaction(function(s) {
+-                Ke2(s, r, function() {
+-                  t._dbInfo = r, n();
+-                }, function(c2, l2) {
+-                  f3(l2);
+-                });
+-              }, f3);
+-            });
+-            return r.serializer = Ee2, o;
+-          }
+-          function ie2(e, t, r, i, o, n) {
+-            e.executeSql(r, i, o, function(f3, s) {
+-              s.code === s.SYNTAX_ERR ? f3.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [t.storeName], function(c2, l2) {
+-                l2.rows.length ? n(c2, s) : Ke2(c2, t, function() {
+-                  c2.executeSql(r, i, o, n);
+-                }, n);
+-              }, n) : n(f3, s);
+-            }, n);
+-          }
+-          function br2(e, t) {
+-            var r = this;
+-            e = W3(e);
+-            var i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                var f3 = r._dbInfo;
+-                f3.db.transaction(function(s) {
+-                  ie2(s, f3, "SELECT * FROM " + f3.storeName + " WHERE key = ? LIMIT 1", [e], function(c2, l2) {
+-                    var d = l2.rows.length ? l2.rows.item(0).value : null;
+-                    d && (d = f3.serializer.deserialize(d)), o(d);
+-                  }, function(c2, l2) {
+-                    n(l2);
++            }
++            function pr2(e) {
++              if (e.substring(0, be2) !== he) return JSON.parse(e);
++              var t = e.substring(We2), r = e.substring(be2, We2), i;
++              if (r === we2 && Be2.test(t)) {
++                var o = t.match(Be2);
++                i = o[1], t = t.substring(o[0].length);
++              }
++              var n = He2(t);
++              switch (r) {
++                case _e2:
++                  return n;
++                case we2:
++                  return J3([n], { type: i });
++                case xe2:
++                  return new Int8Array(n);
++                case Oe2:
++                  return new Uint8Array(n);
++                case Ce:
++                  return new Uint8ClampedArray(n);
++                case Le2:
++                  return new Int16Array(n);
++                case Me2:
++                  return new Uint16Array(n);
++                case Pe:
++                  return new Int32Array(n);
++                case Fe2:
++                  return new Uint32Array(n);
++                case Ue2:
++                  return new Float32Array(n);
++                case Ye2:
++                  return new Float64Array(n);
++                default:
++                  throw new Error("Unkown type: " + r);
++              }
++            }
++            var Ee2 = { serialize: yr2, deserialize: pr2, stringToBuffer: He2, bufferToString: Ie };
++            function Ke2(e, t, r, i) {
++              e.executeSql("CREATE TABLE IF NOT EXISTS " + t.storeName + " (id INTEGER PRIMARY KEY, key unique, value)", [], r, i);
++            }
++            function gr2(e) {
++              var t = this, r = { db: null };
++              if (e) for (var i in e) r[i] = typeof e[i] != "string" ? e[i].toString() : e[i];
++              var o = new m3(function (n, f3) {
++                try {
++                  r.db = openDatabase(r.name, String(r.version), r.description, r.size);
++                } catch (s) {
++                  return f3(s);
++                }
++                r.db.transaction(function (s) {
++                  Ke2(s, r, function () {
++                    t._dbInfo = r, n();
++                  }, function (c2, l2) {
++                    f3(l2);
+                   });
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function _r2(e, t) {
+-            var r = this, i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                var f3 = r._dbInfo;
+-                f3.db.transaction(function(s) {
+-                  ie2(s, f3, "SELECT * FROM " + f3.storeName, [], function(c2, l2) {
+-                    for (var d = l2.rows, y3 = d.length, A2 = 0; A2 < y3; A2++) {
+-                      var x3 = d.item(A2), L3 = x3.value;
+-                      if (L3 && (L3 = f3.serializer.deserialize(L3)), L3 = e(L3, x3.key, A2 + 1), L3 !== void 0) {
+-                        o(L3);
+-                        return;
+-                      }
+-                    }
+-                    o();
+-                  }, function(c2, l2) {
+-                    n(l2);
++                }, f3);
++              });
++              return r.serializer = Ee2, o;
++            }
++            function ie2(e, t, r, i, o, n) {
++              e.executeSql(r, i, o, function (f3, s) {
++                s.code === s.SYNTAX_ERR ? f3.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [t.storeName], function (c2, l2) {
++                  l2.rows.length ? n(c2, s) : Ke2(c2, t, function () {
++                    c2.executeSql(r, i, o, n);
++                  }, n);
++                }, n) : n(f3, s);
++              }, n);
++            }
++            function br2(e, t) {
++              var r = this;
++              e = W3(e);
++              var i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  var f3 = r._dbInfo;
++                  f3.db.transaction(function (s) {
++                    ie2(s, f3, "SELECT * FROM " + f3.storeName + " WHERE key = ? LIMIT 1", [e], function (c2, l2) {
++                      var d = l2.rows.length ? l2.rows.item(0).value : null;
++                      d && (d = f3.serializer.deserialize(d)), o(d);
++                    }, function (c2, l2) {
++                      n(l2);
++                    });
+                   });
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function Ge2(e, t, r, i) {
+-            var o = this;
+-            e = W3(e);
+-            var n = new m3(function(f3, s) {
+-              o.ready().then(function() {
+-                t === void 0 && (t = null);
+-                var c2 = t, l2 = o._dbInfo;
+-                l2.serializer.serialize(t, function(d, y3) {
+-                  y3 ? s(y3) : l2.db.transaction(function(A2) {
+-                    ie2(A2, l2, "INSERT OR REPLACE INTO " + l2.storeName + " (key, value) VALUES (?, ?)", [e, d], function() {
+-                      f3(c2);
+-                    }, function(x3, L3) {
+-                      s(L3);
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function _r2(e, t) {
++              var r = this, i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  var f3 = r._dbInfo;
++                  f3.db.transaction(function (s) {
++                    ie2(s, f3, "SELECT * FROM " + f3.storeName, [], function (c2, l2) {
++                      for (var d = l2.rows, y3 = d.length, A2 = 0; A2 < y3; A2++) {
++                        var x3 = d.item(A2), L3 = x3.value;
++                        if (L3 && (L3 = f3.serializer.deserialize(L3)), L3 = e(L3, x3.key, A2 + 1), L3 !== void 0) {
++                          o(L3);
++                          return;
++                        }
++                      }
++                      o();
++                    }, function (c2, l2) {
++                      n(l2);
+                     });
+-                  }, function(A2) {
+-                    if (A2.code === A2.QUOTA_ERR) {
+-                      if (i > 0) {
+-                        f3(Ge2.apply(o, [e, c2, r, i - 1]));
+-                        return;
++                  });
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function Ge2(e, t, r, i) {
++              var o = this;
++              e = W3(e);
++              var n = new m3(function (f3, s) {
++                o.ready().then(function () {
++                  t === void 0 && (t = null);
++                  var c2 = t, l2 = o._dbInfo;
++                  l2.serializer.serialize(t, function (d, y3) {
++                    y3 ? s(y3) : l2.db.transaction(function (A2) {
++                      ie2(A2, l2, "INSERT OR REPLACE INTO " + l2.storeName + " (key, value) VALUES (?, ?)", [e, d], function () {
++                        f3(c2);
++                      }, function (x3, L3) {
++                        s(L3);
++                      });
++                    }, function (A2) {
++                      if (A2.code === A2.QUOTA_ERR) {
++                        if (i > 0) {
++                          f3(Ge2.apply(o, [e, c2, r, i - 1]));
++                          return;
++                        }
++                        s(A2);
+                       }
+-                      s(A2);
+-                    }
++                    });
+                   });
+-                });
+-              }).catch(s);
+-            });
+-            return w2(n, r), n;
+-          }
+-          function wr2(e, t, r) {
+-            return Ge2.apply(this, [e, t, r, 1]);
+-          }
+-          function Ir2(e, t) {
+-            var r = this;
+-            e = W3(e);
+-            var i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                var f3 = r._dbInfo;
+-                f3.db.transaction(function(s) {
+-                  ie2(s, f3, "DELETE FROM " + f3.storeName + " WHERE key = ?", [e], function() {
+-                    o();
+-                  }, function(c2, l2) {
+-                    n(l2);
++                }).catch(s);
++              });
++              return w2(n, r), n;
++            }
++            function wr2(e, t, r) {
++              return Ge2.apply(this, [e, t, r, 1]);
++            }
++            function Ir2(e, t) {
++              var r = this;
++              e = W3(e);
++              var i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  var f3 = r._dbInfo;
++                  f3.db.transaction(function (s) {
++                    ie2(s, f3, "DELETE FROM " + f3.storeName + " WHERE key = ?", [e], function () {
++                      o();
++                    }, function (c2, l2) {
++                      n(l2);
++                    });
+                   });
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function Er2(e) {
+-            var t = this, r = new m3(function(i, o) {
+-              t.ready().then(function() {
+-                var n = t._dbInfo;
+-                n.db.transaction(function(f3) {
+-                  ie2(f3, n, "DELETE FROM " + n.storeName, [], function() {
+-                    i();
+-                  }, function(s, c2) {
+-                    o(c2);
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function Er2(e) {
++              var t = this, r = new m3(function (i, o) {
++                t.ready().then(function () {
++                  var n = t._dbInfo;
++                  n.db.transaction(function (f3) {
++                    ie2(f3, n, "DELETE FROM " + n.storeName, [], function () {
++                      i();
++                    }, function (s, c2) {
++                      o(c2);
++                    });
+                   });
+-                });
+-              }).catch(o);
+-            });
+-            return w2(r, e), r;
+-          }
+-          function Sr2(e) {
+-            var t = this, r = new m3(function(i, o) {
+-              t.ready().then(function() {
+-                var n = t._dbInfo;
+-                n.db.transaction(function(f3) {
+-                  ie2(f3, n, "SELECT COUNT(key) as c FROM " + n.storeName, [], function(s, c2) {
+-                    var l2 = c2.rows.item(0).c;
+-                    i(l2);
+-                  }, function(s, c2) {
+-                    o(c2);
++                }).catch(o);
++              });
++              return w2(r, e), r;
++            }
++            function Sr2(e) {
++              var t = this, r = new m3(function (i, o) {
++                t.ready().then(function () {
++                  var n = t._dbInfo;
++                  n.db.transaction(function (f3) {
++                    ie2(f3, n, "SELECT COUNT(key) as c FROM " + n.storeName, [], function (s, c2) {
++                      var l2 = c2.rows.item(0).c;
++                      i(l2);
++                    }, function (s, c2) {
++                      o(c2);
++                    });
+                   });
+-                });
+-              }).catch(o);
+-            });
+-            return w2(r, e), r;
+-          }
+-          function Ar2(e, t) {
+-            var r = this, i = new m3(function(o, n) {
+-              r.ready().then(function() {
+-                var f3 = r._dbInfo;
+-                f3.db.transaction(function(s) {
+-                  ie2(s, f3, "SELECT key FROM " + f3.storeName + " WHERE id = ? LIMIT 1", [e + 1], function(c2, l2) {
+-                    var d = l2.rows.length ? l2.rows.item(0).key : null;
+-                    o(d);
+-                  }, function(c2, l2) {
+-                    n(l2);
++                }).catch(o);
++              });
++              return w2(r, e), r;
++            }
++            function Ar2(e, t) {
++              var r = this, i = new m3(function (o, n) {
++                r.ready().then(function () {
++                  var f3 = r._dbInfo;
++                  f3.db.transaction(function (s) {
++                    ie2(s, f3, "SELECT key FROM " + f3.storeName + " WHERE id = ? LIMIT 1", [e + 1], function (c2, l2) {
++                      var d = l2.rows.length ? l2.rows.item(0).key : null;
++                      o(d);
++                    }, function (c2, l2) {
++                      n(l2);
++                    });
+                   });
+-                });
+-              }).catch(n);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function Tr2(e) {
+-            var t = this, r = new m3(function(i, o) {
+-              t.ready().then(function() {
+-                var n = t._dbInfo;
+-                n.db.transaction(function(f3) {
+-                  ie2(f3, n, "SELECT key FROM " + n.storeName, [], function(s, c2) {
+-                    for (var l2 = [], d = 0; d < c2.rows.length; d++) l2.push(c2.rows.item(d).key);
+-                    i(l2);
+-                  }, function(s, c2) {
+-                    o(c2);
++                }).catch(n);
++              });
++              return w2(i, t), i;
++            }
++            function Tr2(e) {
++              var t = this, r = new m3(function (i, o) {
++                t.ready().then(function () {
++                  var n = t._dbInfo;
++                  n.db.transaction(function (f3) {
++                    ie2(f3, n, "SELECT key FROM " + n.storeName, [], function (s, c2) {
++                      for (var l2 = [], d = 0; d < c2.rows.length; d++) l2.push(c2.rows.item(d).key);
++                      i(l2);
++                    }, function (s, c2) {
++                      o(c2);
++                    });
+                   });
++                }).catch(o);
++              });
++              return w2(r, e), r;
++            }
++            function Rr2(e) {
++              return new m3(function (t, r) {
++                e.transaction(function (i) {
++                  i.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function (o, n) {
++                    for (var f3 = [], s = 0; s < n.rows.length; s++) f3.push(n.rows.item(s).name);
++                    t({ db: e, storeNames: f3 });
++                  }, function (o, n) {
++                    r(n);
++                  });
++                }, function (i) {
++                  r(i);
+                 });
+-              }).catch(o);
+-            });
+-            return w2(r, e), r;
+-          }
+-          function Rr2(e) {
+-            return new m3(function(t, r) {
+-              e.transaction(function(i) {
+-                i.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function(o, n) {
+-                  for (var f3 = [], s = 0; s < n.rows.length; s++) f3.push(n.rows.item(s).name);
+-                  t({ db: e, storeNames: f3 });
+-                }, function(o, n) {
+-                  r(n);
+-                });
+-              }, function(i) {
+-                r(i);
+               });
+-            });
+-          }
+-          function Dr2(e, t) {
+-            t = Z.apply(this, arguments);
+-            var r = this.config();
+-            e = typeof e != "function" && e || {}, e.name || (e.name = e.name || r.name, e.storeName = e.storeName || r.storeName);
+-            var i = this, o;
+-            return e.name ? o = new m3(function(n) {
+-              var f3;
+-              e.name === r.name ? f3 = i._dbInfo.db : f3 = openDatabase(e.name, "", "", 0), e.storeName ? n({ db: f3, storeNames: [e.storeName] }) : n(Rr2(f3));
+-            }).then(function(n) {
+-              return new m3(function(f3, s) {
+-                n.db.transaction(function(c2) {
+-                  function l2(x3) {
+-                    return new m3(function(L3, H3) {
+-                      c2.executeSql("DROP TABLE IF EXISTS " + x3, [], function() {
+-                        L3();
+-                      }, function(z3, q3) {
+-                        H3(q3);
++            }
++            function Dr2(e, t) {
++              t = Z.apply(this, arguments);
++              var r = this.config();
++              e = typeof e != "function" && e || {}, e.name || (e.name = e.name || r.name, e.storeName = e.storeName || r.storeName);
++              var i = this, o;
++              return e.name ? o = new m3(function (n) {
++                var f3;
++                e.name === r.name ? f3 = i._dbInfo.db : f3 = openDatabase(e.name, "", "", 0), e.storeName ? n({ db: f3, storeNames: [e.storeName] }) : n(Rr2(f3));
++              }).then(function (n) {
++                return new m3(function (f3, s) {
++                  n.db.transaction(function (c2) {
++                    function l2(x3) {
++                      return new m3(function (L3, H3) {
++                        c2.executeSql("DROP TABLE IF EXISTS " + x3, [], function () {
++                          L3();
++                        }, function (z3, q3) {
++                          H3(q3);
++                        });
+                       });
++                    }
++                    for (var d = [], y3 = 0, A2 = n.storeNames.length; y3 < A2; y3++) d.push(l2(n.storeNames[y3]));
++                    m3.all(d).then(function () {
++                      f3();
++                    }).catch(function (x3) {
++                      s(x3);
+                     });
+-                  }
+-                  for (var d = [], y3 = 0, A2 = n.storeNames.length; y3 < A2; y3++) d.push(l2(n.storeNames[y3]));
+-                  m3.all(d).then(function() {
+-                    f3();
+-                  }).catch(function(x3) {
+-                    s(x3);
++                  }, function (c2) {
++                    s(c2);
+                   });
+-                }, function(c2) {
+-                  s(c2);
+                 });
+-              });
+-            }) : o = m3.reject("Invalid arguments"), w2(o, t), o;
+-          }
+-          var Nr2 = { _driver: "webSQLStorage", _initStorage: gr2, _support: hr2(), iterate: _r2, getItem: br2, setItem: wr2, removeItem: Ir2, clear: Er2, length: Sr2, key: Ar2, keys: Tr2, dropInstance: Dr2 };
+-          function Br2() {
+-            try {
+-              return typeof localStorage < "u" && "setItem" in localStorage && !!localStorage.setItem;
+-            } catch {
+-              return false;
+-            }
+-          }
+-          function Ve2(e, t) {
+-            var r = e.name + "/";
+-            return e.storeName !== t.storeName && (r += e.storeName + "/"), r;
+-          }
+-          function xr2() {
+-            var e = "_localforage_support_test";
+-            try {
+-              return localStorage.setItem(e, true), localStorage.removeItem(e), false;
+-            } catch {
+-              return true;
++              }) : o = m3.reject("Invalid arguments"), w2(o, t), o;
+             }
+-          }
+-          function Or2() {
+-            return !xr2() || localStorage.length > 0;
+-          }
+-          function Cr2(e) {
+-            var t = this, r = {};
+-            if (e) for (var i in e) r[i] = e[i];
+-            return r.keyPrefix = Ve2(e, t._defaultConfig), Or2() ? (t._dbInfo = r, r.serializer = Ee2, m3.resolve()) : m3.reject();
+-          }
+-          function Lr2(e) {
+-            var t = this, r = t.ready().then(function() {
+-              for (var i = t._dbInfo.keyPrefix, o = localStorage.length - 1; o >= 0; o--) {
+-                var n = localStorage.key(o);
+-                n.indexOf(i) === 0 && localStorage.removeItem(n);
+-              }
+-            });
+-            return w2(r, e), r;
+-          }
+-          function Pr2(e, t) {
+-            var r = this;
+-            e = W3(e);
+-            var i = r.ready().then(function() {
+-              var o = r._dbInfo, n = localStorage.getItem(o.keyPrefix + e);
+-              return n && (n = o.serializer.deserialize(n)), n;
+-            });
+-            return w2(i, t), i;
+-          }
+-          function Mr2(e, t) {
+-            var r = this, i = r.ready().then(function() {
+-              for (var o = r._dbInfo, n = o.keyPrefix, f3 = n.length, s = localStorage.length, c2 = 1, l2 = 0; l2 < s; l2++) {
+-                var d = localStorage.key(l2);
+-                if (d.indexOf(n) === 0) {
+-                  var y3 = localStorage.getItem(d);
+-                  if (y3 && (y3 = o.serializer.deserialize(y3)), y3 = e(y3, d.substring(f3), c2++), y3 !== void 0) return y3;
+-                }
+-              }
+-            });
+-            return w2(i, t), i;
+-          }
+-          function Fr2(e, t) {
+-            var r = this, i = r.ready().then(function() {
+-              var o = r._dbInfo, n;
++            var Nr2 = { _driver: "webSQLStorage", _initStorage: gr2, _support: hr2(), iterate: _r2, getItem: br2, setItem: wr2, removeItem: Ir2, clear: Er2, length: Sr2, key: Ar2, keys: Tr2, dropInstance: Dr2 };
++            function Br2() {
+               try {
+-                n = localStorage.key(e);
++                return typeof localStorage < "u" && "setItem" in localStorage && !!localStorage.setItem;
+               } catch {
+-                n = null;
++                return false;
+               }
+-              return n && (n = n.substring(o.keyPrefix.length)), n;
+-            });
+-            return w2(i, t), i;
+-          }
+-          function Ur2(e) {
+-            var t = this, r = t.ready().then(function() {
+-              for (var i = t._dbInfo, o = localStorage.length, n = [], f3 = 0; f3 < o; f3++) {
+-                var s = localStorage.key(f3);
+-                s.indexOf(i.keyPrefix) === 0 && n.push(s.substring(i.keyPrefix.length));
++            }
++            function Ve2(e, t) {
++              var r = e.name + "/";
++              return e.storeName !== t.storeName && (r += e.storeName + "/"), r;
++            }
++            function xr2() {
++              var e = "_localforage_support_test";
++              try {
++                return localStorage.setItem(e, true), localStorage.removeItem(e), false;
++              } catch {
++                return true;
+               }
+-              return n;
+-            });
+-            return w2(r, e), r;
+-          }
+-          function Yr2(e) {
+-            var t = this, r = t.keys().then(function(i) {
+-              return i.length;
+-            });
+-            return w2(r, e), r;
+-          }
+-          function Wr2(e, t) {
+-            var r = this;
+-            e = W3(e);
+-            var i = r.ready().then(function() {
+-              var o = r._dbInfo;
+-              localStorage.removeItem(o.keyPrefix + e);
+-            });
+-            return w2(i, t), i;
+-          }
+-          function zr(e, t, r) {
+-            var i = this;
+-            e = W3(e);
+-            var o = i.ready().then(function() {
+-              t === void 0 && (t = null);
+-              var n = t;
+-              return new m3(function(f3, s) {
+-                var c2 = i._dbInfo;
+-                c2.serializer.serialize(t, function(l2, d) {
+-                  if (d) s(d);
+-                  else try {
+-                    localStorage.setItem(c2.keyPrefix + e, l2), f3(n);
+-                  } catch (y3) {
+-                    (y3.name === "QuotaExceededError" || y3.name === "NS_ERROR_DOM_QUOTA_REACHED") && s(y3), s(y3);
++            }
++            function Or2() {
++              return !xr2() || localStorage.length > 0;
++            }
++            function Cr2(e) {
++              var t = this, r = {};
++              if (e) for (var i in e) r[i] = e[i];
++              return r.keyPrefix = Ve2(e, t._defaultConfig), Or2() ? (t._dbInfo = r, r.serializer = Ee2, m3.resolve()) : m3.reject();
++            }
++            function Lr2(e) {
++              var t = this, r = t.ready().then(function () {
++                for (var i = t._dbInfo.keyPrefix, o = localStorage.length - 1; o >= 0; o--) {
++                  var n = localStorage.key(o);
++                  n.indexOf(i) === 0 && localStorage.removeItem(n);
++                }
++              });
++              return w2(r, e), r;
++            }
++            function Pr2(e, t) {
++              var r = this;
++              e = W3(e);
++              var i = r.ready().then(function () {
++                var o = r._dbInfo, n = localStorage.getItem(o.keyPrefix + e);
++                return n && (n = o.serializer.deserialize(n)), n;
++              });
++              return w2(i, t), i;
++            }
++            function Mr2(e, t) {
++              var r = this, i = r.ready().then(function () {
++                for (var o = r._dbInfo, n = o.keyPrefix, f3 = n.length, s = localStorage.length, c2 = 1, l2 = 0; l2 < s; l2++) {
++                  var d = localStorage.key(l2);
++                  if (d.indexOf(n) === 0) {
++                    var y3 = localStorage.getItem(d);
++                    if (y3 && (y3 = o.serializer.deserialize(y3)), y3 = e(y3, d.substring(f3), c2++), y3 !== void 0) return y3;
+                   }
++                }
++              });
++              return w2(i, t), i;
++            }
++            function Fr2(e, t) {
++              var r = this, i = r.ready().then(function () {
++                var o = r._dbInfo, n;
++                try {
++                  n = localStorage.key(e);
++                } catch {
++                  n = null;
++                }
++                return n && (n = n.substring(o.keyPrefix.length)), n;
++              });
++              return w2(i, t), i;
++            }
++            function Ur2(e) {
++              var t = this, r = t.ready().then(function () {
++                for (var i = t._dbInfo, o = localStorage.length, n = [], f3 = 0; f3 < o; f3++) {
++                  var s = localStorage.key(f3);
++                  s.indexOf(i.keyPrefix) === 0 && n.push(s.substring(i.keyPrefix.length));
++                }
++                return n;
++              });
++              return w2(r, e), r;
++            }
++            function Yr2(e) {
++              var t = this, r = t.keys().then(function (i) {
++                return i.length;
++              });
++              return w2(r, e), r;
++            }
++            function Wr2(e, t) {
++              var r = this;
++              e = W3(e);
++              var i = r.ready().then(function () {
++                var o = r._dbInfo;
++                localStorage.removeItem(o.keyPrefix + e);
++              });
++              return w2(i, t), i;
++            }
++            function zr(e, t, r) {
++              var i = this;
++              e = W3(e);
++              var o = i.ready().then(function () {
++                t === void 0 && (t = null);
++                var n = t;
++                return new m3(function (f3, s) {
++                  var c2 = i._dbInfo;
++                  c2.serializer.serialize(t, function (l2, d) {
++                    if (d) s(d);
++                    else try {
++                      localStorage.setItem(c2.keyPrefix + e, l2), f3(n);
++                    } catch (y3) {
++                      (y3.name === "QuotaExceededError" || y3.name === "NS_ERROR_DOM_QUOTA_REACHED") && s(y3), s(y3);
++                    }
++                  });
+                 });
+               });
+-            });
+-            return w2(o, r), o;
+-          }
+-          function Hr2(e, t) {
+-            if (t = Z.apply(this, arguments), e = typeof e != "function" && e || {}, !e.name) {
+-              var r = this.config();
+-              e.name = e.name || r.name, e.storeName = e.storeName || r.storeName;
++              return w2(o, r), o;
+             }
+-            var i = this, o;
+-            return e.name ? o = new m3(function(n) {
+-              e.storeName ? n(Ve2(e, i._defaultConfig)) : n(e.name + "/");
+-            }).then(function(n) {
+-              for (var f3 = localStorage.length - 1; f3 >= 0; f3--) {
+-                var s = localStorage.key(f3);
+-                s.indexOf(n) === 0 && localStorage.removeItem(s);
++            function Hr2(e, t) {
++              if (t = Z.apply(this, arguments), e = typeof e != "function" && e || {}, !e.name) {
++                var r = this.config();
++                e.name = e.name || r.name, e.storeName = e.storeName || r.storeName;
+               }
+-            }) : o = m3.reject("Invalid arguments"), w2(o, t), o;
+-          }
+-          var Kr2 = { _driver: "localStorageWrapper", _initStorage: Cr2, _support: Br2(), iterate: Mr2, getItem: Pr2, setItem: zr, removeItem: Wr2, clear: Lr2, length: Yr2, key: Fr2, keys: Ur2, dropInstance: Hr2 }, Gr2 = function(t, r) {
+-            return t === r || typeof t == "number" && typeof r == "number" && isNaN(t) && isNaN(r);
+-          }, Vr2 = function(t, r) {
+-            for (var i = t.length, o = 0; o < i; ) {
+-              if (Gr2(t[o], r)) return true;
+-              o++;
++              var i = this, o;
++              return e.name ? o = new m3(function (n) {
++                e.storeName ? n(Ve2(e, i._defaultConfig)) : n(e.name + "/");
++              }).then(function (n) {
++                for (var f3 = localStorage.length - 1; f3 >= 0; f3--) {
++                  var s = localStorage.key(f3);
++                  s.indexOf(n) === 0 && localStorage.removeItem(s);
++                }
++              }) : o = m3.reject("Invalid arguments"), w2(o, t), o;
+             }
+-            return false;
+-          }, je2 = Array.isArray || function(e) {
+-            return Object.prototype.toString.call(e) === "[object Array]";
+-          }, le2 = {}, Xe2 = {}, ue2 = { INDEXEDDB: vr2, WEBSQL: Nr2, LOCALSTORAGE: Kr2 }, jr2 = [ue2.INDEXEDDB._driver, ue2.WEBSQL._driver, ue2.LOCALSTORAGE._driver], me2 = ["dropInstance"], Se = ["clear", "getItem", "iterate", "key", "keys", "length", "removeItem", "setItem"].concat(me2), Xr = { description: "", driver: jr2.slice(), name: "localforage", size: 4980736, storeName: "keyvaluepairs", version: 1 };
+-          function Qr2(e, t) {
+-            e[t] = function() {
+-              var r = arguments;
+-              return e.ready().then(function() {
+-                return e[t].apply(e, r);
+-              });
+-            };
+-          }
+-          function Ae2() {
+-            for (var e = 1; e < arguments.length; e++) {
+-              var t = arguments[e];
+-              if (t) for (var r in t) t.hasOwnProperty(r) && (je2(t[r]) ? arguments[0][r] = t[r].slice() : arguments[0][r] = t[r]);
++            var Kr2 = { _driver: "localStorageWrapper", _initStorage: Cr2, _support: Br2(), iterate: Mr2, getItem: Pr2, setItem: zr, removeItem: Wr2, clear: Lr2, length: Yr2, key: Fr2, keys: Ur2, dropInstance: Hr2 }, Gr2 = function (t, r) {
++              return t === r || typeof t == "number" && typeof r == "number" && isNaN(t) && isNaN(r);
++            }, Vr2 = function (t, r) {
++              for (var i = t.length, o = 0; o < i;) {
++                if (Gr2(t[o], r)) return true;
++                o++;
++              }
++              return false;
++            }, je2 = Array.isArray || function (e) {
++              return Object.prototype.toString.call(e) === "[object Array]";
++            }, le2 = {}, Xe2 = {}, ue2 = { INDEXEDDB: vr2, WEBSQL: Nr2, LOCALSTORAGE: Kr2 }, jr2 = [ue2.INDEXEDDB._driver, ue2.WEBSQL._driver, ue2.LOCALSTORAGE._driver], me2 = ["dropInstance"], Se = ["clear", "getItem", "iterate", "key", "keys", "length", "removeItem", "setItem"].concat(me2), Xr = { description: "", driver: jr2.slice(), name: "localforage", size: 4980736, storeName: "keyvaluepairs", version: 1 };
++            function Qr2(e, t) {
++              e[t] = function () {
++                var r = arguments;
++                return e.ready().then(function () {
++                  return e[t].apply(e, r);
++                });
++              };
+             }
+-            return arguments[0];
+-          }
+-          var $r2 = function() {
+-            function e(t) {
+-              Y3(this, e);
+-              for (var r in ue2) if (ue2.hasOwnProperty(r)) {
+-                var i = ue2[r], o = i._driver;
+-                this[r] = o, le2[o] || this.defineDriver(i);
++            function Ae2() {
++              for (var e = 1; e < arguments.length; e++) {
++                var t = arguments[e];
++                if (t) for (var r in t) t.hasOwnProperty(r) && (je2(t[r]) ? arguments[0][r] = t[r].slice() : arguments[0][r] = t[r]);
+               }
+-              this._defaultConfig = Ae2({}, Xr), this._config = Ae2({}, this._defaultConfig, t), this._driverSet = null, this._initDriver = null, this._ready = false, this._dbInfo = null, this._wrapLibraryMethodsWithReady(), this.setDriver(this._config.driver).catch(function() {
+-              });
++              return arguments[0];
+             }
+-            return e.prototype.config = function(r) {
+-              if ((typeof r > "u" ? "undefined" : P3(r)) === "object") {
+-                if (this._ready) return new Error("Can't call config() after localforage has been used.");
+-                for (var i in r) {
+-                  if (i === "storeName" && (r[i] = r[i].replace(/\W/g, "_")), i === "version" && typeof r[i] != "number") return new Error("Database version must be a number.");
+-                  this._config[i] = r[i];
++            var $r2 = function () {
++              function e(t) {
++                Y3(this, e);
++                for (var r in ue2) if (ue2.hasOwnProperty(r)) {
++                  var i = ue2[r], o = i._driver;
++                  this[r] = o, le2[o] || this.defineDriver(i);
+                 }
+-                return "driver" in r && r.driver ? this.setDriver(this._config.driver) : true;
+-              } else return typeof r == "string" ? this._config[r] : this._config;
+-            }, e.prototype.defineDriver = function(r, i, o) {
+-              var n = new m3(function(f3, s) {
+-                try {
+-                  var c2 = r._driver, l2 = new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");
+-                  if (!r._driver) {
+-                    s(l2);
+-                    return;
++                this._defaultConfig = Ae2({}, Xr), this._config = Ae2({}, this._defaultConfig, t), this._driverSet = null, this._initDriver = null, this._ready = false, this._dbInfo = null, this._wrapLibraryMethodsWithReady(), this.setDriver(this._config.driver).catch(function () {
++                });
++              }
++              return e.prototype.config = function (r) {
++                if ((typeof r > "u" ? "undefined" : P3(r)) === "object") {
++                  if (this._ready) return new Error("Can't call config() after localforage has been used.");
++                  for (var i in r) {
++                    if (i === "storeName" && (r[i] = r[i].replace(/\W/g, "_")), i === "version" && typeof r[i] != "number") return new Error("Database version must be a number.");
++                    this._config[i] = r[i];
+                   }
+-                  for (var d = Se.concat("_initStorage"), y3 = 0, A2 = d.length; y3 < A2; y3++) {
+-                    var x3 = d[y3], L3 = !Vr2(me2, x3);
+-                    if ((L3 || r[x3]) && typeof r[x3] != "function") {
++                  return "driver" in r && r.driver ? this.setDriver(this._config.driver) : true;
++                } else return typeof r == "string" ? this._config[r] : this._config;
++              }, e.prototype.defineDriver = function (r, i, o) {
++                var n = new m3(function (f3, s) {
++                  try {
++                    var c2 = r._driver, l2 = new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");
++                    if (!r._driver) {
+                       s(l2);
+                       return;
+                     }
++                    for (var d = Se.concat("_initStorage"), y3 = 0, A2 = d.length; y3 < A2; y3++) {
++                      var x3 = d[y3], L3 = !Vr2(me2, x3);
++                      if ((L3 || r[x3]) && typeof r[x3] != "function") {
++                        s(l2);
++                        return;
++                      }
++                    }
++                    var H3 = function () {
++                      for (var de = function (qr2) {
++                        return function () {
++                          var kr2 = new Error("Method " + qr2 + " is not implemented by the current driver"), Qe2 = m3.reject(kr2);
++                          return w2(Qe2, arguments[arguments.length - 1]), Qe2;
++                        };
++                      }, Te = 0, Zr = me2.length; Te < Zr; Te++) {
++                        var Re2 = me2[Te];
++                        r[Re2] || (r[Re2] = de(Re2));
++                      }
++                    };
++                    H3();
++                    var z3 = function (de) {
++                      le2[c2] && console.info("Redefining LocalForage driver: " + c2), le2[c2] = r, Xe2[c2] = de, f3();
++                    };
++                    "_support" in r ? r._support && typeof r._support == "function" ? r._support().then(z3, s) : z3(!!r._support) : z3(true);
++                  } catch (q3) {
++                    s(q3);
+                   }
+-                  var H3 = function() {
+-                    for (var de = function(qr2) {
+-                      return function() {
+-                        var kr2 = new Error("Method " + qr2 + " is not implemented by the current driver"), Qe2 = m3.reject(kr2);
+-                        return w2(Qe2, arguments[arguments.length - 1]), Qe2;
+-                      };
+-                    }, Te = 0, Zr = me2.length; Te < Zr; Te++) {
+-                      var Re2 = me2[Te];
+-                      r[Re2] || (r[Re2] = de(Re2));
++                });
++                return B3(n, i, o), n;
++              }, e.prototype.driver = function () {
++                return this._driver || null;
++              }, e.prototype.getDriver = function (r, i, o) {
++                var n = le2[r] ? m3.resolve(le2[r]) : m3.reject(new Error("Driver not found."));
++                return B3(n, i, o), n;
++              }, e.prototype.getSerializer = function (r) {
++                var i = m3.resolve(Ee2);
++                return B3(i, r), i;
++              }, e.prototype.ready = function (r) {
++                var i = this, o = i._driverSet.then(function () {
++                  return i._ready === null && (i._ready = i._initDriver()), i._ready;
++                });
++                return B3(o, r, r), o;
++              }, e.prototype.setDriver = function (r, i, o) {
++                var n = this;
++                je2(r) || (r = [r]);
++                var f3 = this._getSupportedDrivers(r);
++                function s() {
++                  n._config.driver = n.driver();
++                }
++                function c2(y3) {
++                  return n._extend(y3), s(), n._ready = n._initStorage(n._config), n._ready;
++                }
++                function l2(y3) {
++                  return function () {
++                    var A2 = 0;
++                    function x3() {
++                      for (; A2 < y3.length;) {
++                        var L3 = y3[A2];
++                        return A2++, n._dbInfo = null, n._ready = null, n.getDriver(L3).then(c2).catch(x3);
++                      }
++                      s();
++                      var H3 = new Error("No available storage method found.");
++                      return n._driverSet = m3.reject(H3), n._driverSet;
+                     }
++                    return x3();
+                   };
+-                  H3();
+-                  var z3 = function(de) {
+-                    le2[c2] && console.info("Redefining LocalForage driver: " + c2), le2[c2] = r, Xe2[c2] = de, f3();
+-                  };
+-                  "_support" in r ? r._support && typeof r._support == "function" ? r._support().then(z3, s) : z3(!!r._support) : z3(true);
+-                } catch (q3) {
+-                  s(q3);
+                 }
+-              });
+-              return B3(n, i, o), n;
+-            }, e.prototype.driver = function() {
+-              return this._driver || null;
+-            }, e.prototype.getDriver = function(r, i, o) {
+-              var n = le2[r] ? m3.resolve(le2[r]) : m3.reject(new Error("Driver not found."));
+-              return B3(n, i, o), n;
+-            }, e.prototype.getSerializer = function(r) {
+-              var i = m3.resolve(Ee2);
+-              return B3(i, r), i;
+-            }, e.prototype.ready = function(r) {
+-              var i = this, o = i._driverSet.then(function() {
+-                return i._ready === null && (i._ready = i._initDriver()), i._ready;
+-              });
+-              return B3(o, r, r), o;
+-            }, e.prototype.setDriver = function(r, i, o) {
+-              var n = this;
+-              je2(r) || (r = [r]);
+-              var f3 = this._getSupportedDrivers(r);
+-              function s() {
+-                n._config.driver = n.driver();
+-              }
+-              function c2(y3) {
+-                return n._extend(y3), s(), n._ready = n._initStorage(n._config), n._ready;
+-              }
+-              function l2(y3) {
+-                return function() {
+-                  var A2 = 0;
+-                  function x3() {
+-                    for (; A2 < y3.length; ) {
+-                      var L3 = y3[A2];
+-                      return A2++, n._dbInfo = null, n._ready = null, n.getDriver(L3).then(c2).catch(x3);
+-                    }
+-                    s();
+-                    var H3 = new Error("No available storage method found.");
+-                    return n._driverSet = m3.reject(H3), n._driverSet;
+-                  }
+-                  return x3();
+-                };
+-              }
+-              var d = this._driverSet !== null ? this._driverSet.catch(function() {
+-                return m3.resolve();
+-              }) : m3.resolve();
+-              return this._driverSet = d.then(function() {
+-                var y3 = f3[0];
+-                return n._dbInfo = null, n._ready = null, n.getDriver(y3).then(function(A2) {
+-                  n._driver = A2._driver, s(), n._wrapLibraryMethodsWithReady(), n._initDriver = l2(f3);
+-                });
+-              }).catch(function() {
+-                s();
+-                var y3 = new Error("No available storage method found.");
+-                return n._driverSet = m3.reject(y3), n._driverSet;
+-              }), B3(this._driverSet, i, o), this._driverSet;
+-            }, e.prototype.supports = function(r) {
+-              return !!Xe2[r];
+-            }, e.prototype._extend = function(r) {
+-              Ae2(this, r);
+-            }, e.prototype._getSupportedDrivers = function(r) {
+-              for (var i = [], o = 0, n = r.length; o < n; o++) {
+-                var f3 = r[o];
+-                this.supports(f3) && i.push(f3);
+-              }
+-              return i;
+-            }, e.prototype._wrapLibraryMethodsWithReady = function() {
+-              for (var r = 0, i = Se.length; r < i; r++) Qr2(this, Se[r]);
+-            }, e.prototype.createInstance = function(r) {
+-              return new e(r);
+-            }, e;
+-          }(), Jr2 = new $r2();
+-          R3.exports = Jr2;
+-        }, { 3: 3 }] }, {}, [4])(4);
++                var d = this._driverSet !== null ? this._driverSet.catch(function () {
++                  return m3.resolve();
++                }) : m3.resolve();
++                return this._driverSet = d.then(function () {
++                  var y3 = f3[0];
++                  return n._dbInfo = null, n._ready = null, n.getDriver(y3).then(function (A2) {
++                    n._driver = A2._driver, s(), n._wrapLibraryMethodsWithReady(), n._initDriver = l2(f3);
++                  });
++                }).catch(function () {
++                  s();
++                  var y3 = new Error("No available storage method found.");
++                  return n._driverSet = m3.reject(y3), n._driverSet;
++                }), B3(this._driverSet, i, o), this._driverSet;
++              }, e.prototype.supports = function (r) {
++                return !!Xe2[r];
++              }, e.prototype._extend = function (r) {
++                Ae2(this, r);
++              }, e.prototype._getSupportedDrivers = function (r) {
++                for (var i = [], o = 0, n = r.length; o < n; o++) {
++                  var f3 = r[o];
++                  this.supports(f3) && i.push(f3);
++                }
++                return i;
++              }, e.prototype._wrapLibraryMethodsWithReady = function () {
++                for (var r = 0, i = Se.length; r < i; r++) Qr2(this, Se[r]);
++              }, e.prototype.createInstance = function (r) {
++                return new e(r);
++              }, e;
++            }(), Jr2 = new $r2();
++            R3.exports = Jr2;
++          }, { 3: 3 }]
++        }, {}, [4])(4);
+       });
+     });
+     rr2 = Je((ye2, er2) => {
+-      (function(b3, T2) {
++      (function (b3, T2) {
+         typeof ye2 == "object" && typeof er2 < "u" ? T2(ye2) : typeof define == "function" && define.amd ? define("localforage-driver-memory", ["exports"], T2) : T2(b3.LocalforageDriverMemory = {});
+-      })(typeof self < "u" ? self : ye2, function(b3) {
++      })(typeof self < "u" ? self : ye2, function (b3) {
+         "use strict";
+         var T2 = "localforage-driver-memory";
+         function _3(a2) {
+           var u3 = typeof Symbol == "function" && a2[Symbol.iterator], v2 = 0;
+-          return u3 ? u3.call(a2) : { next: function() {
+-            return a2 && v2 >= a2.length && (a2 = void 0), { value: a2 && a2[v2++], done: !a2 };
+-          } };
++          return u3 ? u3.call(a2) : {
++            next: function () {
++              return a2 && v2 >= a2.length && (a2 = void 0), { value: a2 && a2[v2++], done: !a2 };
++            }
++          };
+         }
+         function O3(a2, u3) {
+           a2 = a2 || [], u3 = u3 || {};
+@@ -2949,7 +2955,7 @@ var init_es4 = __esm({
+             a2 instanceof ArrayBuffer ? (p2 = a2, g2 += "arbf") : (p2 = a2.buffer, v2 === "[object Int8Array]" ? g2 += "si08" : v2 === "[object Uint8Array]" ? g2 += "ui08" : v2 === "[object Uint8ClampedArray]" ? g2 += "uic8" : v2 === "[object Int16Array]" ? g2 += "si16" : v2 === "[object Uint16Array]" ? g2 += "ur16" : v2 === "[object Int32Array]" ? g2 += "si32" : v2 === "[object Uint32Array]" ? g2 += "ui32" : v2 === "[object Float32Array]" ? g2 += "fl32" : v2 === "[object Float64Array]" ? g2 += "fl64" : u3(new Error("Failed to get type for BinaryArray"))), u3(g2 + M(p2));
+           } else if (v2 === "[object Blob]") {
+             var I3 = new FileReader();
+-            I3.onload = function() {
++            I3.onload = function () {
+               var N2 = "~~local_forage_type~" + a2.type + "~" + M(this.result);
+               u3("__lfsc__:blob" + N2);
+             }, I3.readAsArrayBuffer(a2);
+@@ -3018,9 +3024,9 @@ var init_es4 = __esm({
+           return (a2.name || u3.name) + "/" + (a2.storeName || u3.storeName) + "/";
+         }
+         function B3(a2, u3) {
+-          u3 && a2.then(function(v2) {
++          u3 && a2.then(function (v2) {
+             u3(null, v2);
+-          }, function(v2) {
++          }, function (v2) {
+             u3(v2);
+           });
+         }
+@@ -3035,32 +3041,32 @@ var init_es4 = __esm({
+             a2.name = a2.name || p2.name, a2.storeName = a2.storeName || p2.storeName;
+           }
+           var g2;
+-          return a2.name ? g2 = new Promise(function(I3) {
++          return a2.name ? g2 = new Promise(function (I3) {
+             a2.storeName ? I3(w2(a2, v2._defaultConfig)) : I3(a2.name + "/");
+           }) : g2 = Promise.reject("Invalid arguments"), { promise: g2, callback: u3 };
+         }
+         function F3(a2) {
+           return typeof a2 != "string" && (console.warn(a2 + " used as a key, but it is not a string."), a2 = String(a2)), a2;
+         }
+-        var k3 = { bufferToString: M, deserialize: J3, serialize: K2, stringToBuffer: S3 }, U3 = {}, fe2 = function() {
++        var k3 = { bufferToString: M, deserialize: J3, serialize: K2, stringToBuffer: S3 }, U3 = {}, fe2 = function () {
+           function a2(u3) {
+             this.kp = u3, this.data = {};
+           }
+-          return a2.resolve = function(u3) {
++          return a2.resolve = function (u3) {
+             return U3[u3] || (U3[u3] = new a2(u3)), U3[u3];
+-          }, a2.prototype.clear = function() {
++          }, a2.prototype.clear = function () {
+             this.data = {};
+-          }, a2.prototype.drop = function() {
++          }, a2.prototype.drop = function () {
+             this.clear(), delete U3[this.kp];
+-          }, a2.prototype.get = function(u3) {
++          }, a2.prototype.get = function (u3) {
+             return this.data[u3];
+-          }, a2.prototype.key = function(u3) {
++          }, a2.prototype.key = function (u3) {
+             return this.keys()[u3];
+-          }, a2.prototype.keys = function() {
++          }, a2.prototype.keys = function () {
+             return Object.keys(this.data);
+-          }, a2.prototype.rm = function(u3) {
++          }, a2.prototype.rm = function (u3) {
+             delete this.data[u3];
+-          }, a2.prototype.set = function(u3, v2) {
++          }, a2.prototype.set = function (u3, v2) {
+             this.data[u3] = v2;
+           }, a2;
+         }();
+@@ -3069,13 +3075,13 @@ var init_es4 = __esm({
+           return this._dbInfo = u3, this._dbInfo.serializer = k3, this._dbInfo.keyPrefix = v2, this._dbInfo.mStore = p2, Promise.resolve();
+         }
+         function h3(a2) {
+-          var u3 = this, v2 = this.ready().then(function() {
++          var u3 = this, v2 = this.ready().then(function () {
+             u3._dbInfo.mStore.clear();
+           });
+           return B3(v2, a2), v2;
+         }
+         function D3(a2, u3) {
+-          var v2 = Z.apply(this, arguments), p2 = v2.promise, g2 = v2.callback, I3 = p2.then(function(N2) {
++          var v2 = Z.apply(this, arguments), p2 = v2.promise, g2 = v2.callback, I3 = p2.then(function (N2) {
+             fe2.resolve(N2).drop();
+           });
+           return B3(I3, g2), p2;
+@@ -3083,14 +3089,14 @@ var init_es4 = __esm({
+         function E3(a2, u3) {
+           var v2 = this;
+           a2 = F3(a2);
+-          var p2 = this.ready().then(function() {
++          var p2 = this.ready().then(function () {
+             var g2 = v2._dbInfo.mStore.get(a2);
+             return g2 == null ? null : v2._dbInfo.serializer.deserialize(g2);
+           });
+           return B3(p2, u3), p2;
+         }
+         function C3(a2, u3) {
+-          var v2 = this, p2 = this.ready().then(function() {
++          var v2 = this, p2 = this.ready().then(function () {
+             for (var g2 = v2._dbInfo.mStore, I3 = g2.keys(), N2 = 0; N2 < I3.length; N2++) {
+               var V2 = g2.get(I3[N2]);
+               if (V2 && (V2 = v2._dbInfo.serializer.deserialize(V2)), V2 = a2(V2, I3[N2], N2 + 1), V2 !== void 0) return V2;
+@@ -3099,7 +3105,7 @@ var init_es4 = __esm({
+           return B3(p2, u3), p2;
+         }
+         function G2(a2, u3) {
+-          var v2 = this, p2 = this.ready().then(function() {
++          var v2 = this, p2 = this.ready().then(function () {
+             var g2;
+             try {
+               g2 = v2._dbInfo.mStore.key(a2), g2 === void 0 && (g2 = null);
+@@ -3111,13 +3117,13 @@ var init_es4 = __esm({
+           return B3(p2, u3), p2;
+         }
+         function X(a2) {
+-          var u3 = this, v2 = this.ready().then(function() {
++          var u3 = this, v2 = this.ready().then(function () {
+             return u3._dbInfo.mStore.keys();
+           });
+           return B3(v2, a2), v2;
+         }
+         function Q3(a2) {
+-          var u3 = this.keys().then(function(v2) {
++          var u3 = this.keys().then(function (v2) {
+             return v2.length;
+           });
+           return B3(u3, a2), u3;
+@@ -3125,7 +3131,7 @@ var init_es4 = __esm({
+         function $(a2, u3) {
+           var v2 = this;
+           a2 = F3(a2);
+-          var p2 = this.ready().then(function() {
++          var p2 = this.ready().then(function () {
+             v2._dbInfo.mStore.rm(a2);
+           });
+           return B3(p2, u3), p2;
+@@ -3133,11 +3139,11 @@ var init_es4 = __esm({
+         function ee(a2, u3, v2) {
+           var p2 = this;
+           a2 = F3(a2);
+-          var g2 = this.ready().then(function() {
++          var g2 = this.ready().then(function () {
+             u3 === void 0 && (u3 = null);
+             var I3 = u3;
+-            return new Promise(function(N2, V2) {
+-              p2._dbInfo.serializer.serialize(u3, function(se2, ae2) {
++            return new Promise(function (N2, V2) {
++              p2._dbInfo.serializer.serialize(u3, function (se2, ae2) {
+                 if (ae2) V2(ae2);
+                 else try {
+                   p2._dbInfo.mStore.set(a2, se2), N2(I3);
+@@ -3238,10 +3244,12 @@ var init_es4 = __esm({
+         });
+       }
+     };
+-    Rt2 = Qr(qe, { platform: "web", sdkName: "magic-sdk", version: "28.21.0", defaultEndpoint: "https://auth.magic.link/", ViewController: pe2, configureStorage: () => re(void 0, null, function* () {
+-      let b3 = ge2.default.createInstance({ name: "MagicAuthLocalStorageDB", storeName: "MagicAuthLocalStorage" });
+-      return yield b3.defineDriver(Ne2), yield b3.setDriver([ge2.default.INDEXEDDB, ge2.default.LOCALSTORAGE, Ne2._driver]), b3;
+-    }) });
++    Rt2 = Qr(qe, {
++      platform: "web", sdkName: "magic-sdk", version: "28.21.0", defaultEndpoint: "https://auth.magic.link/", ViewController: pe2, configureStorage: () => re(void 0, null, function* () {
++        let b3 = ge2.default.createInstance({ name: "MagicAuthLocalStorageDB", storeName: "MagicAuthLocalStorage" });
++        return yield b3.defineDriver(Ne2), yield b3.setDriver([ge2.default.INDEXEDDB, ge2.default.LOCALSTORAGE, Ne2._driver]), b3;
++      })
++    });
+   }
+ });
+ 
+@@ -5382,7 +5390,8 @@ var LuteWallet = class extends BaseWallet {
+   }
+   async getGenesisId() {
+     const algodClient = this.getAlgodClient();
+-    const genesis = await algodClient.genesis().do();
++    const rawGenesis = await algodClient.genesis().do();
++    const genesis = typeof rawGenesis === 'string' ? JSON.parse(rawGenesis) : rawGenesis;
+     const genesisId = `${genesis.network}-${genesis.id}`;
+     return genesisId;
+   }

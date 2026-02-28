@@ -1,47 +1,26 @@
-# TrustChain
 
-A decentralized milestone-based escrow platform on Algorand TestNet.
+## Troubleshooting: Smart Contract Assertion Failure (pc=165)
 
-## Features
-- **Smart Contract Escrow**: Funds are secured on-chain using PyTeal logic.
-- **Milestone-Based**: Release payments only when project goals are achieved.
-- **Pera Wallet Integration**: Secure transaction signing.
-- **Supabase Backend**: Fast metadata storage and user authentication.
-- **Premium UI**: Glassmorphic dark theme built with Tailwind CSS.
+If you encounter a `logic eval error: assert failed pc=165` (or similar) during escrow approval, it indicates that the transaction preconditions are not met.
 
-## Setup Instructions
+### Root Cause
+- **PC=165**: Corresponds to `Assert(Txn.accounts.length() > Int(1))` (or equivalent check depending on compilation). This assertion ensures that the Freelancer's address is included in the `accounts` array of the application call transaction.
+- **Why it fails**: If the `freelancer_wallet` address is missing, invalid, or not passed correctly in the client-side code, the `accounts` array will be empty (or contain only sender if misinterpreted), causing the check to fail.
+- **Other Assertions**: 
+  - `Sender == Client`: Fails if someone other than the client tries to approve.
+  - `Milestones Completed < Total`: Fails if all milestones are already paid out.
 
-### 1. Smart Contract
-The contract is written in PyTeal and already compiled to TEAL.
-- Source: `src/contracts/escrow.py`
-- Approval: `escrow_approval.teal`
-- Clear: `escrow_clear.teal`
+### Fix & Validation
+We have implemented robust validation and simulation steps in the client-side code:
+1. **Pre-Flight Simulation**: Before signing, the transaction is simulated against the Algorand node using `algodClient.simulate` (or dryrun). Any logic errors are caught early with detailed messages.
+2. **State Validation**: The app fetches the current global state of the contract to verify that:
+   - The sender matches the stored client address.
+   - There are remaining milestones to be approved.
+3. **Address Validation**: The freelancer address is validated before constructing the transaction.
 
-### 2. Supabase Setup
-- Create a new project on [Supabase](https://supabase.com).
-- Run the SQL in `src/supabase/schema.sql` in the SQL Editor.
-- Copy your `Project URL` and `Anon Key` to `.env.local`:
-  ```bash
-  NEXT_PUBLIC_SUPABASE_URL=...
-  NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-  ```
-
-### 3. Frontend Setup
+### Running Tests
+To verify the fixes, run the unit tests:
 ```bash
-npm install
-npm run dev
+npm test
 ```
-
-## How it Works
-1. **Create Project**: Client defines milestones and freelancer address.
-2. **Deploy & Fund**: Client deploys the smart contract and transfers total ALGO to the app account.
-3. **Work**: Freelancer performs the work.
-4. **Approve**: Client approves a milestone, triggering an on-chain payout from the escrow to the freelancer.
-5. **Refund**: Client can reclaim unused funds if the project is deleted or disputed.
-
-## Tech Stack
-- **Next.js 14** (App Router)
-- **Tailwind CSS**
-- **Supabase** (DB & Auth)
-- **Algorand** (PyTeal, algosdk)
-- **Pera Wallet**
+(Note: Tests require `jest` and mocking of `algosdk`. If you encounter setup issues, ensure you have the dev dependencies installed.)

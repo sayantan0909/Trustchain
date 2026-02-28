@@ -1,0 +1,204 @@
+﻿
+> trustchain@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+System.Management.Automation.RemoteException
+> Build error occurred
+Error: Turbopack build failed with 6 errors:
+./node_modules/@txnlab/use-wallet/dist/index.js:4795:28
+Module not found: Can't resolve '@agoralabs-sh/avm-web-provider'
+[0m [90m 4793 |[39m     [36mif[39m ([33m![39m[36mthis[39m[33m.[39mavmWebProviderSDK) {
+ [90m 4794 |[39m       [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Initializing @agoralabs-sh/avm-web-provider..."[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 4795 |[39m       [36mconst[39m module [33m=[39m [36mawait[39m [36mimport[39m([32m"@agoralabs-sh/avm-web-provider"[39m)[33m;[39m
+ [90m      |[39m                            [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 4796 |[39m       [36mthis[39m[33m.[39mavmWebProviderSDK [33m=[39m module[33m.[39m[36mdefault[39m [33m?[39m module[33m.[39m[36mdefault[39m [33m:[39m module[33m;[39m
+ [90m 4797 |[39m       [36mif[39m ([33m![39m[36mthis[39m[33m.[39mavmWebProviderSDK) {
+ [90m 4798 |[39m         [36mthrow[39m [36mnew[39m [33mError[39m([0m
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import traces:
+  Client Component Browser:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component Browser]
+    ./src/lib/walletUtils.ts [Client Component Browser]
+    ./src/components/providers/WalletProvider.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+  Client Component SSR:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component SSR]
+    ./src/lib/walletUtils.ts [Client Component SSR]
+    ./src/components/providers/WalletProvider.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+./node_modules/@txnlab/use-wallet/dist/index.js:5265:40
+Module not found: Can't resolve '@algorandfoundation/liquid-auth-use-wallet-client'
+[0m [90m 5263 |[39m   [36masync[39m initializeClient() {
+ [90m 5264 |[39m     [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Initializing client..."[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 5265 |[39m     [36mconst[39m { [33mLiquidAuthClient[39m } [33m=[39m [36mawait[39m [36mimport[39m([32m"@algorandfoundation/liquid-auth-use-wallet-client"[39m)[33m;[39m
+ [90m      |[39m                                        [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5266 |[39m     [36mconst[39m client [33m=[39m [36mnew[39m [33mLiquidAuthClient[39m([36mthis[39m[33m.[39moptions)[33m;[39m
+ [90m 5267 |[39m     [36mthis[39m[33m.[39mauthClient [33m=[39m client[33m;[39m
+ [90m 5268 |[39m     [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Client initialized"[39m)[33m;[39m[0m
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import traces:
+  Client Component Browser:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component Browser]
+    ./src/lib/walletUtils.ts [Client Component Browser]
+    ./src/components/providers/WalletProvider.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+  Client Component SSR:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component SSR]
+    ./src/lib/walletUtils.ts [Client Component SSR]
+    ./src/components/providers/WalletProvider.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+./node_modules/@txnlab/use-wallet/dist/index.js:4297:26
+Module not found: Can't resolve '@blockshake/defly-connect'
+[0m [90m 4295 |[39m   [36masync[39m initializeClient() {
+ [90m 4296 |[39m     [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Initializing client..."[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 4297 |[39m     [36mconst[39m module [33m=[39m [36mawait[39m [36mimport[39m([32m"@blockshake/defly-connect"[39m)[33m;[39m
+ [90m      |[39m                          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 4298 |[39m     [36mconst[39m [33mDeflyWalletConnect[39m [33m=[39m module[33m.[39m[36mdefault[39m [33m?[39m module[33m.[39m[36mdefault[39m[33m.[39m[33mDeflyWalletConnect[39m [33m:[39m module[33m.[39m[33mDeflyWalletConnect[39m[33m;[39m
+ [90m 4299 |[39m     [36mconst[39m client [33m=[39m [36mnew[39m [33mDeflyWalletConnect[39m([36mthis[39m[33m.[39moptions)[33m;[39m
+ [90m 4300 |[39m     [36mthis[39m[33m.[39mclient [33m=[39m client[33m;[39m[0m
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import traces:
+  Client Component Browser:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component Browser]
+    ./src/lib/walletUtils.ts [Client Component Browser]
+    ./src/components/providers/WalletProvider.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+  Client Component SSR:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component SSR]
+    ./src/lib/walletUtils.ts [Client Component SSR]
+    ./src/components/providers/WalletProvider.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+./node_modules/@txnlab/use-wallet/dist/index.js:6123:26
+Module not found: Can't resolve '@perawallet/connect-beta'
+[0m [90m 6121 |[39m   [36masync[39m initializeClient() {
+ [90m 6122 |[39m     [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Initializing client..."[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 6123 |[39m     [36mconst[39m module [33m=[39m [36mawait[39m [36mimport[39m([32m"@perawallet/connect-beta"[39m)[33m;[39m
+ [90m      |[39m                          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 6124 |[39m     [36mconst[39m [33mPeraWalletConnect[39m [33m=[39m module[33m.[39m[33mPeraWalletConnect[39m [33m||[39m module[33m.[39m[36mdefault[39m[33m.[39m[33mPeraWalletConnect[39m[33m;[39m
+ [90m 6125 |[39m     [36mconst[39m client [33m=[39m [36mnew[39m [33mPeraWalletConnect[39m([36mthis[39m[33m.[39moptions)[33m;[39m
+ [90m 6126 |[39m     [36mthis[39m[33m.[39mclient [33m=[39m client[33m;[39m[0m
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import traces:
+  Client Component Browser:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component Browser]
+    ./src/lib/walletUtils.ts [Client Component Browser]
+    ./src/components/providers/WalletProvider.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+  Client Component SSR:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component SSR]
+    ./src/lib/walletUtils.ts [Client Component SSR]
+    ./src/components/providers/WalletProvider.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+./node_modules/@txnlab/use-wallet/dist/index.js:3920:39
+Module not found: Can't resolve '@walletconnect/modal'
+[0m [90m 3918 |[39m   [36masync[39m initializeModal() {
+ [90m 3919 |[39m     [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Initializing modal..."[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 3920 |[39m     [36mconst[39m [33mWalletConnectModal[39m [33m=[39m ([36mawait[39m [36mimport[39m([32m"@walletconnect/modal"[39m))[33m.[39m[33mWalletConnectModal[39m[33m;[39m
+ [90m      |[39m                                       [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 3921 |[39m     [36mconst[39m modal [33m=[39m [36mnew[39m [33mWalletConnectModal[39m({
+ [90m 3922 |[39m       projectId[33m:[39m [36mthis[39m[33m.[39moptions[33m.[39mprojectId[33m,[39m
+ [90m 3923 |[39m       [33m...[39m[36mthis[39m[33m.[39mmodalOptions[0m
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import traces:
+  Client Component Browser:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component Browser]
+    ./src/lib/walletUtils.ts [Client Component Browser]
+    ./src/components/providers/WalletProvider.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+  Client Component SSR:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component SSR]
+    ./src/lib/walletUtils.ts [Client Component SSR]
+    ./src/components/providers/WalletProvider.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+./node_modules/@txnlab/use-wallet/dist/index.js:3898:31
+Module not found: Can't resolve '@walletconnect/sign-client'
+[0m [90m 3896 |[39m   [36masync[39m initializeClient() {
+ [90m 3897 |[39m     [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"Initializing client..."[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 3898 |[39m     [36mconst[39m [33mSignClient[39m [33m=[39m ([36mawait[39m [36mimport[39m([32m"@walletconnect/sign-client"[39m))[33m.[39m[33mSignClient[39m[33m;[39m
+ [90m      |[39m                               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 3899 |[39m     [36mconst[39m client [33m=[39m [36mawait[39m [33mSignClient[39m[33m.[39minit([36mthis[39m[33m.[39moptions)[33m;[39m
+ [90m 3900 |[39m     client[33m.[39mon([32m"session_event"[39m[33m,[39m (args) [33m=>[39m {
+ [90m 3901 |[39m       [36mthis[39m[33m.[39mlogger[33m.[39minfo([32m"EVENT: session_event"[39m[33m,[39m args)[33m;[39m[0m
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import traces:
+  Client Component Browser:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component Browser]
+    ./src/lib/walletUtils.ts [Client Component Browser]
+    ./src/components/providers/WalletProvider.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+  Client Component SSR:
+    ./node_modules/@txnlab/use-wallet/dist/index.js [Client Component SSR]
+    ./src/lib/walletUtils.ts [Client Component SSR]
+    ./src/components/providers/WalletProvider.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+    at ./node_modules/ (txnlab/use-wallet/dist/index.js:4795:28)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at ./node_modules/ (txnlab/use-wallet/dist/index.js:5265:40)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at ./node_modules/ (txnlab/use-wallet/dist/index.js:4297:26)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at ./node_modules/ (txnlab/use-wallet/dist/index.js:6123:26)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at ./node_modules/ (txnlab/use-wallet/dist/index.js:3920:39)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at ./node_modules/ (txnlab/use-wallet/dist/index.js:3898:31)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

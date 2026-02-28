@@ -2,9 +2,16 @@
 
 import { useWallet } from '@/components/providers/WalletProvider';
 import { Wallet, LogOut, Shield } from 'lucide-react';
+import { formatAddress } from '@/lib/walletUtils';
 
 export const WalletButton = () => {
-    const { address, balance, isConnected, isAdminSession, connect, disconnect } = useWallet();
+    const { address, balance, isConnected, isAdminSession, connect, disconnect, walletType, walletName } = useWallet();
+
+    const WALLET_ACCENT: Record<string, string> = {
+        pera: '#00D09E',
+        lute: '#5468FF',
+    };
+    const accent = walletType ? (WALLET_ACCENT[walletType] ?? '#3B82F6') : '#3B82F6';
 
     if (isAdminSession) {
         return (
@@ -28,17 +35,35 @@ export const WalletButton = () => {
         return (
             <div className="flex items-center gap-3">
                 <div className="px-4 py-2 glass rounded-xl border-blue-500/30 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    {/* Wallet type indicator dot */}
+                    <div
+                        className="w-2 h-2 rounded-full animate-pulse shrink-0"
+                        style={{ background: accent }}
+                        title={walletName}
+                    />
+                    {/* Wallet logo badge */}
+                    {walletType && (
+                        <img
+                            src={`/wallets/${walletType}.svg`}
+                            alt={walletName}
+                            width={18}
+                            height={18}
+                            className="rounded-md"
+                            title={walletName}
+                        />
+                    )}
                     <span className="text-sm font-mono text-blue-100 border-r border-blue-500/30 pr-3 mr-1">
                         {balance !== null ? balance.toFixed(2) : '0.00'} ALGO
                     </span>
                     <span className="text-sm font-mono text-slate-400">
-                        {address?.slice(0, 6)}...{address?.slice(-4)}
+                        {formatAddress(address)}
                     </span>
                 </div>
                 <button
+                    id="wallet-disconnect-btn"
                     onClick={disconnect}
                     className="p-2 glass rounded-xl hover:bg-red-500/20 text-red-400 transition-colors"
+                    title="Disconnect Wallet"
                 >
                     <LogOut size={20} />
                 </button>
@@ -48,6 +73,7 @@ export const WalletButton = () => {
 
     return (
         <button
+            id="wallet-connect-btn"
             onClick={connect}
             className="btn-primary"
         >

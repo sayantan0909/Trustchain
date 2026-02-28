@@ -37,7 +37,7 @@ export default function ComplaintDetail() {
                 return;
             }
 
-            const c = { id: complaintDoc.id, ...complaintDoc.data() };
+            const c: any = { id: complaintDoc.id, ...complaintDoc.data() };
             setComplaint(c);
             setStatus(c.status);
             setAdminNotes(c.admin_notes || "");

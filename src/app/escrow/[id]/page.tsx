@@ -8,12 +8,14 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, serverTimestamp, orderBy } from "firebase/firestore";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { Shield, CheckCircle, Clock, ArrowRight, ShieldAlert, Upload, Loader2 } from "lucide-react";
+import { approveEscrow, deployContract, fundEscrow } from "@/lib/algorandService";
+import { algodClient } from "@/lib/algorand";
 
 export const dynamic = 'force-dynamic';
 
 export default function EscrowDetail() {
     const { id } = useParams();
-    const { address, isBanned, isAdminSession, walletFlags } = useWallet();
+    const { address, isBanned, isAdminSession, walletFlags, signTransactions, walletName } = useWallet();
     const [project, setProject] = useState<any>(null);
     const [milestones, setMilestones] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -22,6 +24,9 @@ export default function EscrowDetail() {
     const [reportReason, setReportReason] = useState("");
     const [reportFile, setReportFile] = useState<File | null>(null);
     const [reportSubmitting, setReportSubmitting] = useState(false);
+
+    const [approvingMilestone, setApprovingMilestone] = useState<string | null>(null);
+    const [deployingContract, setDeployingContract] = useState(false);
 
     useEffect(() => {
         if (id) fetchProject();
@@ -92,6 +97,118 @@ export default function EscrowDetail() {
             fetchProject();
         } catch (error: any) {
             alert("Failed to submit work: " + error.message);
+        }
+    };
+
+    const approveMilestone = async (milestoneId: string) => {
+        if (isBanned) {
+            alert("Action failed: Your wallet has been suspended.");
+            return;
+        }
+        if (!address || !signTransactions || !project?.contract_address) {
+            alert("Unable to process approval. Please ensure wallet is connected and contract is deployed.");
+            return;
+        }
+
+        if (!project.freelancer_wallet) {
+            alert("Freelancer wallet address is missing from project data.");
+            return;
+        }
+
+        try {
+            setApprovingMilestone(milestoneId);
+
+            // Parse app ID from contract address (format: XXXXXXXXX where X is digits)
+            const appId = parseInt(project.contract_address, 10);
+            if (isNaN(appId)) {
+                alert("Invalid contract address format");
+                return;
+            }
+
+            await approveEscrow(signTransactions, address, appId, milestoneId, project.freelancer_wallet);
+            alert("Milestone approved successfully!");
+            fetchProject();
+        } catch (error: any) {
+            console.error("Approval error:", error);
+            // Show detailed error message if available
+            const msg = error.message || "Unknown error";
+            alert("Failed to approve milestone: " + msg);
+        } finally {
+            setApprovingMilestone(null);
+        }
+    };
+
+    const deployContractHandler = async () => {
+        if (isBanned) {
+            alert("Action failed: Your wallet has been suspended.");
+            return;
+        }
+        if (!address || !signTransactions || !project || !id) {
+            alert("Unable to deploy. Please ensure wallet is connected.");
+            return;
+        }
+
+        try {
+            setDeployingContract(true);
+
+            // Fetch TEAL files
+            const [approvalResponse, clearResponse] = await Promise.all([
+                fetch('/teal/escrow_approval.teal'),
+                fetch('/teal/escrow_clear.teal')
+            ]);
+
+            if (!approvalResponse.ok || !clearResponse.ok) {
+                throw new Error('Failed to load contract files');
+            }
+
+            const approvalText = await approvalResponse.text();
+            const clearText = await clearResponse.text();
+
+            // Use algod client to compile TEAL to bytecode
+            const compiledApproval = await algodClient.compile(approvalText).do();
+            const compiledClear = await algodClient.compile(clearText).do();
+
+            const approvalBytecode = new Uint8Array(Buffer.from(compiledApproval.result, 'base64'));
+            const clearBytecode = new Uint8Array(Buffer.from(compiledClear.result, 'base64'));
+
+            // Calculate milestone parameters
+            const milestonesCount = milestones.length;
+            const amountPerMilestone = project.total_amount / milestonesCount;
+
+            // Deploy the contract
+            const { appId, appAddress } = await deployContract(
+                signTransactions,
+                address,
+                project.freelancer_wallet,
+                milestonesCount,
+                Math.floor(amountPerMilestone * 1_000_000), // Convert to microAlgos
+                approvalBytecode,
+                clearBytecode
+            );
+
+            // Fund the contract - need to add extra for:
+            // 1. Minimum balance of app account (~100,000 microAlgos)
+            // 2. Transaction fees and safety margin
+            const MIN_BALANCE_MICROALGOS = 100_000;
+            const SAFETY_MARGIN_MICROALGOS = 50_000; // Extra buffer for fees and safety
+            const amountMicroAlgos = (project.total_amount * 1_000_000) + MIN_BALANCE_MICROALGOS + SAFETY_MARGIN_MICROALGOS;
+            await fundEscrow(signTransactions, address, appAddress, amountMicroAlgos);
+
+            // Update Firestore with contract details
+            await updateDoc(doc(db, "escrows", id as string), {
+                contract_address: appId.toString(),
+                app_id: appId,
+                app_address: appAddress,
+                status: 'funded'
+            });
+
+            alert("Contract deployed and funded successfully!");
+            fetchProject();
+        } catch (error: any) {
+            console.error("Deployment error:", error);
+            alert("Failed to deploy contract: " + error.message);
+        } finally {
+            setDeployingContract(false);
         }
     };
 
@@ -172,9 +289,22 @@ export default function EscrowDetail() {
                             </div>
                         </div>
 
-                        {project.status === 'draft' && isClient && !isAdminSession && (
-                            <button className="btn-primary w-full py-4 justify-center">
-                                Fund & Deploy Escrow <ArrowRight size={20} />
+                        {project.status === 'funded' && isClient && !isAdminSession && !project.contract_address && (
+                            <button
+                                onClick={deployContractHandler}
+                                disabled={deployingContract || isBanned}
+                                className={`btn-primary w-full py-4 justify-center flex items-center gap-2 ${deployingContract || isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {deployingContract ? (
+                                    <>
+                                        <Loader2 size={20} className="animate-spin" />
+                                        Deploying & Funding...
+                                    </>
+                                ) : (
+                                    <>
+                                        Fund & Deploy Escrow <ArrowRight size={20} />
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>
@@ -204,13 +334,28 @@ export default function EscrowDetail() {
                             </div>
 
                             <div className="flex items-center gap-3 w-full md:w-auto">
-                                {m.status === 'pending' && isClient && m.submitted_at && !isAdminSession && (
+                                {m.status === 'pending' && isClient && m.submitted_at && !isAdminSession && project.contract_address && project.contract_address !== 'Not Deployed' && (
                                     <button
-                                        disabled={isBanned}
-                                        className={`btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center border-orange-500/50 hover:bg-orange-500/10 hover:text-orange-400 bg-transparent text-orange-500 ${isBanned ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                                        disabled={isBanned || approvingMilestone === m.id}
+                                        onClick={() => approveMilestone(m.id)}
+                                        className={`btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center border-orange-500/50 hover:bg-orange-500/10 hover:text-orange-400 bg-transparent text-orange-500 flex items-center gap-2 ${isBanned || approvingMilestone === m.id ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                                     >
-                                        {isBanned ? 'Action Restricted' : 'Review & Approve Payout'}
+                                        {approvingMilestone === m.id ? (
+                                            <>
+                                                <Loader2 size={16} className="animate-spin" />
+                                                Processing...
+                                            </>
+                                        ) : isBanned ? (
+                                            'Action Restricted'
+                                        ) : (
+                                            'Review & Approve Payout'
+                                        )}
                                     </button>
+                                )}
+                                {m.status === 'pending' && isClient && m.submitted_at && !isAdminSession && (!project.contract_address || project.contract_address === 'Not Deployed') && (
+                                    <div className="flex items-center gap-2 text-slate-500 font-bold text-sm px-4 italic border border-slate-800 rounded-xl py-2">
+                                        <Clock size={18} /> Contract Not Deployed
+                                    </div>
                                 )}
                                 {m.status === 'pending' && isClient && !m.submitted_at && (
                                     <div className="flex items-center gap-2 text-slate-500 font-bold text-sm px-4 italic border border-slate-800 rounded-xl py-2">

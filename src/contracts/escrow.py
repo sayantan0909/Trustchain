@@ -9,12 +9,12 @@ def escrow_program():
     amount_per_milestone_key = Bytes("amount_per_milestone")
 
     @Subroutine(TealType.none)
-    def pay_freelancer(amount: Expr):
+    def pay_freelancer(amount: Expr, freelancer_address: Expr):
         return Seq(
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.Payment,
-                TxnField.receiver: App.globalGet(freelancer_key),
+                TxnField.receiver: freelancer_address,
                 TxnField.amount: amount,
             }),
             InnerTxnBuilder.Submit()
@@ -32,10 +32,12 @@ def escrow_program():
 
     # approve_milestone method
     # Only client can approve
+    # Expects: arg[0] = "approve", accounts[1] = freelancer address
     handle_approve = Seq(
         Assert(Txn.sender() == App.globalGet(client_key)),
         Assert(App.globalGet(milestones_completed_key) < App.globalGet(milestones_total_key)),
-        pay_freelancer(App.globalGet(amount_per_milestone_key)),
+        Assert(Txn.accounts.length() > Int(1)),
+        pay_freelancer(App.globalGet(amount_per_milestone_key), Txn.accounts[1]),
         App.globalPut(milestones_completed_key, App.globalGet(milestones_completed_key) + Int(1)),
         Approve()
     )
@@ -44,8 +46,6 @@ def escrow_program():
     # Only client can refund remaining funds
     handle_refund = Seq(
         Assert(Txn.sender() == App.globalGet(client_key)),
-        pay_freelancer(Balance(Global.current_application_address())), # Re-using pay_freelancer but maybe to client?
-        # Actually refund should go to client
         InnerTxnBuilder.Begin(),
         InnerTxnBuilder.SetFields({
             TxnField.type_enum: TxnType.Payment,
