@@ -130,7 +130,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const verifyRoleAndLogin = async (role: string) => {
+    const verifyRoleAndLogin = async () => {
         if (!address || !peraWallet) return;
 
         try {
@@ -180,7 +180,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
                 const { error: dbError } = await supabase.from('users').upsert({
                     id: user.id,
                     wallet_address: address,
-                    role: role,
+                    // Role is implicit, no longer stored in users table
                 }, { onConflict: 'id' });
 
                 if (dbError) throw dbError;
