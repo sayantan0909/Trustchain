@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { Lock, Zap, Shield, Search } from "lucide-react";
 
-const PALETTE = ["#00ff88", "#00d4ff", "#ffb800", "#8b5cf6"];
+const PALETTE = ["#c084fc", "#00d4ff", "#ffb800", "#8b5cf6"];
 
 const features = [
     {
@@ -27,8 +27,8 @@ const features = [
     },
     {
         icon: <Shield size={28} />,
-        accent: "#00ff88",
-        accentBg: "rgba(0,255,136,0.12)",
+        accent: "#c084fc",
+        accentBg: "rgba(192,132,252,0.12)",
         title: "Client-Only Refund",
         description:
             "Simple, transparent refund logic. Reclaim unused funds if goals aren't reached.",
@@ -118,11 +118,23 @@ function VerticalTimeline({ containerRef }: { containerRef: React.RefObject<HTML
                 transition={{ duration: 0.5, ease: "easeInOut" }}
             />
 
-            {/* Glow under dot */}
             <motion.div
-                style={{ y: dotY, backgroundColor: dotColor }}
-                className="absolute left-1/2 -translate-x-1/2 w-8 h-8 rounded-full -translate-y-2 opacity-30 blur-md z-0"
-            />
+                style={{ y: dotY }}
+                className="absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-full -translate-y-3 opacity-40 blur-xl z-0"
+            >
+                <div
+                    className="w-full h-full rounded-full"
+                    style={{
+                        background: `
+                radial-gradient(circle,
+                    rgba(168,85,247,0.5),
+                    rgba(192,132,252,0.4),
+                    rgba(139,92,246,0.3),
+                    transparent 70%)
+            `
+                    }}
+                />
+            </motion.div>
         </div>
     );
 }
@@ -157,8 +169,16 @@ function FeatureCard({
 
             {/* Card inner glow */}
             <div
-                className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-3xl pointer-events-none"
-                style={{ background: feature.accent }}
+                className="absolute top-0 right-0 w-52 h-52 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-3xl pointer-events-none"
+                style={{
+                    background: `
+            radial-gradient(circle at center,
+                rgba(168,85,247,0.5) 0%,
+                rgba(192,132,252,0.4) 40%,
+                rgba(139,92,246,0.3) 70%,
+                transparent 100%)
+        `
+                }}
             />
 
             {/* Icon */}
