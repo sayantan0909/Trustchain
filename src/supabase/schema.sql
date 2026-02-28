@@ -72,9 +72,19 @@ CREATE TABLE IF NOT EXISTS wallet_flags (
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE escrows ENABLE ROW LEVEL SECURITY;
-ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
-ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wallet_flags ENABLE ROW LEVEL SECURITY;
+
+-- Table: admin_logs
+CREATE TABLE IF NOT EXISTS admin_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  admin_id UUID REFERENCES admins(id),
+  action TEXT NOT NULL,
+  target_wallet TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
 
 -- Note: RLS Policies should be defined based on the authentication strategy.
 -- We assume auth.uid() corresponds to users.id
@@ -226,3 +236,17 @@ USING (true);
 -- Admin can manage flags
 CREATE POLICY "Admin can manage flags" ON wallet_flags FOR ALL
 USING (is_admin());
+
+-- ==========================
+-- Policy definitions: admin_logs
+-- ==========================
+-- Admin can read all logs
+CREATE POLICY "Admin can read all logs" ON admin_logs FOR SELECT
+USING (is_admin());
+
+-- Admin can insert logs (automatic via app logic)
+CREATE POLICY "Admin can insert logs" ON admin_logs FOR INSERT
+WITH CHECK (is_admin());
+
+-- No UPDATE or DELETE policies exist = Immutable via RLS
+

@@ -58,6 +58,15 @@ export default function ComplaintDetail() {
             .eq('id', id);
 
         if (!error) {
+            // Log resolution
+            const { data: { user } } = await supabase.auth.getUser();
+            await supabase.from('admin_logs').insert({
+                admin_id: user?.id,
+                action: 'COMPLAINT_RESOLVE',
+                target_wallet: complaint.against_wallet,
+                metadata: { complaint_id: id, status: status, notes: adminNotes }
+            });
+
             alert("Complaint updated successfully.");
             fetchDetail();
         } else {
@@ -92,8 +101,8 @@ export default function ComplaintDetail() {
 
                     <div className="flex items-center gap-3">
                         <span className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border ${status === 'resolved' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                                status === 'under_review' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                    'bg-red-500/10 text-red-400 border-red-500/20'
+                            status === 'under_review' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
+                                'bg-red-500/10 text-red-400 border-red-500/20'
                             }`}>
                             {status.replace('_', ' ')}
                         </span>

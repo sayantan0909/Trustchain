@@ -3,7 +3,7 @@
 import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX, Flag, Trash2, Clock } from "lucide-react";
+import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX, Flag, Trash2, Clock, Activity, Fingerprint } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +16,7 @@ export default function AdminDashboard() {
     const [complaints, setComplaints] = useState<any[]>([]);
     const [escrows, setEscrows] = useState<any[]>([]);
     const [flags, setFlags] = useState<any[]>([]);
+    const [logs, setLogs] = useState<any[]>([]);
 
     // Flag Form
     const [newFlag, setNewFlag] = useState({
@@ -32,17 +33,19 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         setLoading(true);
-        const [usersRes, complaintsRes, escrowsRes, flagsRes] = await Promise.all([
+        const [usersRes, complaintsRes, escrowsRes, flagsRes, logsRes] = await Promise.all([
             supabase.from('users').select('*').order('created_at', { ascending: false }),
             supabase.from('complaints').select('*').order('created_at', { ascending: false }),
             supabase.from('escrows').select('*').order('created_at', { ascending: false }),
-            supabase.from('wallet_flags').select('*').order('created_at', { ascending: false })
+            supabase.from('wallet_flags').select('*').order('created_at', { ascending: false }),
+            supabase.from('admin_logs').select('*').order('created_at', { ascending: false }).limit(20)
         ]);
 
         if (usersRes.data) setUsers(usersRes.data);
         if (complaintsRes.data) setComplaints(complaintsRes.data);
         if (escrowsRes.data) setEscrows(escrowsRes.data);
         if (flagsRes.data) setFlags(flagsRes.data);
+        if (logsRes.data) setLogs(logsRes.data);
         setLoading(false);
     };
 
@@ -59,6 +62,14 @@ export default function AdminDashboard() {
         });
 
         if (!error) {
+            // Log the action
+            await supabase.from('admin_logs').insert({
+                admin_id: user?.id,
+                action: `FLAG_${newFlag.flag_type.toUpperCase()}`,
+                target_wallet: newFlag.wallet_address,
+                metadata: { reason: newFlag.reason, expires_at: newFlag.expires_at }
+            });
+
             setNewFlag({ wallet_address: '', flag_type: 'warning', reason: '', expires_at: '' });
             fetchData();
         } else {
@@ -67,10 +78,17 @@ export default function AdminDashboard() {
         setFlagging(false);
     };
 
-    const removeFlag = async (id: string) => {
+    const removeFlag = async (id: string, wallet: string) => {
+        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase.from('wallet_flags').delete().eq('id', id);
         if (!error) {
-            setFlags(flags.filter(f => f.id !== id));
+            await supabase.from('admin_logs').insert({
+                admin_id: user?.id,
+                action: 'REMOVE_FLAG',
+                target_wallet: wallet,
+                metadata: { flag_id: id }
+            });
+            fetchData();
         }
     };
 
@@ -220,7 +238,7 @@ export default function AdminDashboard() {
                                             {f.flag_type.replace('_', ' ')}
                                         </span>
                                         <button
-                                            onClick={() => removeFlag(f.id)}
+                                            onClick={() => removeFlag(f.id, f.wallet_address)}
                                             className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                             <Trash2 size={16} />
@@ -228,6 +246,45 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+
+                    {/* Audit Logs Feed */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+                            <Activity className="text-blue-400" />
+                            <h2 className="text-2xl font-bold">Audit Intelligence</h2>
+                        </div>
+
+                        <div className="glass-card !p-0 overflow-hidden">
+                            <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
+                                {logs.length === 0 ? (
+                                    <p className="text-center text-slate-600 py-20 text-sm">No activity records found.</p>
+                                ) : (
+                                    <div className="divide-y divide-white/5">
+                                        {logs.map(log => (
+                                            <div key={log.id} className="p-4 hover:bg-white/5 transition-colors">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${log.action.includes('FLAG') ? 'border-red-500/30 text-red-500 bg-red-500/5' :
+                                                            log.action.includes('RESOLVE') ? 'border-green-500/30 text-green-500 bg-green-500/5' :
+                                                                'border-blue-500/30 text-blue-500 bg-blue-500/5'
+                                                        }`}>
+                                                        {log.action.replace('_', ' ')}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-500 font-mono">
+                                                        {new Date(log.created_at).toLocaleTimeString()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <Fingerprint size={12} className="text-slate-600" />
+                                                    <p className="text-xs font-mono text-slate-400 truncate">{log.target_wallet}</p>
+                                                </div>
+                                                <p className="text-[10px] text-slate-500 line-clamp-1">{log.metadata?.reason || log.metadata?.status || 'System Action'}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
