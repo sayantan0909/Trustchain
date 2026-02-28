@@ -10,15 +10,28 @@ import { supabase } from "@/lib/supabase";
 export const dynamic = 'force-dynamic';
 
 export default function Dashboard() {
-    const { address, isConnected } = useWallet();
+    const { address, isConnected, isAuthenticated } = useWallet();
     const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const [isBanned, setIsBanned] = useState(false);
+
     useEffect(() => {
-        if (address) {
+        if (address && isAuthenticated) {
+            checkBanStatus();
             fetchProjects();
         }
-    }, [address]);
+    }, [address, isAuthenticated]);
+
+    const checkBanStatus = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data } = await supabase.from('users').select('banned').eq('id', user.id).single();
+            if (data?.banned) {
+                setIsBanned(true);
+            }
+        }
+    };
 
     const fetchProjects = async () => {
         setLoading(true);
@@ -30,6 +43,18 @@ export default function Dashboard() {
         if (data) setProjects(data);
         setLoading(false);
     };
+
+    if (isBanned) {
+        return (
+            <div className="min-h-screen">
+                <Navbar />
+                <div className="pt-32 px-6 max-w-7xl mx-auto text-center">
+                    <h1 className="text-4xl font-bold mb-6 text-red-500">Account Banned</h1>
+                    <p className="text-slate-400 mb-8">Access to your TrustChain dashboard has been suspended.</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!isConnected) {
         return (

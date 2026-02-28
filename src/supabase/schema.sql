@@ -119,6 +119,10 @@ USING (freelancer_wallet = get_user_wallet());
 CREATE POLICY "Only client can insert escrow" ON escrows FOR INSERT
 WITH CHECK (client_wallet = get_user_wallet());
 
+-- Admin can view all escrows
+CREATE POLICY "Admin can view all escrows" ON escrows FOR SELECT
+USING (is_admin());
+
 -- ==========================
 -- Policy definitions: milestones
 -- ==========================
@@ -132,6 +136,10 @@ USING (
   )
 );
 
+-- Admin can view all milestones
+CREATE POLICY "Admin can view all milestones" ON milestones FOR SELECT
+USING (is_admin());
+
 -- Client can update status
 CREATE POLICY "Client can update status" ON milestones FOR UPDATE
 USING (
@@ -141,6 +149,7 @@ USING (
     AND escrows.client_wallet = get_user_wallet()
   )
 );
+
 
 -- ==========================
 -- Policy definitions: reports
