@@ -11,7 +11,7 @@ import { deployContract } from "@/lib/algorandService";
 export const dynamic = 'force-dynamic';
 
 export default function CreateProject() {
-    const { address, isConnected, peraWallet } = useWallet();
+    const { address, isConnected, isBanned } = useWallet();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -41,7 +41,7 @@ export default function CreateProject() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!address || !isConnected) return;
+        if (!address || !isConnected || isBanned) return;
 
         setLoading(true);
         try {
@@ -170,9 +170,9 @@ export default function CreateProject() {
 
                     <div className="pt-6">
                         <button
-                            disabled={loading || !isConnected}
+                            disabled={loading || !isConnected || isBanned}
                             type="submit"
-                            className="btn-primary w-full py-4 text-lg"
+                            className={`btn-primary w-full py-4 text-lg ${isBanned ? 'opacity-50 cursor-not-allowed bg-red-900/50 grayscale' : ''}`}
                         >
                             {loading ? (
                                 <>
@@ -188,6 +188,9 @@ export default function CreateProject() {
                         </button>
                         {!isConnected && (
                             <p className="text-center text-red-400 text-sm mt-4">Please connect your wallet to continue.</p>
+                        )}
+                        {isBanned && (
+                            <p className="text-center text-red-400 font-bold text-sm mt-4 uppercase tracking-widest">Action Restricted: Wallet is Suspended</p>
                         )}
                     </div>
                 </form>

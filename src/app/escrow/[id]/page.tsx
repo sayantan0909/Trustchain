@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default function EscrowDetail() {
     const { id } = useParams();
-    const { address, isAuthenticated } = useWallet();
+    const { address, isAuthenticated, isBanned, walletFlags } = useWallet();
     const [project, setProject] = useState<any>(null);
     const [milestones, setMilestones] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export default function EscrowDetail() {
     };
 
     const handleReport = async () => {
-        if (!reportReason || !address) return;
+        if (!reportReason || !address || isBanned) return;
         setReportSubmitting(true);
         const { error } = await supabase.from('complaints').insert({
             escrow_id: id,
@@ -59,6 +59,10 @@ export default function EscrowDetail() {
     };
 
     const submitWork = async (milestoneId: string) => {
+        if (isBanned) {
+            alert("Action failed: Your wallet has been suspended.");
+            return;
+        }
         const { error } = await supabase
             .from('milestones')
             .update({ submitted_at: new Date().toISOString() })
@@ -182,8 +186,11 @@ export default function EscrowDetail() {
 
                             <div className="flex items-center gap-3 w-full md:w-auto">
                                 {m.status === 'pending' && isClient && m.submitted_at && (
-                                    <button className="btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center border-orange-500/50 hover:bg-orange-500/10 hover:text-orange-400 bg-transparent text-orange-500">
-                                        Review & Approve Payout
+                                    <button
+                                        disabled={isBanned}
+                                        className={`btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center border-orange-500/50 hover:bg-orange-500/10 hover:text-orange-400 bg-transparent text-orange-500 ${isBanned ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                                    >
+                                        {isBanned ? 'Action Restricted' : 'Review & Approve Payout'}
                                     </button>
                                 )}
                                 {m.status === 'pending' && isClient && !m.submitted_at && (
@@ -197,8 +204,12 @@ export default function EscrowDetail() {
                                     </div>
                                 )}
                                 {m.status === 'pending' && isFreelancer && !m.submitted_at && (
-                                    <button onClick={() => submitWork(m.id)} className="btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center">
-                                        Mark as Completed
+                                    <button
+                                        disabled={isBanned}
+                                        onClick={() => submitWork(m.id)}
+                                        className={`btn-primary py-2 px-6 text-sm flex-1 md:flex-none justify-center ${isBanned ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                                    >
+                                        {isBanned ? 'Wallet Suspended' : 'Mark as Completed'}
                                     </button>
                                 )}
                                 {m.status === 'pending' && isFreelancer && m.submitted_at && (

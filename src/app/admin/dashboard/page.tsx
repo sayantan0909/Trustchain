@@ -3,7 +3,7 @@
 import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX } from "lucide-react";
+import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX, Flag, Trash2, Clock } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,16 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState<any[]>([]);
     const [complaints, setComplaints] = useState<any[]>([]);
     const [escrows, setEscrows] = useState<any[]>([]);
+    const [flags, setFlags] = useState<any[]>([]);
+
+    // Flag Form
+    const [newFlag, setNewFlag] = useState({
+        wallet_address: '',
+        flag_type: 'warning',
+        reason: '',
+        expires_at: ''
+    });
+    const [flagging, setFlagging] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -22,24 +32,45 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         setLoading(true);
-        const [usersRes, complaintsRes, escrowsRes] = await Promise.all([
+        const [usersRes, complaintsRes, escrowsRes, flagsRes] = await Promise.all([
             supabase.from('users').select('*').order('created_at', { ascending: false }),
             supabase.from('complaints').select('*').order('created_at', { ascending: false }),
-            supabase.from('escrows').select('*').order('created_at', { ascending: false })
+            supabase.from('escrows').select('*').order('created_at', { ascending: false }),
+            supabase.from('wallet_flags').select('*').order('created_at', { ascending: false })
         ]);
 
         if (usersRes.data) setUsers(usersRes.data);
         if (complaintsRes.data) setComplaints(complaintsRes.data);
         if (escrowsRes.data) setEscrows(escrowsRes.data);
+        if (flagsRes.data) setFlags(flagsRes.data);
         setLoading(false);
     };
 
-    const toggleBan = async (userId: string, currentStatus: boolean) => {
-        const { error } = await supabase.from('users').update({ banned: !currentStatus }).eq('id', userId);
+    const handleAddFlag = async () => {
+        if (!newFlag.wallet_address || !newFlag.reason) return;
+        setFlagging(true);
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const { error } = await supabase.from('wallet_flags').insert({
+            ...newFlag,
+            expires_at: newFlag.expires_at ? new Date(newFlag.expires_at).toISOString() : null,
+            created_by_admin: user?.id
+        });
+
         if (!error) {
-            setUsers(users.map(u => u.id === userId ? { ...u, banned: !currentStatus } : u));
+            setNewFlag({ wallet_address: '', flag_type: 'warning', reason: '', expires_at: '' });
+            fetchData();
         } else {
-            alert('Failed to update ban status. ' + error.message);
+            alert("Error flagging wallet: " + error.message);
+        }
+        setFlagging(false);
+    };
+
+    const removeFlag = async (id: string) => {
+        const { error } = await supabase.from('wallet_flags').delete().eq('id', id);
+        if (!error) {
+            setFlags(flags.filter(f => f.id !== id));
         }
     };
 
@@ -110,52 +141,93 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Users Management */}
+                    {/* Users & Flagging */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-                            <UsersIcon className="text-blue-400" />
-                            <h2 className="text-2xl font-bold">Users Directory</h2>
+                            <Flag className="text-red-400" />
+                            <h2 className="text-2xl font-bold">Wallet Security</h2>
                         </div>
 
-                        <div className="glass-card overflow-hidden !p-0">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-white/5 text-xs uppercase tracking-wider text-slate-500">
-                                        <th className="p-4 rounded-tl-xl border-b border-white/5">Wallet</th>
-                                        <th className="p-4 border-b border-white/5">Role</th>
-                                        <th className="p-4 rounded-tr-xl border-b border-white/5 text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {users.map(u => (
-                                        <tr key={u.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                                            <td className="p-4 font-mono text-sm text-slate-300">
-                                                {u.wallet_address.slice(0, 10)}...{u.wallet_address.slice(-4)}
-                                            </td>
-                                            <td className="p-4 capitalize text-sm">
-                                                <span className={`px-2 py-1 rounded-md text-xs font-bold ${u.role === 'admin' ? 'bg-purple-500/10 text-purple-400' :
-                                                    u.role === 'client' ? 'bg-blue-500/10 text-blue-400' : 'bg-green-500/10 text-green-400'
-                                                    }`}>
-                                                    {u.role}
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-right">
-                                                {u.role !== 'admin' && (
-                                                    <button
-                                                        onClick={() => toggleBan(u.id, u.banned)}
-                                                        className={`flex items-center gap-2 ml-auto text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${u.banned
-                                                            ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                                                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                                                            }`}
-                                                    >
-                                                        {u.banned ? <><Ban size={14} /> Banned</> : <><CheckCircle size={14} /> Active</>}
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        {/* Add Flag Form */}
+                        <div className="glass-card bg-red-500/5 border-red-500/10">
+                            <h3 className="text-xs font-bold text-red-400 uppercase tracking-widest mb-4">Flag / Restrict Wallet</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <input
+                                    placeholder="Wallet Address"
+                                    value={newFlag.wallet_address}
+                                    onChange={e => setNewFlag({ ...newFlag, wallet_address: e.target.value })}
+                                    className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm font-mono focus:border-red-500/50 outline-none"
+                                />
+                                <select
+                                    value={newFlag.flag_type}
+                                    onChange={e => setNewFlag({ ...newFlag, flag_type: e.target.value })}
+                                    className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm focus:border-red-500/50 outline-none"
+                                >
+                                    <option value="warning">Warning Only</option>
+                                    <option value="temporary_ban">Temporary Ban</option>
+                                    <option value="permanent_ban">Permanent Ban</option>
+                                </select>
+                            </div>
+                            <textarea
+                                placeholder="Reason for flag..."
+                                value={newFlag.reason}
+                                onChange={e => setNewFlag({ ...newFlag, reason: e.target.value })}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm mb-4 focus:border-red-500/50 outline-none min-h-[80px]"
+                            />
+                            <div className="flex gap-4 items-center">
+                                <div className="flex-1">
+                                    <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Expiry (Optional)</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={newFlag.expires_at}
+                                        onChange={e => setNewFlag({ ...newFlag, expires_at: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs outline-none"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleAddFlag}
+                                    disabled={flagging || !newFlag.wallet_address || !newFlag.reason}
+                                    className="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-3 rounded-xl transition-all disabled:opacity-50 mt-5"
+                                >
+                                    {flagging ? 'Processing...' : 'Apply Restriction'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Recent Flags List */}
+                        <div className="space-y-3">
+                            {flags.length === 0 ? (
+                                <p className="text-center text-slate-600 py-8 text-sm italic">No active wallet restrictions.</p>
+                            ) : flags.map(f => (
+                                <div key={f.id} className="glass-card flex items-center justify-between group">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2 rounded-lg ${f.flag_type === 'permanent_ban' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                            <AlertCircle size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-mono text-slate-300">{f.wallet_address.slice(0, 12)}...</p>
+                                            <p className="text-[10px] text-slate-500 italic mt-1">{f.reason}</p>
+                                            {f.expires_at && (
+                                                <p className="text-[9px] text-slate-600 mt-1 flex items-center gap-1 uppercase font-bold">
+                                                    <Clock size={10} /> Expires: {new Date(f.expires_at).toLocaleDateString()}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${f.flag_type === 'permanent_ban' ? 'border-red-500/30 text-red-500 bg-red-500/5' : 'border-orange-500/30 text-orange-500 bg-orange-500/5'
+                                            }`}>
+                                            {f.flag_type.replace('_', ' ')}
+                                        </span>
+                                        <button
+                                            onClick={() => removeFlag(f.id)}
+                                            className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

@@ -57,12 +57,24 @@ CREATE TABLE IF NOT EXISTS complaints (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table: wallet_flags
+CREATE TABLE IF NOT EXISTS wallet_flags (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  wallet_address TEXT NOT NULL,
+  flag_type TEXT CHECK (flag_type IN ('warning', 'temporary_ban', 'permanent_ban')),
+  reason TEXT,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  created_by_admin UUID REFERENCES admins(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE escrows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wallet_flags ENABLE ROW LEVEL SECURITY;
 
 -- Note: RLS Policies should be defined based on the authentication strategy.
 -- We assume auth.uid() corresponds to users.id
@@ -202,4 +214,15 @@ USING (is_admin());
 
 -- Admin can update complaints (resolution)
 CREATE POLICY "Admin can update complaints" ON complaints FOR UPDATE
+USING (is_admin());
+
+-- ==========================
+-- Policy definitions: wallet_flags
+-- ==========================
+-- Public can read flags for warning enforcement
+CREATE POLICY "Public can read flags" ON wallet_flags FOR SELECT
+USING (true);
+
+-- Admin can manage flags
+CREATE POLICY "Admin can manage flags" ON wallet_flags FOR ALL
 USING (is_admin());

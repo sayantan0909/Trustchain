@@ -12,7 +12,7 @@ export const WalletButton = () => {
                 <div className="px-4 py-2 glass rounded-xl border-blue-500/30 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     <span className="text-sm font-mono text-blue-100 border-r border-blue-500/30 pr-3 mr-1">
-                        {balance.toFixed(2)} ALGO
+                        {balance !== null ? balance.toFixed(2) : '0.00'} ALGO
                     </span>
                     <span className="text-sm font-mono text-slate-400">
                         {address?.slice(0, 6)}...{address?.slice(-4)}
