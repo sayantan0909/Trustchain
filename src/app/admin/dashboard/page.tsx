@@ -3,7 +3,7 @@
 import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle } from "lucide-react";
+import { ShieldAlert, Users as UsersIcon, Ban, CheckCircle, FileText, AlertCircle, BookmarkCheck, Wallet, UserX } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -60,6 +60,53 @@ export default function AdminDashboard() {
                 <div className="mb-12">
                     <h1 className="text-4xl font-bold mb-2">Admin Panel</h1>
                     <p className="text-slate-400">Manage platform users and view reports.</p>
+                </div>
+
+                {/* Dashboard Overview Widgets */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+                    {[
+                        {
+                            label: "Total Complaints",
+                            value: reports.length,
+                            icon: <FileText className="text-blue-400" />,
+                            color: "blue"
+                        },
+                        {
+                            label: "Open Cases",
+                            value: reports.filter(r => r.status === 'open').length,
+                            icon: <AlertCircle className="text-orange-400" />,
+                            color: "orange"
+                        },
+                        {
+                            label: "Resolved",
+                            value: reports.filter(r => r.status !== 'open').length,
+                            icon: <BookmarkCheck className="text-green-400" />,
+                            color: "green"
+                        },
+                        {
+                            label: "Total Wallets",
+                            value: users.length,
+                            icon: <Wallet className="text-purple-400" />,
+                            color: "purple"
+                        },
+                        {
+                            label: "Banned Users",
+                            value: users.filter(u => u.banned).length,
+                            icon: <UserX className="text-red-400" />,
+                            color: "red"
+                        },
+                    ].map((widget, i) => (
+                        <div key={i} className="glass-card hover:bg-white/5 transition-all group border-b-2 border-transparent hover:border-slate-700">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={`p-2 rounded-xl bg-${widget.color}-500/10`}>
+                                    {widget.icon}
+                                </div>
+                                <span className="text-xs font-mono text-slate-500">Live</span>
+                            </div>
+                            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{widget.label}</h3>
+                            <p className="text-3xl font-bold font-mono tracking-tighter">{widget.value}</p>
+                        </div>
+                    ))}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
