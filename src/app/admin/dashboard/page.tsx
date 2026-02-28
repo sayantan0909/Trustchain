@@ -17,30 +17,11 @@ export default function AdminDashboard() {
     const [escrows, setEscrows] = useState<any[]>([]);
 
     useEffect(() => {
-        checkAdmin();
+        fetchData();
     }, []);
 
-    const checkAdmin = async () => {
-        setLoading(true);
-        // Supabase session should have our id
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            setLoading(false);
-            return;
-        }
-        setIsAuthenticated(true);
-
-        const { data: dbUser } = await supabase.from('admins').select('role').eq('id', user.id).single();
-        if (dbUser) {
-            setIsAdmin(true);
-            fetchData();
-        } else {
-            setIsAdmin(false);
-            setLoading(false);
-        }
-    };
-
     const fetchData = async () => {
+        setLoading(true);
         const [usersRes, reportsRes, escrowsRes] = await Promise.all([
             supabase.from('users').select('*').order('created_at', { ascending: false }),
             supabase.from('reports').select('*').order('created_at', { ascending: false }),
@@ -67,21 +48,6 @@ export default function AdminDashboard() {
             <div className="min-h-screen">
                 <Navbar />
                 <div className="pt-32 px-6 max-w-7xl mx-auto text-center text-slate-400">Loading admin data...</div>
-            </div>
-        );
-    }
-
-    if (!isAuthenticated || !isAdmin) {
-        return (
-            <div className="min-h-screen">
-                <Navbar />
-                <div className="pt-32 px-6 max-w-7xl mx-auto text-center">
-                    <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <ShieldAlert size={32} />
-                    </div>
-                    <h1 className="text-4xl font-bold mb-4">Access Denied</h1>
-                    <p className="text-slate-400">You must be an administrator to view this page.</p>
-                </div>
             </div>
         );
     }
