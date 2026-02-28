@@ -553,3 +553,121 @@ body {
     opacity: 1;
   }
 }
+
+/* ════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — 375px (iPhone SE) viewport pass
+   Covers: Navbar, Hero, Dashboard, Create-Escrow, Escrow Detail
+════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* ── Global ── */
+  body {
+    overflow-x: hidden;
+  }
+
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ── WalletButton ── */
+  .wallet-btn,
+  [class*="wallet"],
+  [class*="Wallet"] {
+    max-width: 160px !important;
+    font-size: .78rem !important;
+  }
+
+  /* ── btn-primary/btn-secondary ── */
+  .btn-primary,
+  .btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 13px 20px !important;
+    font-size: .9rem !important;
+  }
+
+  /* ══ HERO ══ */
+  /* Hero padding & centering */
+  section[class*="hero"],
+  div[class*="hero"] {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    text-align: center;
+  }
+
+  /* CTA button group → stack vertically */
+  .hero-ctas,
+  [class*="hero"] div[style*="display: flex"][style*="gap"] {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  /* ══ DASHBOARD ══ */
+  /* Stats grid: 4-col → 2-col */
+  div[style*="repeat(auto-fit,minmax(200px"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* Project card grid: multi-col → 1-col */
+  div[style*="repeat(auto-fill,minmax(280px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Dashboard header stack */
+  div[style*="justify-content: space-between"][style*="flex-wrap: wrap"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* ══ CREATE-ESCROW WIZARD ══ */
+  /* Step bar — compress */
+  div[style*="marginBottom: 48"] {
+    gap: 0 !important;
+  }
+
+  /* Connector lines shrink */
+  div[style*="width: 60"][style*="height: 2"] {
+    width: 24px !important;
+  }
+
+  /* Milestone row: flex-col */
+  div[style*="escrow_id"]+div,
+  .milestone-row {
+    flex-direction: column !important;
+  }
+
+  /* ══ ESCROW DETAIL ══ */
+  /* Milestone action buttons → full width */
+  div[style*="display: flex"][style*="flexWrap: wrap"][style*="alignItems: center"][style*="justifyContent: space-between"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  /* Metric pills wrap nicely */
+  div[style*="flexWrap: wrap"][style*="gap: 10"] {
+    gap: 8px !important;
+  }
+
+  /* Stakeholder cards grid */
+  div[style*="repeat(auto-fit,minmax(260px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Slightly larger breakpoint for wizard input sizes ── */
+@media (max-width: 480px) {
+
+  /* Wizard card full bleed */
+  div[style*="maxWidth: 680"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Milestone amount input */
+  div[style*="width: 110"] {
+    width: 90px !important;
+  }
+}

@@ -47,10 +47,12 @@ export const signAndSendTransactions = async (
         const validSigned = signedRaw.filter((s): s is Uint8Array => s !== null);
 
         const response = await algodClient.sendRawTransaction(validSigned).do();
-        // algosdk v3: PostTransactionsResponse.txid (lowercase)
-        const txId = response.txid;
+        // algosdk v2: response.txId (capital I); v3: response.txid (lowercase)
+        // Support both to avoid "not confirmed after N rounds" when txId is undefined.
+        const txId: string = (response as any).txId ?? (response as any).txid;
+        if (!txId) throw new Error('No txId returned from sendRawTransaction — check algosdk version compatibility');
 
-        await algosdk.waitForConfirmation(algodClient, txId, 4);
+        await algosdk.waitForConfirmation(algodClient, txId, 8);
         return txId;
     } catch (error) {
         console.error('[TrustChain] Transaction signing/submission error:', error);
@@ -155,7 +157,7 @@ export const deployContract = async (
     ];
 
     const txn = algosdk.makeApplicationCreateTxnFromObject({
-        sender,
+        from: sender,
         suggestedParams: params,
         onComplete: algosdk.OnApplicationComplete.NoOpOC,
         approvalProgram,
@@ -188,8 +190,8 @@ export const fundEscrow = async (
     const params = await algodClient.getTransactionParams().do();
 
     const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        sender,
-        receiver: appAddress,
+        from: sender,
+        to: appAddress,
         amount: BigInt(amountMicroAlgos),
         suggestedParams: params,
     });
@@ -197,13 +199,16 @@ export const fundEscrow = async (
     return signAndSendTransactions(signTransactions, [txn], sender);
 };
 
-// ─── Approve Escrow ───────────────────────────────────────────────────────────
+// ─── Approve Escrow (atomically pays the freelancer via TEAL inner tx) ────────
 export const approveEscrow = async (
     signTransactions: UniversalSignFn,
     sender: string,
     appId: number,
     milestoneId: string,
-    freelancerAddress: string
+    freelancerAddress: string,
+    escrowId: string,
+    milestonesTotal: number,
+    milestonesCompleted: number
 ) => {
     const params = await algodClient.getTransactionParams().do();
     const encoder = new TextEncoder();
@@ -242,7 +247,7 @@ export const approveEscrow = async (
     if (isNaN(appIndex)) throw new Error('Invalid App ID');
 
     const txn = algosdk.makeApplicationNoOpTxnFromObject({
-        sender,
+        from: sender,
         appIndex,
         appArgs: [arg],
         accounts: [freelancerAddress],
@@ -268,15 +273,24 @@ export const approveEscrow = async (
 
     const txId = await signAndSendTransactions(signTransactions, [txn], sender);
 
-    // Update Firestore milestone record
+    // ── FIXED: 'approve' in TEAL atomically pays the freelancer via inner tx ──
+    // Mark milestone 'paid' immediately after the on-chain tx confirms.
     try {
         await updateDoc(doc(db, 'milestones', milestoneId), {
-            status: 'approved',
+            status: 'paid',
             txn_id: txId,
-            approved_at: serverTimestamp(),
+            paid_at: serverTimestamp(),
         });
+
+        // If this was the last milestone, mark the whole escrow 'completed'
+        if (milestonesCompleted + 1 >= milestonesTotal) {
+            await updateDoc(doc(db, 'escrows', escrowId), {
+                status: 'completed',
+                completed_at: serverTimestamp(),
+            });
+        }
     } catch (error) {
-        console.error('[TrustChain] Failed to update milestone in Firestore:', error);
+        console.error('[TrustChain] Failed to update milestone/escrow in Firestore:', error);
     }
 
     return txId;
@@ -293,7 +307,7 @@ export const refundEscrow = async (
     const arg = encoder.encode('refund');
 
     const txn = algosdk.makeApplicationNoOpTxnFromObject({
-        sender,
+        from: sender,
         appIndex: appId,
         appArgs: [arg],
         suggestedParams: params,

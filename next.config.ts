@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const optionalExternals = [
   '@agoralabs-sh/avm-web-provider',
   '@blockshake/defly-connect',
+  '@perawallet/connect',
   '@perawallet/connect-beta',
   '@walletconnect/sign-client',
   '@walletconnect/modal',

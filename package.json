@@ -12,7 +12,7 @@
   "dependencies": {
     "@perawallet/connect": "^1.5.1",
     "@txnlab/use-wallet-react": "^3.12.0",
-    "algosdk": "^3.5.2",
+    "algosdk": "2.11.0",
     "clsx": "^2.1.1",
     "firebase": "^12.10.0",
     "framer-motion": "^12.34.3",
