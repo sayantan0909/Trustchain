@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,15 +7,63 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --primary: #3b82f6;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+@utility glass {
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@utility glass-card {
+  @apply glass rounded-2xl p-6 shadow-xl transition-all duration-300;
+
+  &:hover {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+}
+
+@utility btn-primary {
+  @apply bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2;
+  box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.4);
+
+  &:hover {
+    @apply bg-blue-500;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@utility btn-secondary {
+  @apply bg-white/10 text-white px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2;
+
+  &:hover {
+    @apply bg-white/20;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@utility gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400;
+}
+
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 40px 40px;
 }

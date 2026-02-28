@@ -1,0 +1,127 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l8
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l7
+txna ApplicationArgs 0
+byte "approve"
+==
+bnz main_l6
+txna ApplicationArgs 0
+byte "refund"
+==
+bnz main_l5
+err
+main_l5:
+txn Sender
+byte "client"
+app_global_get
+==
+assert
+global CurrentApplicationAddress
+balance
+callsub payfreelancer_0
+itxn_begin
+int pay
+itxn_field TypeEnum
+byte "client"
+app_global_get
+itxn_field Receiver
+global CurrentApplicationAddress
+balance
+global MinBalance
+-
+itxn_field Amount
+byte "client"
+app_global_get
+itxn_field CloseRemainderTo
+itxn_submit
+int 1
+return
+main_l6:
+txn Sender
+byte "client"
+app_global_get
+==
+assert
+byte "milestones_completed"
+app_global_get
+byte "milestones_total"
+app_global_get
+<
+assert
+byte "amount_per_milestone"
+app_global_get
+callsub payfreelancer_0
+byte "milestones_completed"
+byte "milestones_completed"
+app_global_get
+int 1
++
+app_global_put
+int 1
+return
+main_l7:
+txn Sender
+byte "client"
+app_global_get
+==
+assert
+global CurrentApplicationAddress
+balance
+callsub payfreelancer_0
+itxn_begin
+int pay
+itxn_field TypeEnum
+byte "client"
+app_global_get
+itxn_field Receiver
+global CurrentApplicationAddress
+balance
+global MinBalance
+-
+itxn_field Amount
+byte "client"
+app_global_get
+itxn_field CloseRemainderTo
+itxn_submit
+int 1
+return
+main_l8:
+byte "client"
+txna ApplicationArgs 0
+app_global_put
+byte "freelancer"
+txna ApplicationArgs 1
+app_global_put
+byte "milestones_total"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "milestones_completed"
+int 0
+app_global_put
+byte "amount_per_milestone"
+txna ApplicationArgs 3
+btoi
+app_global_put
+int 1
+return
+
+// pay_freelancer
+payfreelancer_0:
+proto 1 0
+itxn_begin
+int pay
+itxn_field TypeEnum
+byte "freelancer"
+app_global_get
+itxn_field Receiver
+frame_dig -1
+itxn_field Amount
+itxn_submit
+retsub
