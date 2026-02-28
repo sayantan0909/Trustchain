@@ -1,4 +1,6 @@
 import { Navbar } from "@/components/Navbar";
+import { FeaturesSection } from "@/components/FeaturesSection";
+import { FAQSection } from "@/components/FAQSection";
 import { Shield, Lock, Zap, ArrowRight, Github } from "lucide-react";
 import Link from "next/link";
 
@@ -71,6 +73,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FeaturesSection />
+
+      <FAQSection />
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-white/5">
