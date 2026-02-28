@@ -10,6 +10,14 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table: admins
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID PRIMARY KEY,
+  email TEXT NOT NULL,
+  role TEXT CHECK (role IN ('super_admin', 'moderator')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Table: escrows
 CREATE TABLE IF NOT EXISTS escrows (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -50,6 +58,7 @@ CREATE TABLE IF NOT EXISTS reports (
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE escrows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
@@ -60,13 +69,22 @@ ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 -- Helper functions
 CREATE OR REPLACE FUNCTION is_admin() RETURNS BOOLEAN AS $$
   SELECT EXISTS (
-    SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
+    SELECT 1 FROM admins WHERE id = auth.uid()
   );
 $$ LANGUAGE sql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION get_user_wallet() RETURNS TEXT AS $$
   SELECT wallet_address FROM users WHERE id = auth.uid();
 $$ LANGUAGE sql SECURITY DEFINER;
+
+-- ==========================
+-- Policy definitions: admins
+-- ==========================
+CREATE POLICY "Admins can read their own row" ON admins FOR SELECT
+USING (id = auth.uid());
+
+CREATE POLICY "Admin can read all admins" ON admins FOR SELECT
+USING (is_admin());
 
 -- ==========================
 -- Policy definitions: users
