@@ -235,11 +235,70 @@ export default function CreateProject() {
             <div style={{ position: 'relative', zIndex: 10, paddingTop: 120, paddingLeft: 24, paddingRight: 24, maxWidth: 680, margin: '0 auto' }}>
 
                 {/* Header */}
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                {/* <div style={{ textAlign: 'center', marginBottom: 40 }}>
                     <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(2.5rem,6vw,3.5rem)', color: '#fff', letterSpacing: '.04em', lineHeight: 1, marginBottom: 10 }}>
                         Create Trustless Escrow
                     </h1>
                     <p style={{ color: '#64748b', fontSize: '.9rem' }}>Lock funds on Algorand and pay when work is verified — no trust required.</p>
+                </div> */}
+                <div
+                    style={{
+                        textAlign: "center",
+                        marginBottom: 70,
+                        position: "relative",
+                    }}
+                >
+                    {/* Soft Glow Background */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "-80px",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: "600px",
+                            height: "350px",
+                            background:
+                                "radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)",
+                            filter: "blur(70px)",
+                            zIndex: -1,
+                        }}
+                    />
+
+                    <h1
+                        style={{
+                            fontFamily: "'Bebas Neue', sans-serif",
+                            fontSize: "clamp(3rem, 7vw, 4.8rem)",  // Bigger
+                            letterSpacing: ".05em",
+                            lineHeight: 1.05,
+                            marginBottom: 18,
+                        }}
+                    >
+                        Create{" "}
+                        <span
+                            style={{
+                                background: "linear-gradient(90deg, #6366f1, #06b6d4)",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                textShadow: "0 0 25px rgba(99,102,241,0.5)",
+                            }}
+                        >
+                            Trustless
+                        </span>{" "}
+                        Escrow
+                    </h1>
+
+                    <p
+                        style={{
+                            color: "#94a3b8",
+                            fontSize: "clamp(1rem, 2vw, 1.25rem)",  // Bigger subtitle
+                            maxWidth: "600px",
+                            margin: "0 auto",
+                            lineHeight: 1.6,
+                        }}
+                    >
+                        Lock funds on Algorand and release payments automatically when work is
+                        verified — no intermediaries. No trust required.
+                    </p>
                 </div>
 
                 {isAdminSession && (
