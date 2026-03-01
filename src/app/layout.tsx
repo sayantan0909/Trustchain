@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TrustChain | Milestone-Based Escrow on Algorand",
   description: "Secure, decentralized escrow for freelancers and clients using Algorand smart contracts.",
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({

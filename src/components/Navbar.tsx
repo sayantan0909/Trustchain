@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { WalletButton } from './WalletButton';
-import { Shield, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useWallet } from './providers/WalletProvider';
 
@@ -40,9 +41,13 @@ export const Navbar = () => {
 
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group relative z-10 flex-shrink-0">
-                        <div className="p-1.5 md:p-2 bg-blue-600 rounded-xl group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/20">
-                            <Shield className="text-white" size={20} />
-                        </div>
+                        <Image
+                            src="/logo.png"
+                            alt="TrustChain"
+                            width={36}
+                            height={36}
+                            className="object-contain rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform"
+                        />
                         <span className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-slate-400">
                             TrustChain
                         </span>

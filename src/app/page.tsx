@@ -7,6 +7,7 @@ import { HeroOrbs } from "@/components/HeroOrbs";
 import { HeroStats } from "@/components/HeroStats";
 import AuroraCanvas from "@/components/AuroraCanvas";
 import { Shield, ArrowRight, Github, Zap, Lock } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -339,7 +340,13 @@ export default function Home() {
       <footer style={{ padding: "48px 24px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Shield size={20} style={{ color: "var(--violet)" }} />
+            <Image
+              src="/logo.png"
+              alt="TrustChain Logo"
+              width={24}
+              height={24}
+              className="object-contain rounded-xl"
+            />
             <span style={{ fontWeight: 700 }}>TrustChain</span>
           </div>
           <p style={{ color: "#475569", fontSize: "0.85rem" }}>
