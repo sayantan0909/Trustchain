@@ -145,11 +145,11 @@ body {
 
 /* Headline — Bebas Neue ultra-condensed */
 @utility hero-headline {
-  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  font-family: 'Algerian', 'Bebas Neue', 'Arial Narrow', sans-serif;
   font-weight: 400;
   /* Bebas only has 400 weight */
-  font-size: clamp(4rem, 12vw, 9rem);
-  line-height: 0.95;
+  font-size: clamp(2rem, 5.5vw, 4.2rem);
+  line-height: 0.85;
   letter-spacing: 0.01em;
   color: #ffffff;
   text-transform: uppercase;

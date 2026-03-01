@@ -8,8 +8,10 @@ import { HeroStats } from "@/components/HeroStats";
 import AuroraCanvas from "@/components/AuroraCanvas";
 import { Shield, ArrowRight, Github, Zap, Lock } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+const GridScan = dynamic(() => import("@/components/GridScan").then(mod => mod.GridScan), { ssr: false });
 
 /* ═══════════════════════════════════════════════
    TYPEWRITER + GLITCH EFFECT
@@ -194,15 +196,19 @@ export default function Home() {
           <MicroParticles />
         </div>
 
-        {/* ── Layer 3: Subtle grid ── */}
-        <div
-          className="bg-grid"
-          style={{
-            position: "absolute", inset: 0, zIndex: 3,
-            backgroundBlendMode: "overlay",
-            opacity: 0.4,
-          }}
-        />
+        {/* ── Layer 3: Grid Scan (Replacing solid grid) ── */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 3, opacity: 0.6 }}>
+          <GridScan
+            linesColor="#1e1b4b"
+            scanColor="#8b5cf6"
+            scanOpacity={0.5}
+            gridScale={0.15}
+            scanDuration={4}
+            scanDelay={1}
+            bloomIntensity={0.8}
+            enablePost={true}
+          />
+        </div>
 
         {/* ── Layer 4: Radial bloom center ── */}
         <div
@@ -267,12 +273,9 @@ export default function Home() {
             style={{ marginBottom: "0.1rem" }}
           >
             {/* Line 1: chrome reactive */}
-            <ChromeHeadline>Where Freelancers</ChromeHeadline>
+            <ChromeHeadline>Where Freelancers Get Paid</ChromeHeadline>
             <br />
-            {/* Line 2: chrome reactive */}
-            <ChromeHeadline>Get Paid</ChromeHeadline>
-            <br />
-            {/* Line 3: animated gradient */}
+            {/* Line 2: animated gradient */}
             <span className="hero-headline-gradient">
               and Clients Stay Protected.
             </span>
