@@ -17,6 +17,13 @@ import { algodClient } from './algorand';
 import { db } from '@/lib/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
+export class WalletDisconnectedError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'WalletDisconnectedError';
+    }
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 /**
  * Universal signing callback – matches the signature of
@@ -36,7 +43,11 @@ export const signAndSendTransactions = async (
     signTransactions: UniversalSignFn,
     txns: algosdk.Transaction[],
     _address: string          // kept for API compatibility
-): Promise<string> => {
+): Promise<string | null> => {
+    if (!signTransactions || typeof signTransactions !== 'function') {
+        throw new WalletDisconnectedError('Wallet disconnected. Please reconnect your wallet.');
+    }
+
     if (txns.length > 1) {
         algosdk.assignGroupID(txns);
     }
@@ -47,14 +58,48 @@ export const signAndSendTransactions = async (
         const validSigned = signedRaw.filter((s): s is Uint8Array => s !== null);
 
         const response = await algodClient.sendRawTransaction(validSigned).do();
-        // algosdk v2: response.txId (capital I); v3: response.txid (lowercase)
-        // Support both to avoid "not confirmed after N rounds" when txId is undefined.
-        const txId: string = (response as any).txId ?? (response as any).txid;
-        if (!txId) throw new Error('No txId returned from sendRawTransaction — check algosdk version compatibility');
 
-        await algosdk.waitForConfirmation(algodClient, txId, 8);
+        // Calculate the canonical txID from the first transaction in the group
+        // instead of relying on the varying algod response formats (base64 vs base32 vs buffer).
+        const txId = txns[0].txID();
+
+        await algosdk.waitForConfirmation(algodClient, txId, 15);
         return txId;
-    } catch (error) {
+    } catch (error: any) {
+        const msg = error?.message || error?.toString() || '';
+        const code = error?.code;
+
+        // User rejection should be swallowed and return null, NOT trigger a disconnect
+        if (
+            code === 4001 ||
+            code === 4100 ||
+            msg.includes('User Rejected Request') ||
+            msg.includes('Operation cancelled') ||
+            msg.includes('user rejected')
+        ) {
+            return null;
+        }
+
+        // If the transaction is already in the ledger, we can safely consider it a success and return the txId we calculated earlier.
+        if (msg.includes('TransactionPool.Remember: transaction already in ledger')) {
+            console.log('[TrustChain] Transaction was already in ledger:', txns[0].txID());
+            return txns[0].txID();
+        }
+
+        const isPeraDisconnect =
+            msg.includes('Session disconnected') ||
+            msg.includes('No session');
+
+        const isLuteDisconnect =
+            msg.includes('No wallet') ||
+            msg.includes('Lute not found') ||
+            msg.includes('Extension not available');
+
+        if (isPeraDisconnect || isLuteDisconnect) {
+            throw new WalletDisconnectedError('Wallet disconnected. Please reconnect your wallet.');
+        }
+
+        // Output real errors to console but do not let them bubble up and crash Next.js
         console.error('[TrustChain] Transaction signing/submission error:', error);
         throw error;
     }
@@ -78,7 +123,8 @@ export const simulateTransaction = async (
         const simulateReq = new algosdk.modelsv2.SimulateRequest({
             txnGroups: [
                 new algosdk.modelsv2.SimulateRequestTransactionGroup({
-                    txns: [decodedSignedTxn],
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    txns: [decodedSignedTxn as any],
                 }),
             ],
             allowEmptySignatures: true,
@@ -170,6 +216,7 @@ export const deployContract = async (
     });
 
     const txId = await signAndSendTransactions(signTransactions, [txn], sender);
+    if (!txId) throw new Error('Operation cancelled by user');
 
     const txInfo = await algodClient.pendingTransactionInformation(txId).do();
     const appId = Number(
@@ -187,16 +234,23 @@ export const fundEscrow = async (
     appAddress: string,
     amountMicroAlgos: number
 ) => {
+    // Add 0.1 ALGO buffer (100,000 microAlgos) to the payment amount 
+    // to strictly cover the contract's Minimum Balance Requirement and TX fees 
+    // evaluated during 'balance - MinBalance' in TEAL
+    const totalFundingAmount = BigInt(amountMicroAlgos) + BigInt(200_000);
+
     const params = await algodClient.getTransactionParams().do();
 
     const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: sender,
         to: appAddress,
-        amount: BigInt(amountMicroAlgos),
+        amount: totalFundingAmount,
         suggestedParams: params,
     });
 
-    return signAndSendTransactions(signTransactions, [txn], sender);
+    const txId = await signAndSendTransactions(signTransactions, [txn], sender);
+    if (!txId) throw new Error('Operation cancelled by user');
+    return txId;
 };
 
 // ─── Approve Escrow (atomically pays the freelancer via TEAL inner tx) ────────
@@ -269,6 +323,7 @@ export const approveEscrow = async (
     }
 
     const txId = await signAndSendTransactions(signTransactions, [txn], sender);
+    if (!txId) throw new Error('Operation cancelled by user');
 
     // ── FIXED: 'approve' in TEAL atomically pays the freelancer via inner tx ──
     // Mark milestone 'paid' immediately after the on-chain tx confirms.
@@ -310,5 +365,7 @@ export const refundEscrow = async (
         suggestedParams: params,
     });
 
-    return signAndSendTransactions(signTransactions, [txn], sender);
+    const txId = await signAndSendTransactions(signTransactions, [txn], sender);
+    if (!txId) throw new Error('Operation cancelled by user');
+    return txId;
 };

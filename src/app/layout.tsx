@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletProvider } from "@/components/providers/WalletProvider";
 import ClientOnly from "@/components/ClientOnly";
+import WalletErrorBoundary from "@/components/WalletErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,9 @@ export default function RootLayout({
       >
         <ClientOnly>
           <WalletProvider>
-            {children}
+            <WalletErrorBoundary>
+              {children}
+            </WalletErrorBoundary>
           </WalletProvider>
         </ClientOnly>
       </body>

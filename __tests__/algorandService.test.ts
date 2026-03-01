@@ -103,7 +103,10 @@ describe('approveEscrow', () => {
             sender,
             appId,
             milestoneId,
-            freelancer
+            freelancer,
+            'escrow-123',
+            3,
+            0
         );
 
         expect(txId).toBe('mock-tx-id');
@@ -116,7 +119,10 @@ describe('approveEscrow', () => {
             sender,
             appId,
             milestoneId,
-            'INVALID_ADDRESS'
+            'INVALID_ADDRESS',
+            'escrow-123',
+            3,
+            0
         )).rejects.toThrow('Invalid freelancer address');
     });
 
@@ -136,7 +142,10 @@ describe('approveEscrow', () => {
             sender,
             appId,
             milestoneId,
-            freelancer
+            freelancer,
+            'escrow-123',
+            3,
+            0
         )).rejects.toThrow("Smart Contract Assertion Failed: 'NumAccounts > 1'");
     });
 });

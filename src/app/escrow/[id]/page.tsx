@@ -16,7 +16,7 @@ import {
     Check, RotateCcw
 } from "lucide-react";
 import { approveEscrow, deployContract, fundEscrow, refundEscrow } from "@/lib/algorandService";
-import { algodClient } from "@/lib/algorand";
+import { algodClient, compileProgram } from "@/lib/algorand";
 
 export const dynamic = 'force-dynamic';
 
@@ -196,7 +196,7 @@ export default function EscrowDetail() {
     const submitWork = async (milestoneId: string) => {
         if (isBanned) { toast('Your wallet has been suspended.', 'error'); return; }
         try {
-            await updateDoc(doc(db, 'milestones', milestoneId), { submitted_at: serverTimestamp() });
+            await updateDoc(doc(db, 'milestones', milestoneId), { status: 'submitted', submitted_at: serverTimestamp() });
             toast('Work marked as completed — awaiting client approval.', 'success');
         } catch (err: any) {
             console.error('submitWork:', err);
@@ -207,66 +207,125 @@ export default function EscrowDetail() {
     /* ── Approve milestone ── */
     const approveMilestone = async (milestoneId: string) => {
         if (isBanned) { toast('Your wallet has been suspended.', 'error'); return; }
-        if (!address || !signTransactions || !project?.contract_address) {
+        if (!address || !signTransactions || (!project?.app_id && !project?.contract_address)) {
             toast('Wallet not connected or contract not deployed.', 'error'); return;
         }
+
         try {
             setApprovingMilestone(milestoneId);
-            const appId = parseInt(project.contract_address, 10);
-            if (isNaN(appId)) { toast('Invalid contract address.', 'error'); return; }
 
             const paidCount = milestones.filter(m => m.status === 'paid').length;
             const txId = await approveEscrow(
-                signTransactions, address, appId, milestoneId,
-                project.freelancer_wallet, id as string,
-                milestones.length, paidCount
+                signTransactions,
+                address,
+                Number(project.app_id || project.contract_address),
+                milestoneId,
+                project.freelancer_wallet || project.freelancer_address,
+                id as string,
+                Number(project.milestones_total || milestones.length),
+                paidCount
             );
+
             toast('Payment released to freelancer!', 'success', txId);
             setConfetti(true);
             setTimeout(() => setConfetti(false), 3500);
         } catch (err: any) {
             console.error('approveMilestone:', err);
+
+            if (err.name === 'WalletDisconnectedError') {
+                throw err;
+            }
+
             toast('Failed: ' + (err.message || 'Unknown error'), 'error');
-        } finally { setApprovingMilestone(null); }
+        } finally {
+            setApprovingMilestone(null);
+        }
     };
 
     /* ── Deploy contract ── */
     const deployContractHandler = async () => {
-        if (isBanned) { toast('Your wallet has been suspended.', 'error'); return; }
-        if (!address || !signTransactions || !project || !id) { toast('Connect your wallet first.', 'error'); return; }
         try {
             setDeployingContract(true);
+            if (isBanned) { toast('Your wallet has been suspended.', 'error'); return; }
+            if (!address || !signTransactions || !project || !id) { toast('Connect your wallet first.', 'error'); return; }
+
             const [ar, cr] = await Promise.all([fetch('/teal/escrow_approval.teal'), fetch('/teal/escrow_clear.teal')]);
             if (!ar.ok || !cr.ok) throw new Error('TEAL files not found in /public/teal/');
             const [aText, cText] = await Promise.all([ar.text(), cr.text()]);
-            const [ca, cc] = await Promise.all([algodClient.compile(aText).do(), algodClient.compile(cText).do()]);
-            const aBc = new Uint8Array(Buffer.from(ca.result, 'base64'));
-            const cBc = new Uint8Array(Buffer.from(cc.result, 'base64'));
+
+            // Use compileProgram which properly converts the text to Uint8Array before sending to Algonode to prevent fetch errors
+            const [aBc, cBc] = await Promise.all([
+                compileProgram(aText),
+                compileProgram(cText)
+            ]);
+
             const n = milestones.length;
             const { appId, appAddress } = await deployContract(signTransactions, address, project.freelancer_wallet, n, Math.floor(project.total_amount / n * 1_000_000), aBc, cBc);
             await fundEscrow(signTransactions, address, appAddress, project.total_amount * 1_000_000 + 150_000);
-            await updateDoc(doc(db, 'escrows', id as string), { contract_address: appId.toString(), app_id: appId, app_address: appAddress, status: 'funded' });
+
+            if (!appId || Number(appId) === 0) {
+                throw new Error('deployContract returned invalid appId: ' + appId);
+            }
+
+            // Immediate local state update for instant UI response before Firestore listener catches up
+            setProject((prev: any) => prev ? ({
+                ...prev,
+                app_id: Number(appId),
+                app_address: String(appAddress),
+                status: 'funded',
+                contract_address: String(appId)
+            }) : prev);
+
+            await updateDoc(doc(db, 'escrows', id as string), {
+                contract_address: String(appId), // Kept for backwards compatibility with any remaining references
+                app_id: Number(appId),           // force Number — never string, never 0, never undefined
+                app_address: String(appAddress),
+                status: 'funded',
+                deployed_at: serverTimestamp(),
+            });
             toast('Contract deployed & funded!', 'success');
         } catch (err: any) {
+            if (
+                err?.message?.includes('Operation cancelled') ||
+                err?.message?.includes('User Rejected Request') ||
+                err?.message?.includes('user rejected')
+            ) {
+                return; // User intentionally cancelled; fail silently
+            }
+
             console.error('deploy:', err);
             toast('Deploy failed: ' + err.message, 'error');
-        } finally { setDeployingContract(false); }
+        } finally {
+            setDeployingContract(false);
+        }
     };
 
     /* ── Refund ── */
     const handleRefund = async () => {
         setShowRefundModal(false);
-        if (!address || !signTransactions || !project?.contract_address) { toast('Cannot refund — no contract.', 'error'); return; }
+        if (!address || !signTransactions || (!project?.app_id && !project?.contract_address)) { toast('Cannot refund — no contract.', 'error'); return; }
+
         try {
             setRefunding(true);
-            const appId = parseInt(project.contract_address, 10);
-            await refundEscrow(signTransactions, address, appId);
+            await refundEscrow(
+                signTransactions,
+                address,
+                Number(project.app_id || project.contract_address)
+            );
+
             await updateDoc(doc(db, 'escrows', id as string), { status: 'refunded', refunded_at: serverTimestamp() });
             toast('Escrow refunded successfully.', 'success');
         } catch (err: any) {
             console.error('refund:', err);
+
+            if (err.name === 'WalletDisconnectedError') {
+                throw err;
+            }
+
             toast('Refund failed: ' + err.message, 'error');
-        } finally { setRefunding(false); }
+        } finally {
+            setRefunding(false);
+        }
     };
 
     /* ── Report ── */
@@ -300,13 +359,22 @@ export default function EscrowDetail() {
         </div>
     );
 
-    const isClient = address === project.client_wallet;
-    const isFreelancer = address === project.freelancer_wallet;
-    const hasContract = !!(project.contract_address && project.contract_address !== 'Not Deployed');
-    const canRefund = isClient && !isAdminSession && hasContract && project.status !== 'refunded' && project.status !== 'completed';
-    const paidCount = milestones.filter(m => m.status === 'paid').length;
+    /* ── Derived state for UI ── */
+    const ms = milestones || [];
+    const hasContract = !!(project?.app_id && Number(project.app_id) > 0);
+    const isClient = address === project?.client_wallet || address === project?.client_address;
+    const isFreelancer = address === project?.freelancer_wallet || address === project?.freelancer_address;
+    const paidCount = ms.filter(m => m.status === 'paid').length;
+    const currentMilestone = ms.find(m => m.status === 'pending' || m.status === 'submitted');
     const canReport = isFreelancer && milestones.some(m => m.submitted_at && m.status === 'pending');
-    const ms = milestones;
+
+    // Client-only buttons
+    const showDeploy = !hasContract && isClient;
+    const showApprove = hasContract && isClient && currentMilestone?.status === 'submitted';
+    const showRefund = hasContract && isClient && project?.status !== 'completed';
+
+    // Freelancer-only button  
+    const showSubmit = hasContract && isFreelancer && currentMilestone?.status === 'pending';
 
     return (
         <div style={{ minHeight: '100vh', background: '#020617', position: 'relative', overflow: 'hidden', paddingBottom: 100 }}>
@@ -389,7 +457,7 @@ export default function EscrowDetail() {
                     </div>
 
                     {/* Deploy button */}
-                    {project.status === 'funded' && isClient && !isAdminSession && !hasContract && (
+                    {showDeploy && (
                         <button
                             onClick={deployContractHandler}
                             disabled={deployingContract || isBanned}
@@ -399,12 +467,23 @@ export default function EscrowDetail() {
                         </button>
                     )}
 
+                    {/* Freelancer Submit Work button */}
+                    {showSubmit && currentMilestone && (
+                        <button
+                            onClick={() => submitWork(currentMilestone.id)}
+                            className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-all hover:scale-105"
+                            style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(37,99,235,.3)' }}
+                        >
+                            ✅ Submit Work for Review
+                        </button>
+                    )}
+
                     {/* Refund button */}
-                    {canRefund && (
+                    {showRefund && (
                         <button
                             onClick={() => setShowRefundModal(true)}
                             disabled={refunding || isBanned}
-                            style={{ marginTop: 16, marginLeft: hasContract ? 12 : 0, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', borderRadius: 14, background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.2)', color: '#fb923c', fontWeight: 700, cursor: 'pointer', fontSize: '.875rem', opacity: (refunding || isBanned) ? .5 : 1 }}
+                            style={{ marginTop: 16, marginLeft: showDeploy || showSubmit ? 12 : 0, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', borderRadius: 14, background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.2)', color: '#fb923c', fontWeight: 700, cursor: 'pointer', fontSize: '.875rem', opacity: (refunding || isBanned) ? .5 : 1 }}
                         >
                             <RotateCcw size={16} /> {refunding ? 'Refunding…' : 'Request Refund'}
                         </button>
@@ -439,13 +518,13 @@ export default function EscrowDetail() {
                                     {/* Action buttons */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                         {/* Client approve */}
-                                        {m.status === 'pending' && isClient && m.submitted_at && !isAdminSession && hasContract && (
+                                        {showApprove && currentMilestone?.id === m.id && (
                                             <button
-                                                disabled={isBanned || approvingMilestone === m.id}
-                                                onClick={() => approveMilestone(m.id)}
-                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,rgba(99,102,241,.8),rgba(236,72,153,.7))', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '.82rem', opacity: (isBanned || approvingMilestone === m.id) ? .5 : 1, boxShadow: '0 4px 16px rgba(99,102,241,.25)' }}
+                                                disabled={isBanned || approvingMilestone === currentMilestone.id}
+                                                onClick={() => approveMilestone(currentMilestone.id)}
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,rgba(99,102,241,.8),rgba(236,72,153,.7))', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '.82rem', opacity: (isBanned || approvingMilestone === currentMilestone.id) ? .5 : 1, boxShadow: '0 4px 16px rgba(99,102,241,.25)' }}
                                             >
-                                                {approvingMilestone === m.id ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</> : <>Approve & Release <ArrowRight size={14} /></>}
+                                                {approvingMilestone === currentMilestone.id ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</> : <>Approve & Release <ArrowRight size={14} /></>}
                                             </button>
                                         )}
                                         {/* Client awaiting */}
@@ -455,13 +534,13 @@ export default function EscrowDetail() {
                                             </div>
                                         )}
                                         {/* No contract */}
-                                        {m.status === 'pending' && isClient && m.submitted_at && !hasContract && (
+                                        {m.status === 'submitted' && isClient && !hasContract && (
                                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, border: '1px solid rgba(71,85,105,.3)', color: '#475569', fontSize: '.78rem', fontWeight: 600 }}>
                                                 <Clock size={13} /> Deploy Contract First
                                             </div>
                                         )}
                                         {/* Freelancer submit */}
-                                        {m.status === 'pending' && isFreelancer && !m.submitted_at && !isAdminSession && (
+                                        {showSubmit && currentMilestone?.id === m.id && !isAdminSession && (
                                             <button
                                                 disabled={isBanned}
                                                 onClick={() => submitWork(m.id)}
@@ -471,7 +550,7 @@ export default function EscrowDetail() {
                                             </button>
                                         )}
                                         {/* Freelancer waiting */}
-                                        {m.status === 'pending' && isFreelancer && m.submitted_at && (
+                                        {m.status === 'submitted' && isFreelancer && (
                                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, background: 'rgba(249,115,22,.06)', border: '1px solid rgba(249,115,22,.2)', color: '#fb923c', fontSize: '.78rem', fontWeight: 600 }}>
                                                 <Clock size={13} /> Awaiting Approval
                                             </div>

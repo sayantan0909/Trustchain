@@ -1,0 +1,6 @@
+__tests__/algorandService.test.ts(101,28): error TS2554: Expected 8 arguments, but got 5.
+__tests__/algorandService.test.ts(114,22): error TS2554: Expected 8 arguments, but got 5.
+__tests__/algorandService.test.ts(134,22): error TS2554: Expected 8 arguments, but got 5.
+src/lib/algorandService.ts(81,28): error TS2322: Type 'SignedTransaction' is not assignable to type 'EncodedSignedTransaction'.
+  Types of property 'txn' are incompatible.
+    Type 'Transaction' is missing the following properties from type 'EncodedTransaction': lv, snd, gen, gh

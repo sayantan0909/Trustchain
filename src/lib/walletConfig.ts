@@ -40,11 +40,25 @@ const supportedWallets: SupportedWallet[] = [
 
 // ─── WalletManager Singleton ──────────────────────────────────────────────────
 // Create once at module level so that it is shared across the entire app.
-export const walletManager = new WalletManager({
-    wallets: supportedWallets,
-    network: ACTIVE_NETWORK,
-    algod: ALGOD_CONFIG[ACTIVE_NETWORK],
-});
+// We must lazy-initialize this so it doesn't crash Next.js during SSR 
+// because WalletManager relies on browser APIs (window, localStorage).
+
+let _walletManager: WalletManager | null = null;
+
+export function getWalletManager(): WalletManager {
+    if (!_walletManager) {
+        _walletManager = new WalletManager({
+            wallets: supportedWallets,
+            network: ACTIVE_NETWORK,
+            algod: ALGOD_CONFIG[ACTIVE_NETWORK],
+        });
+    }
+    return _walletManager;
+}
+
+// Keep the same export name for backwards compatibility with existing imports.
+// During SSR, this will be null, but ClientOnly components can use it safely.
+export const walletManager = typeof window !== 'undefined' ? getWalletManager() : (null as unknown as WalletManager);
 
 // ─── Wallet Metadata ──────────────────────────────────────────────────────────
 export const WALLET_METADATA: Record<string, { name: string; logo: string; description: string; accent: string }> = {
