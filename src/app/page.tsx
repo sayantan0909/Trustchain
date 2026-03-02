@@ -12,6 +12,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import PixelBlast from "@/components/ui/PixelBlast";
+
 const GridScan = dynamic(() => import("@/components/GridScan").then(mod => mod.GridScan), { ssr: false });
 
 /* ═══════════════════════════════════════════════
@@ -190,6 +192,24 @@ export default function Home() {
         {/* ── Layer 1: Aurora beams (full-bleed) ── */}
         <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
           <AuroraCanvas />
+        </div>
+
+        {/* ── Layer 1.5: Pixel Blast (Interactive Background) ── */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1.5, opacity: 0.3 }}>
+          <PixelBlast
+            variant="square"
+            pixelSize={3}
+            color="#5227FF"
+            patternScale={2.5}
+            patternDensity={0.4}
+            liquid={true}
+            liquidStrength={0.03}
+            enableRipples={true}
+            rippleIntensityScale={0.4}
+            transparent={true}
+            edgeFade={0.5}
+            speed={0.4}
+          />
         </div>
 
         {/* ── Layer 2: Micro particles ── */}

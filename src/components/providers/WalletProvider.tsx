@@ -253,6 +253,8 @@ const WALLET_UI: Record<string, { name: string; logo: string; accent: string; ta
     },
 };
 
+import ElectricBorder from '@/components/ui/ElectricBorder';
+
 function WalletSelectModal({ wallets, onClose }: WalletSelectModalProps) {
     const [connecting, setConnecting] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -300,7 +302,7 @@ function WalletSelectModal({ wallets, onClose }: WalletSelectModalProps) {
                 </div>
 
                 {/* Wallet List */}
-                <div className="px-6 py-6 space-y-3">
+                <div className="px-6 py-6 space-y-4">
                     {wallets.map((wallet) => {
                         const ui = WALLET_UI[wallet.id] ?? {
                             name: wallet.metadata?.name ?? wallet.id,
@@ -311,62 +313,68 @@ function WalletSelectModal({ wallets, onClose }: WalletSelectModalProps) {
                         const isLoading = connecting === wallet.id;
 
                         return (
-                            <button
+                            <ElectricBorder
                                 key={wallet.id}
-                                id={`wallet-connect-${wallet.id}`}
-                                onClick={() => handleConnect(wallet)}
-                                disabled={!!connecting}
-                                className="w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 group disabled:opacity-60 disabled:cursor-not-allowed"
-                                style={{
-                                    background: 'rgba(255,255,255,0.03)',
-                                    borderColor: 'rgba(255,255,255,0.08)',
-                                }}
-                                onMouseEnter={e => {
-                                    (e.currentTarget as HTMLElement).style.background = `${ui.accent}15`;
-                                    (e.currentTarget as HTMLElement).style.borderColor = `${ui.accent}40`;
-                                }}
-                                onMouseLeave={e => {
-                                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)';
-                                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
-                                }}
+                                color={ui.accent}
+                                borderRadius={16}
+                                speed={0.4}
+                                chaos={0.06}
+                                className="w-full"
                             >
-                                {/* Logo */}
-                                <div
-                                    className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden shrink-0"
-                                    style={{ background: `${ui.accent}20` }}
+                                <button
+                                    id={`wallet-connect-${wallet.id}`}
+                                    onClick={() => handleConnect(wallet)}
+                                    disabled={!!connecting}
+                                    className="w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition-all duration-200 group disabled:opacity-60 disabled:cursor-not-allowed"
+                                    style={{
+                                        background: 'rgba(255,255,255,0.03)',
+                                    }}
+                                    onMouseEnter={e => {
+                                        (e.currentTarget as HTMLElement).style.background = `${ui.accent}15`;
+                                    }}
+                                    onMouseLeave={e => {
+                                        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)';
+                                    }}
                                 >
-                                    {ui.logo ? (
-                                        <img src={ui.logo} alt={ui.name} width={32} height={32} />
-                                    ) : (
-                                        <span className="text-xl font-bold" style={{ color: ui.accent }}>
-                                            {ui.name[0]}
-                                        </span>
-                                    )}
-                                </div>
+                                    {/* Logo */}
+                                    <div
+                                        className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden shrink-0"
+                                        style={{ background: `${ui.accent}20` }}
+                                    >
+                                        {ui.logo ? (
+                                            <img src={ui.logo} alt={ui.name} width={32} height={32} />
+                                        ) : (
+                                            <span className="text-xl font-bold" style={{ color: ui.accent }}>
+                                                {ui.name[0]}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                {/* Labels */}
-                                <div className="flex-1 text-left">
-                                    <p className="font-bold text-white text-base">{ui.name}</p>
-                                    <p className="text-slate-400 text-xs mt-0.5">{ui.tagline}</p>
-                                </div>
+                                    {/* Labels */}
+                                    <div className="flex-1 text-left">
+                                        <p className="font-bold text-white text-base">{ui.name}</p>
+                                        <p className="text-slate-400 text-xs mt-0.5">{ui.tagline}</p>
+                                    </div>
 
-                                {/* Status / Arrow */}
-                                <div className="shrink-0">
-                                    {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                        <svg
-                                            width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                            className="text-slate-600 group-hover:text-white transition-colors"
-                                        >
-                                            <path d="M7 10h6M10 7l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    )}
-                                </div>
-                            </button>
+                                    {/* Status / Arrow */}
+                                    <div className="shrink-0">
+                                        {isLoading ? (
+                                            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                        ) : (
+                                            <svg
+                                                width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                                className="text-slate-600 group-hover:text-white transition-colors"
+                                            >
+                                                <path d="M7 10h6M10 7l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        )}
+                                    </div>
+                                </button>
+                            </ElectricBorder>
                         );
                     })}
                 </div>
+
 
                 {/* Error */}
                 {error && (
