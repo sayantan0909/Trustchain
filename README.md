@@ -1,26 +1,80 @@
+# Trustchain
 
-## Troubleshooting: Smart Contract Assertion Failure (pc=165)
+![Trustchain](https://trustchain-lilac.vercel.app/og-image.png) <!-- Update with an actual image if you have one -->
 
-If you encounter a `logic eval error: assert failed pc=165` (or similar) during escrow approval, it indicates that the transaction preconditions are not met.
+> **Live Demo:** [https://trustchain-lilac.vercel.app](https://trustchain-lilac.vercel.app)
 
-### Root Cause
-- **PC=165**: Corresponds to `Assert(Txn.accounts.length() > Int(1))` (or equivalent check depending on compilation). This assertion ensures that the Freelancer's address is included in the `accounts` array of the application call transaction.
-- **Why it fails**: If the `freelancer_wallet` address is missing, invalid, or not passed correctly in the client-side code, the `accounts` array will be empty (or contain only sender if misinterpreted), causing the check to fail.
-- **Other Assertions**: 
-  - `Sender == Client`: Fails if someone other than the client tries to approve.
-  - `Milestones Completed < Total`: Fails if all milestones are already paid out.
+Trustchain is a secure, decentralized escrow platform built on the **Algorand** blockchain. It bridges the gap of trust between freelancers and clients by utilizing smart contracts to hold funds and release them based on mutually approved milestones.
 
-### Fix & Validation
-We have implemented robust validation and simulation steps in the client-side code:
-1. **Pre-Flight Simulation**: Before signing, the transaction is simulated against the Algorand node using `algodClient.simulate` (or dryrun). Any logic errors are caught early with detailed messages.
-2. **State Validation**: The app fetches the current global state of the contract to verify that:
-   - The sender matches the stored client address.
-   - There are remaining milestones to be approved.
-3. **Address Validation**: The freelancer address is validated before constructing the transaction.
+## 🌟 Key Features
 
-### Running Tests
-To verify the fixes, run the unit tests:
+- **Decentralized Escrow:** Funds are securely locked in an Algorand smart contract until milestones are approved.
+- **Two-Wallet Flow:** Distinct dashboard and actions for **Clients** (who deploy and fund the escrow) and **Freelancers** (who submit work and receive funds).
+- **Milestone-Based Payments:** Break down large projects into manageable milestones. Clients approve work and release funds incrementally.
+- **Wallet Integration:** Seamless connection with Pera Wallet, Defly Wallet, and more via `@txnlab/use-wallet-react`.
+- **Modern UI/UX:** A stunning, responsive interface built with Tailwind CSS, Framer Motion, and Three.js for interactive landing page animations.
+
+## 🛠️ Tech Stack
+
+- **Frontend Framework:** [Next.js](https://nextjs.org/) (React 19)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/) & [Three.js](https://threejs.org/)
+- **Blockchain SDK:** `algosdk` & `@txnlab/use-wallet-react`
+- **Backend / Database:** Firebase
+- **Testing:** Jest
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/trustchain.git
+   cd trustchain
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables. Create a `.env.local` file in the root directory and add the necessary Firebase and Algorand keys:
+   ```env
+   # Add your Firebase Config
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   
+   # Add Algorand Node Config (Testnet/Mainnet)
+   # ...
+   ```
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 🧪 Testing
+
+To run the unit tests (requires `jest` and mocking of `algosdk`):
 ```bash
 npm test
 ```
-(Note: Tests require `jest` and mocking of `algosdk`. If you encounter setup issues, ensure you have the dev dependencies installed.)
+
+## 🐛 Troubleshooting
+
+### Smart Contract Assertion Failure (pc=165)
+If you encounter a `logic eval error: assert failed pc=165` during escrow approval, it indicates the transaction preconditions are not met:
+- **Missing Freelancer Address:** Ensure the `freelancer_wallet` address is correctly populated in the `accounts` array of the application call transaction.
+- **Invalid Sender:** Only the designated **Client** can approve the milestone `(Sender == Client)`.
+
+## 📄 License
+
+This project is licensed under the MIT License.
