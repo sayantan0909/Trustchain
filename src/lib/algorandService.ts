@@ -158,7 +158,7 @@ export const simulateTransaction = async (
 export const getApplicationGlobalState = async (appId: number) => {
     const appInfo = await algodClient.getApplicationByID(appId).do();
     // algosdk v3: ApplicationParams.globalState (camelCase, TealKeyValue[])
-    const globalState = appInfo.params.globalState ?? [];
+    const globalState = appInfo.params?.globalState ?? [];
 
     const state: Record<string, any> = {};
     for (const kv of globalState) {
@@ -203,7 +203,7 @@ export const deployContract = async (
     ];
 
     const txn = algosdk.makeApplicationCreateTxnFromObject({
-        from: sender,
+        sender,
         suggestedParams: params,
         onComplete: algosdk.OnApplicationComplete.NoOpOC,
         approvalProgram,
@@ -242,8 +242,8 @@ export const fundEscrow = async (
     const params = await algodClient.getTransactionParams().do();
 
     const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: sender,
-        to: appAddress,
+        sender,
+        receiver: appAddress,
         amount: totalFundingAmount,
         suggestedParams: params,
     });
@@ -303,7 +303,7 @@ export const approveEscrow = async (
     if (isNaN(appIndex)) throw new Error('Invalid App ID');
 
     const txn = algosdk.makeApplicationNoOpTxnFromObject({
-        from: sender,
+        sender,
         appIndex,
         appArgs: [arg],
         // TEAL asserts txn NumAccounts > 1, so we must include BOTH the client
@@ -359,7 +359,7 @@ export const refundEscrow = async (
     const arg = encoder.encode('refund');
 
     const txn = algosdk.makeApplicationNoOpTxnFromObject({
-        from: sender,
+        sender,
         appIndex: appId,
         appArgs: [arg],
         suggestedParams: params,
